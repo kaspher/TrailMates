@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "88amw57iWhwfyV6mrrLnSqMPLuqN/O3UiTAsI6LPLdyzwMkJebxnTS/5kY/f8rg1LB27MdFWxY5SaXak3KeFLw==",
+  "success": true,
+  "projectFilePath": "D:\\TrailMates\\backend\\TrailMates.Core\\TrailMates.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\kacpe\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.0-preview.3.24172.9\\microsoft.extensions.dependencyinjection.abstractions.9.0.0-preview.3.24172.9.nupkg.sha512"
+  ],
+  "logs": []
+}

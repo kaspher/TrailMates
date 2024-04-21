@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Api", "TrailMates.Api\TrailMates.Api.csproj", "{E55915A1-A188-42C6-9A21-A82069A67EC4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C5A6C7FC-804C-4E45-8592-84936D4762D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Core", "TrailMates.Core\TrailMates.Core.csproj", "{933FC691-E1BC-451E-ABE1-94562D5DDC88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Application", "TrailMates.Application\TrailMates.Application.csproj", "{2FE5F147-24EC-4E05-B4D7-35808D8D173B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Infrastructure", "TrailMates.Infrastructure\TrailMates.Infrastructure.csproj", "{088C5F68-7968-491B-8FB4-3FF254CDC259}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E55915A1-A188-42C6-9A21-A82069A67EC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E55915A1-A188-42C6-9A21-A82069A67EC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E55915A1-A188-42C6-9A21-A82069A67EC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E55915A1-A188-42C6-9A21-A82069A67EC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933FC691-E1BC-451E-ABE1-94562D5DDC88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933FC691-E1BC-451E-ABE1-94562D5DDC88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933FC691-E1BC-451E-ABE1-94562D5DDC88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933FC691-E1BC-451E-ABE1-94562D5DDC88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FE5F147-24EC-4E05-B4D7-35808D8D173B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FE5F147-24EC-4E05-B4D7-35808D8D173B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FE5F147-24EC-4E05-B4D7-35808D8D173B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FE5F147-24EC-4E05-B4D7-35808D8D173B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{088C5F68-7968-491B-8FB4-3FF254CDC259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{088C5F68-7968-491B-8FB4-3FF254CDC259}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{088C5F68-7968-491B-8FB4-3FF254CDC259}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{088C5F68-7968-491B-8FB4-3FF254CDC259}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E55915A1-A188-42C6-9A21-A82069A67EC4} = {C5A6C7FC-804C-4E45-8592-84936D4762D8}
+		{933FC691-E1BC-451E-ABE1-94562D5DDC88} = {C5A6C7FC-804C-4E45-8592-84936D4762D8}
+		{2FE5F147-24EC-4E05-B4D7-35808D8D173B} = {C5A6C7FC-804C-4E45-8592-84936D4762D8}
+		{088C5F68-7968-491B-8FB4-3FF254CDC259} = {C5A6C7FC-804C-4E45-8592-84936D4762D8}
+	EndGlobalSection
+EndGlobal

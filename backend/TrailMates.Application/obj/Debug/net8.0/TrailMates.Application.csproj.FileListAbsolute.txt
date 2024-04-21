@@ -1,0 +1,13 @@
+D:\TrailMates\backend\TrailMates.Application\bin\Debug\net8.0\TrailMates.Application.deps.json
+D:\TrailMates\backend\TrailMates.Application\bin\Debug\net8.0\TrailMates.Application.dll
+D:\TrailMates\backend\TrailMates.Application\bin\Debug\net8.0\TrailMates.Application.pdb
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.csproj.AssemblyReference.cache
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.AssemblyInfoInputs.cache
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.AssemblyInfo.cs
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.csproj.CoreCompileInputs.cache
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.sourcelink.json
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.dll
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\refint\TrailMates.Application.dll
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\TrailMates.Application.pdb
+D:\TrailMates\backend\TrailMates.Application\obj\Debug\net8.0\ref\TrailMates.Application.dll
