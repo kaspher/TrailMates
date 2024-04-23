@@ -34,6 +34,4 @@ internal sealed class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger) :
     }
 
     private record Error(string Code, string Reason);
-    
-    
 }

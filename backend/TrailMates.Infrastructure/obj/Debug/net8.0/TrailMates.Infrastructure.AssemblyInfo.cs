@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TrailMates.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+239b7b01e6b5c7df47240884cca4c5f899652cb3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+799a0c28bb3cf394a9b03e7bd34b6fafe1898bd2")]
 [assembly: System.Reflection.AssemblyProductAttribute("TrailMates.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TrailMates.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

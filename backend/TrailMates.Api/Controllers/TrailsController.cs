@@ -2,6 +2,7 @@
 using Swashbuckle.AspNetCore.Annotations;
 using TrailMates.Application.Abstractions;
 using TrailMates.Application.DTO;
+using TrailMates.Application.Features.Trails.Queries.GetTrails;
 using TrailMates.Application.Queries;
 
 namespace TrailMates.Api.Controllers;

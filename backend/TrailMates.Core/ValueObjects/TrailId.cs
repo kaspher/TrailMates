@@ -6,7 +6,7 @@ public sealed record TrailId
 {
    public Guid Value { get; }
 
-   public TrailId(Guid value)
+   private TrailId(Guid value)
    {
       if (value == Guid.Empty)
          throw new InvalidEntityIdException(value);
