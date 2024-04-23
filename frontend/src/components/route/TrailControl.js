@@ -1,33 +1,38 @@
 import { useEffect } from 'react';
-import {  useMap } from 'react-leaflet';
+import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 
-const TrailControl = ({ coordinates }) => {
+const TrailControl = ({ trails }) => {
     const map = useMap();
 
     useEffect(() => {
-        let routingControl = null;
+        const routingControls = [];
 
-        if (!map || coordinates.length < 2) return;
+        if (!map || Object.keys(trails).length === 0) return;
 
-        routingControl = new L.Routing.control({
-            waypoints: coordinates.map(coordinate => L.latLng(coordinate.latitude, coordinate.longitude)),
-            routeWhileDragging: true,
-            show: false,
-            addWaypoints: false,
-            draggableWaypoints: false,
-            fitSelectedRoutes: true,
-            lineOptions: {
-                styles: [{ color: '#9c2458', weight: 4 }]
-            },
-        }).addTo(map);
+        Object.entries(trails).forEach(([trailId, coordinates]) => {
+            if (coordinates.length < 2) return;
+
+            const waypoints = coordinates.map(coord => L.latLng(coord.latitude, coord.longitude));
+            const routingControl = L.Routing.control({
+                waypoints,
+                routeWhileDragging: true,
+                show: false,
+                addWaypoints: false,
+                draggableWaypoints: false,
+                fitSelectedRoutes: false,
+                lineOptions: {
+                    styles: [{ color: '#9c2458', weight: 4 }]
+                },
+            }).addTo(map);
+            routingControls.push(routingControl);
+        });
 
         return () => {
-            if (routingControl)
-                map.removeLayer(routingControl);
+            routingControls.forEach(control => control && map.removeLayer(control));
         };
-    }, [map, coordinates]);
+    }, [map, trails]);
 
     return null;
 };
