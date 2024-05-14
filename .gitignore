@@ -24,12 +24,9 @@ fabric.properties
 #dotSettings
 *.DotSettings.user
 
-/build/
 *.suo
 *.user
-_ReSharper.*/
-*.sdf
-bin/
-obj/
-Debug/
-Release/
+_ReSharper.*
+[Bb]in/
+[Oo]bj/
+packages

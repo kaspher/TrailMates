@@ -1,14 +1,12 @@
 import React from 'react';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { MapContainer } from 'react-leaflet';
 import TrailControl from './TrailControl';
+import Title from "../layers/Title";
 
 const DynamicTrailMap = ({ center, zoom, trails }) => {
     return (
-        <MapContainer center={center} zoom={zoom} style={{ height: '100vh', width: '100%' }}>
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+        <MapContainer center={center} zoom={zoom} style={{ height: '90vh', width: '100%' }}>
+            <Title />
             <TrailControl trails={trails} />
         </MapContainer>
     );
