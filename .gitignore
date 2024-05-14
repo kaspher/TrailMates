@@ -24,9 +24,16 @@ fabric.properties
 #dotSettings
 *.DotSettings.user
 
-*.suo
-*.user
-_ReSharper.*
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
 [Bb]in/
 [Oo]bj/
-packages
+msbuild.log
+msbuild.err
+msbuild.wrn

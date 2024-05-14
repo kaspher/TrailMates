@@ -1,7 +1,7 @@
 ﻿using TrailMates.Application.Abstractions;
 using TrailMates.Application.DTO;
 
-namespace TrailMates.Application.Queries;
+namespace TrailMates.Application.Features.Trails.Queries.GetTrail;
 
 public class GetTrail : IQuery<TrailDto>
 {
