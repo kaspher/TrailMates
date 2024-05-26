@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import DynamicTrailMap from "./DynamicTrailMap";
+import Map from './Map';
 
-const RouteMap = () => {
+const TrailsMap = () => {
     const [trails, setTrails] = useState({});
 
     useEffect(() => {
@@ -13,13 +13,13 @@ const RouteMap = () => {
                     return acc;
                 }, {}));
             })
-            .catch(err => console.error('Error fetching trail data:', err));
+            .catch(() => console.error('Error fetching trails data'));
     }, []);
 
     const centerPosition = { lat: 52.0693, lng: 19.4803 };
     const zoomLevel = 7;
 
-    return <DynamicTrailMap center={centerPosition} zoom={zoomLevel} trails={trails} />;
+    return <Map center={centerPosition} zoom={zoomLevel} trails={trails} />;
 };
 
-export default RouteMap;
+export default TrailsMap;

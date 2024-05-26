@@ -1,7 +1,11 @@
 import React from 'react';
-import RouteMap from "./components/route/RouteMap";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import Home from "./components/pages/Home";
+import NoPage from "./components/pages/NoPage";
+import Trails from "./components/pages/Trails";
+import Layout from "./components/pages/Layout";
 
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
@@ -12,10 +16,15 @@ Icon.Default.mergeOptions({
 
 function App() {
   return (
-      <div className="App">
-          <h1>TrailMates - mapa tras</h1>
-          <RouteMap />
-      </div>
+      <BrowserRouter>
+          <Routes>
+              <Route path="/" element={<Layout />} >
+                  <Route index element={<Home />} />
+                  <Route path="trails" element={<Trails />} />
+                  <Route path="*" element={<NoPage />} />
+              </Route>
+          </Routes>
+      </BrowserRouter>
   );
 }
 
