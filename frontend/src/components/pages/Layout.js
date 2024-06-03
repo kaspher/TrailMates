@@ -11,6 +11,9 @@ const Layout = () => {
                     <li>
                         <Link to="/trails">Mapa tras</Link>
                     </li>
+                    <li>
+                        <Link to="/activities">Aktywności</Link>
+                    </li>
                 </ul>
             </nav>
             <Outlet />

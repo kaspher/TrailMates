@@ -6,6 +6,7 @@ import Home from "./components/pages/Home";
 import NoPage from "./components/pages/NoPage";
 import Trails from "./components/pages/Trails";
 import Layout from "./components/pages/Layout";
+import Activities from "./components/pages/Activities";
 
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
@@ -22,6 +23,7 @@ function App() {
                   <Route index element={<Home />} />
                   <Route path="trails" element={<Trails />} />
                   <Route path="*" element={<NoPage />} />
+                  <Route path="activities" element={<Activities />} />
               </Route>
           </Routes>
       </BrowserRouter>
