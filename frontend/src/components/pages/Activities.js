@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import '../../styles/Activities.css';
+
 const Activities = () => {
     const [activities] = useState([
         {
@@ -32,7 +33,6 @@ const Activities = () => {
         },
     ]);
 
-
     return (
         <div className="container">
             <h1>My Activities</h1>
@@ -62,9 +62,9 @@ const Activities = () => {
                             <td>{activity.time}</td>
                             <td>{activity.distance}</td>
                             <td className="actions">
-                                <a href="#">Edit</a>
-                                <a href="#">Delete</a>
-                                <a href="#">Share</a>
+                                <a href="/#">Edit</a>
+                                <a href="/#">Delete</a>
+                                <a href="/#">Share</a>
                             </td>
                         </tr>
                     ))}
