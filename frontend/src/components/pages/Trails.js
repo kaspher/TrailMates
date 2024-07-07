@@ -1,11 +1,19 @@
-import React from "react";
-import TrailsMap from "../trails/TrailsMap";
+import React, {useEffect, useState} from "react";
+import MapWithRoutes from "../trails/MapWithRoutes";
 
 const Trails = () => {
+    const [trails, setTrails] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            const response = await fetch('https://localhost:7186/api/trails');
+            const trailsData = await response.json();
+            setTrails(trailsData);
+        })();
+    }, []);
+
     return (
-        <div>
-            <TrailsMap />
-        </div>
+        <MapWithRoutes trails={trails}/>
     );
 };
 
