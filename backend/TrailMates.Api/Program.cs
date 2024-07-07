@@ -5,20 +5,26 @@ using TrailMates.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-    .AddCore()
+builder
+    .Services.AddCore()
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
     .AddCors(options =>
     {
-        options.AddPolicy("AllowSpecificOrigin",
-            corsPolicyBuilder => corsPolicyBuilder.WithOrigins("http://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod());
+        options.AddPolicy(
+            "AllowSpecificOrigin",
+            corsPolicyBuilder =>
+                corsPolicyBuilder
+                    .WithOrigins("http://localhost:3000")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+        );
     });
 
 var app = builder.Build();
-app.UseInfrastructure();
+
+app.UseInfrastructure().UseApplication();
 app.UseCors("AllowSpecificOrigin");
 app.MapGet("api", (IOptions<AppOptions> options) => Results.Ok(options.Value.Name));
+
 app.Run();

@@ -1,5 +1,5 @@
-﻿using TrailMates.Application.Abstractions;
-using TrailMates.Application.DTO;
+﻿using TrailMates.Application.DTO;
+using TrailMates.Application.Mediator;
 
 namespace TrailMates.Application.Features.Trails.Queries.GetTrail;
 

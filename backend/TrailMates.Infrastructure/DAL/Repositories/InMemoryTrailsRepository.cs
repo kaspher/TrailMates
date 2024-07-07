@@ -1,4 +1,7 @@
-﻿using TrailMates.Core.Entities;
+﻿using System.Collections.Immutable;
+using CSharpFunctionalExtensions;
+using TrailMates.Core.Entities;
+using TrailMates.Core.Errors;
 using TrailMates.Core.Repositories;
 using TrailMates.Core.ValueObjects;
 
@@ -21,23 +24,33 @@ public sealed class InMemoryTrailsRepository : ITrailRepository
             new Coordinate(54.18165622985657, 18.5760149400919),
             new Coordinate(54.35289089813254, 18.64575827824924)
         ];
-        
-        _trails = 
+
+        _trails =
         [
             Trail.Create(Guid.Parse("00000000-0000-0000-0000-000000000001"), coordinates),
             Trail.Create(Guid.Parse("00000000-0000-0000-0000-000000000002"), coordinates2)
         ];
     }
 
-    public async Task<IEnumerable<Trail>> GetAllAsync()
+    public async Task<ImmutableList<Trail>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    )
     {
         await Task.CompletedTask;
-        return _trails;
+        return _trails.ToImmutableList();
     }
 
-    public async Task<Trail> GetByIdAsync(TrailId id)
+    public async Task<Result<Trail, Error>> GetByIdAsync(
+        TrailId id,
+        CancellationToken cancellationToken = default
+    )
     {
+        var entity = _trails.SingleOrDefault(x => x.Id == id);
         await Task.CompletedTask;
-        return _trails.SingleOrDefault(x => x.Id == id);
+        return entity is null
+            ? Result.Failure<Trail, Error>(
+                Errors.NotFound($"Trail with id: {id} has not been found")
+            )
+            : Result.Success<Trail, Error>(entity);
     }
 }
