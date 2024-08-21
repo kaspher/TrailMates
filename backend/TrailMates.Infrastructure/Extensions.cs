@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using TrailMates.Core.Repositories;
-using TrailMates.Infrastructure.DAL.Repositories;
+using TrailMates.Application.Common.Interfaces;
+using TrailMates.Infrastructure.Common.Configuration;
+using TrailMates.Infrastructure.Common.Persistence;
+using TrailMates.Infrastructure.Trails.Persistence;
+using TrailMates.Infrastructure.Users.Persistence;
 
 namespace TrailMates.Infrastructure;
 
@@ -18,16 +22,36 @@ public static class Extensions
         services.Configure<AppOptions>(configuration.GetRequiredSection("app"));
         services.AddHttpContextAccessor();
 
-        services.AddSingleton<ITrailRepository, InMemoryTrailsRepository>();
+        services.AddPostgres(configuration);
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(swagger =>
+        services.AddSwaggerGen(options =>
         {
-            swagger.EnableAnnotations();
-            swagger.SwaggerDoc("v1", new OpenApiInfo { Title = "TrailMates API", Version = "v1" });
+            options.AddSecurityDefinition(
+                "oauth2",
+                new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                }
+            );
         });
 
         return services;
+    }
+
+    private static void AddPostgres(this IServiceCollection services, IConfiguration configuration)
+    {
+        var dbSettings = new DatabaseSettings();
+        configuration.Bind(DatabaseSettings.DatabaseSettingsKey, dbSettings);
+
+        services.AddScoped<ITrailRepository, InMemoryTrailsRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        services.AddDbContext<UsersDbContext>(options =>
+            options.UseNpgsql(dbSettings.ConnectionString)
+        );
     }
 
     public static WebApplication UseInfrastructure(this WebApplication app)
@@ -37,12 +61,6 @@ public static class Extensions
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "TrailMates API V1");
             options.RoutePrefix = string.Empty;
-        });
-        app.UseReDoc(reDoc =>
-        {
-            reDoc.RoutePrefix = "docs";
-            reDoc.SpecUrl("/swagger/v1/swagger.json");
-            reDoc.DocumentTitle = "TrailMates API";
         });
 
         return app;

@@ -71,8 +71,16 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TrailMates.Application\TrailMates.Application.csproj" />
-      <ProjectReference Include="..\TrailMates.Core\TrailMates.Core.csproj" />
+      <ProjectReference Include="..\TrailMates.Domain\TrailMates.Domain.csproj" />
       <ProjectReference Include="..\TrailMates.Infrastructure\TrailMates.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
 </Project>
