@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Api", "TrailMate
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C5A6C7FC-804C-4E45-8592-84936D4762D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Core", "TrailMates.Core\TrailMates.Core.csproj", "{933FC691-E1BC-451E-ABE1-94562D5DDC88}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Domain", "TrailMates.Domain\TrailMates.Domain.csproj", "{933FC691-E1BC-451E-ABE1-94562D5DDC88}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrailMates.Application", "TrailMates.Application\TrailMates.Application.csproj", "{2FE5F147-24EC-4E05-B4D7-35808D8D173B}"
 EndProject

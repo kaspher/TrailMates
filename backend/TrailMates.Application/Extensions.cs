@@ -1,14 +1,8 @@
-﻿using System.Collections.Immutable;
-using System.Reflection;
-using CSharpFunctionalExtensions;
+﻿using System.Reflection;
 using FluentValidation;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using TrailMates.Application.Common;
-using TrailMates.Application.DTO;
-using TrailMates.Application.Features.Trails.Queries.GetTrails;
-using TrailMates.Core.Errors;
 
 namespace TrailMates.Application;
 
@@ -19,13 +13,21 @@ public static class Extensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(Extensions).Assembly);
-            cfg.AddBehavior<
-                IPipelineBehavior<GetAllTrailsQuery, Result<ImmutableList<TrailDto>, Error>>,
-                GetAllTrailsValidator
-            >();
+            RegisterUsersBehavior(cfg);
+            RegisterTrailsBehavior(cfg);
         });
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         return services;
+    }
+
+    private static void RegisterUsersBehavior(MediatRServiceConfiguration cfg)
+    {
+        // soon
+    }
+
+    private static void RegisterTrailsBehavior(MediatRServiceConfiguration cfg)
+    {
+        // e.g. cfg.AddBehavior<GetAllTrailsQuery, Result<ImmutableList<TrailDto>, Error>>();
     }
 
     public static WebApplication UseApplication(this WebApplication app)

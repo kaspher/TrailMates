@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import '../../styles/Activities.css';
+import '../../assets/css/Activities.css';
 
 const Activities = () => {
     const [activities] = useState([

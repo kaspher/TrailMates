@@ -1,13 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import '../../styles/Routes.css'
-import {fetchRoute} from "../../utils/trailsUtils";
-
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+import { fetchRoute } from "../../utils/trailsUtils";
 
 const MapWithRoutes = ({ trails }) => {
-    console.log('Mapbox Access Token:', process.env.REACT_APP_MAPBOX_ACCESS_TOKEN);
     const mapContainerRef = useRef(null);
     const [map, setMap] = useState(null);
 
@@ -63,7 +59,7 @@ const MapWithRoutes = ({ trails }) => {
 
     return (
         <div>
-            <div ref={mapContainerRef} className="map-with-routes"/>
+            <div ref={mapContainerRef} className="w-100 h-screen"/>
         </div>
     );
 };
