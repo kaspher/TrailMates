@@ -2,7 +2,7 @@
 using TrailMates.Domain.Entities.Users;
 using TrailMates.Domain.Errors;
 
-namespace TrailMates.Application.Common.Interfaces;
+namespace TrailMates.Application.Abstractions;
 
 public interface IUserRepository
 {

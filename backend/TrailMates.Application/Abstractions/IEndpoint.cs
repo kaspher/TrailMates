@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
 
-namespace TrailMates.Application.Common.Interfaces;
+namespace TrailMates.Application.Abstractions;
 
 public interface IEndpoint
 {

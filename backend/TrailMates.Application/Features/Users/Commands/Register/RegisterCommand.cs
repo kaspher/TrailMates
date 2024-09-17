@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using TrailMates.Application.Common.Interfaces;
+using TrailMates.Application.Abstractions;
+using TrailMates.Application.Abstractions.Authentication;
 using TrailMates.Application.Mediator;
 using TrailMates.Domain.Entities.Users;
 using TrailMates.Domain.Errors;
@@ -14,8 +15,10 @@ public readonly record struct RegisterCommand(
     string Password
 ) : ICommand<UnitResult<Error>>;
 
-internal sealed class RegisterCommandHandler(IUserRepository userRepository)
-    : ICommandHandler<RegisterCommand, UnitResult<Error>>
+internal sealed class RegisterCommandHandler(
+    IUserRepository userRepository,
+    IPasswordHasher passwordHasher
+) : ICommandHandler<RegisterCommand, UnitResult<Error>>
 {
     public async Task<UnitResult<Error>> Handle(
         RegisterCommand command,
@@ -37,7 +40,7 @@ internal sealed class RegisterCommandHandler(IUserRepository userRepository)
                 command.LastName,
                 command.Email,
                 command.Gender,
-                command.Password,
+                passwordHasher.Hash(command.Password),
                 ["guest"]
             )
         );

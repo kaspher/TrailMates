@@ -1,4 +1,4 @@
-﻿namespace TrailMates.Api.Authentication;
+﻿namespace TrailMates.Infrastructure.Common.Authentication;
 
 public static class AuthenticationConfiguration
 {

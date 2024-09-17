@@ -1,15 +1,18 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
-using TrailMates.Application.Common.Interfaces;
+using TrailMates.Application.Abstractions;
+using TrailMates.Application.Abstractions.Authentication;
 using TrailMates.Domain.Entities.Users;
 using TrailMates.Domain.Errors;
-using TrailMates.Infrastructure.Common.Authentication;
 using TrailMates.Infrastructure.Common.Persistence;
 
 namespace TrailMates.Infrastructure.Users.Persistence;
 
-internal sealed class UserRepository(UsersDbContext dbContext, AuthService authService)
-    : IUserRepository
+internal sealed class UserRepository(
+    UsersDbContext dbContext,
+    ITokenProvider tokenProvider,
+    IPasswordHasher passwordHasher
+) : IUserRepository
 {
     private readonly DbSet<User> _users = dbContext.Users;
 
@@ -38,13 +41,16 @@ internal sealed class UserRepository(UsersDbContext dbContext, AuthService authS
 
     public async Task<Result<string, Error>> Login(string email, string password)
     {
-        var user = await _users.FirstOrDefaultAsync(x =>
-            x.Email == email && x.Password == password
-        );
+        var user = await _users.FirstOrDefaultAsync(x => x.Email == email);
 
-        return user is null
+        if (user is null)
+            return Result.Failure<string, Error>(Errors.NotFound("Wrong email or password."));
+
+        var verified = passwordHasher.Verify(password, user.Password);
+
+        return !verified
             ? Result.Failure<string, Error>(Errors.NotFound("Wrong email or password."))
-            : authService.GenerateToken(user);
+            : tokenProvider.Create(user);
     }
 
     public async Task Add(User user)

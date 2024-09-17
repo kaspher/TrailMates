@@ -1,15 +1,16 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using TrailMates.Api.Authentication;
+using TrailMates.Application.Abstractions.Authentication;
 using TrailMates.Domain.Entities.Users;
 
 namespace TrailMates.Infrastructure.Common.Authentication;
 
-public class AuthService
+public class TokenProvider(IConfiguration configuration) : ITokenProvider
 {
-    public string GenerateToken(User user)
+    public string Create(User user)
     {
         var handler = new JwtSecurityTokenHandler();
 

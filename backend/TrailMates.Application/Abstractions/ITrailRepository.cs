@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using TrailMates.Domain.Entities.Trails;
 using TrailMates.Domain.Errors;
 
-namespace TrailMates.Application.Common.Interfaces;
+namespace TrailMates.Application.Abstractions;
 
 public interface ITrailRepository
 {

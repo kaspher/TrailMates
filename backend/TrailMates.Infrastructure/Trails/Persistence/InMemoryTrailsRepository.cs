@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using CSharpFunctionalExtensions;
-using TrailMates.Application.Common.Interfaces;
+using TrailMates.Application.Abstractions;
 using TrailMates.Domain.Entities.Trails;
 using TrailMates.Domain.Errors;
 

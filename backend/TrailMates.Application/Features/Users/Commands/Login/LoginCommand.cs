@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using TrailMates.Application.Common.Interfaces;
+using TrailMates.Application.Abstractions;
 using TrailMates.Application.Mediator;
 using TrailMates.Domain.Errors;
 

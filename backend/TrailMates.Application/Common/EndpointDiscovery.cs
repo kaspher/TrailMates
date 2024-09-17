@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Routing;
-using TrailMates.Application.Common.Interfaces;
+using TrailMates.Application.Abstractions;
 
 namespace TrailMates.Application.Common;
 

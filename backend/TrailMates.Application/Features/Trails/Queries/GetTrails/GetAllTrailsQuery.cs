@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using CSharpFunctionalExtensions;
-using TrailMates.Application.Common.Interfaces;
+using TrailMates.Application.Abstractions;
 using TrailMates.Application.DTO;
 using TrailMates.Application.Mappers;
 using TrailMates.Application.Mediator;

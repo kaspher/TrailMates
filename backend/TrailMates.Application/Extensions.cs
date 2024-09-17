@@ -13,21 +13,9 @@ public static class Extensions
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(typeof(Extensions).Assembly);
-            RegisterUsersBehavior(cfg);
-            RegisterTrailsBehavior(cfg);
         });
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         return services;
-    }
-
-    private static void RegisterUsersBehavior(MediatRServiceConfiguration cfg)
-    {
-        // soon
-    }
-
-    private static void RegisterTrailsBehavior(MediatRServiceConfiguration cfg)
-    {
-        // e.g. cfg.AddBehavior<GetAllTrailsQuery, Result<ImmutableList<TrailDto>, Error>>();
     }
 
     public static WebApplication UseApplication(this WebApplication app)
