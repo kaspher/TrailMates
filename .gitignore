@@ -38,7 +38,7 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 
-appsettings.Development.json
+appsettings.personal.json
 
 # database
 [Pp]ostgres_volume*/

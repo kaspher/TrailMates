@@ -28,7 +28,7 @@ public static class Extensions
         services.AddHttpContextAccessor();
 
         services.AddPostgres(configuration);
-        services.AddAuthenticationInternal();
+        services.AddAuthenticationInternal(configuration);
         services.AddAuthorization();
 
         services.AddEndpointsApiExplorer();
@@ -61,26 +61,26 @@ public static class Extensions
         );
     }
 
-    private static void AddAuthenticationInternal(this IServiceCollection services)
+    private static void AddAuthenticationInternal(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         services.AddTransient<ITokenProvider, TokenProvider>();
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
 
         services
-            .AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(x =>
             {
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(AuthenticationConfiguration.PrivateKey)
+                        Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)
                     ),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    ClockSkew = TimeSpan.Zero
                 };
             });
     }

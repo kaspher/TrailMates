@@ -14,7 +14,7 @@ public class TokenProvider(IConfiguration configuration) : ITokenProvider
     {
         var handler = new JwtSecurityTokenHandler();
 
-        var privateKey = Encoding.UTF8.GetBytes(AuthenticationConfiguration.PrivateKey);
+        var privateKey = Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!);
 
         var credentials = new SigningCredentials(
             new SymmetricSecurityKey(privateKey),

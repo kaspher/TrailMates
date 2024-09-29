@@ -5,6 +5,12 @@ using TrailMates.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile(
+    "appsettings.personal.json",
+    optional: false,
+    reloadOnChange: false
+);
+
 builder
     .Services.AddCore()
     .AddApplication()
