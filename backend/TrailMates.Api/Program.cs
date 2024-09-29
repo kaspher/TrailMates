@@ -1,14 +1,21 @@
-using Microsoft.Extensions.Options;
+using TrailMates.Api;
 using TrailMates.Application;
-using TrailMates.Core;
+using TrailMates.Domain;
 using TrailMates.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile(
+    "appsettings.personal.json",
+    optional: false,
+    reloadOnChange: false
+);
 
 builder
     .Services.AddCore()
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
+    .AddPresentation()
     .AddCors(options =>
     {
         options.AddPolicy(
@@ -23,8 +30,7 @@ builder
 
 var app = builder.Build();
 
-app.UseInfrastructure().UseApplication();
+app.UseInfrastructure().UseApplication().UsePresentation();
 app.UseCors("AllowSpecificOrigin");
-app.MapGet("api", (IOptions<AppOptions> options) => Results.Ok(options.Value.Name));
 
 app.Run();

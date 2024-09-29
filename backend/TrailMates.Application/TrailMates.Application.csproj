@@ -23,7 +23,7 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\TrailMates.Core\TrailMates.Core.csproj" />
+      <ProjectReference Include="..\TrailMates.Domain\TrailMates.Domain.csproj" />
     </ItemGroup>
 
 </Project>

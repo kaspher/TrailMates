@@ -1,10 +1,10 @@
 ﻿using System.Collections.Immutable;
 using CSharpFunctionalExtensions;
+using TrailMates.Application.Abstractions;
 using TrailMates.Application.DTO;
 using TrailMates.Application.Mappers;
 using TrailMates.Application.Mediator;
-using TrailMates.Core.Errors;
-using TrailMates.Core.Repositories;
+using TrailMates.Domain.Errors;
 using Result = CSharpFunctionalExtensions.Result;
 
 namespace TrailMates.Application.Features.Trails.Queries.GetTrails;
