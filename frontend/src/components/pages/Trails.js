@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import CustomAlert from '../CustomAlert'
 import MapWithRoutes from "../trails/MapWithRoutes";
 
 const Trails = () => {
+    const alertRef = useRef();
     const [trails, setTrails] = useState([]);
 
     useEffect(() => {
@@ -11,13 +13,17 @@ const Trails = () => {
                 const trailsData = await response.json();
                 setTrails(trailsData);
             } catch (err) {
-                alert("Nie udało się pobrać tras. ");
+                if (alertRef.current)
+                    alertRef.current.showAlert('Nie udało się pobrać tras.', 'error');
             }
         })();
     }, []);
 
     return (
-        <MapWithRoutes trails={trails}/>
+        <>
+            <MapWithRoutes trails={trails}/>
+            <CustomAlert ref={alertRef} />
+        </>
     );
 };
 

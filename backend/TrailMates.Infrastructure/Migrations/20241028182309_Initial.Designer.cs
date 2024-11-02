@@ -12,7 +12,7 @@ using TrailMates.Infrastructure.Common.Persistence;
 namespace TrailMates.Infrastructure.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20240821192924_Initial")]
+    [Migration("20241028182309_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -31,6 +31,14 @@ namespace TrailMates.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()

@@ -5,12 +5,12 @@ export const loginFormValidator = (email, password, setEmailError, setPasswordEr
     let isValid = true;
 
     if ('' === email) {
-        setEmailError('Please enter your email');
+        setEmailError('Wprowadź adres e-mail');
         isValid = false;
     }
 
     if ('' === password) {
-        setPasswordError('Please enter a password');
+        setPasswordError('Wprowadź hasło');
         isValid = false;
     }
 
@@ -38,33 +38,33 @@ export const registrationFormValidator = (
     let isValid = true;
 
     if ('' === firstName) {
-        setFirstNameError('Please enter your first name');
+        setFirstNameError('Podaj imię');
         isValid = false;
     }
 
     if ('' === lastName) {
-        setLastNameError('Please enter your last name');
+        setLastNameError('Podaj nazwisko');
         isValid = false;
     }
 
     if ('' === email) {
-        setEmailError('Please enter your email');
+        setEmailError('Podaj adres e-mail');
         isValid = false;
     } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-        setEmailError('Please enter a valid email');
+        setEmailError('Podaj prawidłowy adres e-mail');
         isValid = false;
     }
 
     if ('' === password) {
-        setPasswordError('Please enter a password');
+        setPasswordError('Podaj hasło');
         isValid = false;
     } else if (password.length < 5) {
-        setPasswordError('The password must be 8 characters or longer');
+        setPasswordError('Hasło musi mieć co najmniej 5 znaków');
         isValid = false;
     }
 
-    if ('' === gender) {
-        setGenderError('Please select a valid gender');
+    if ('' === gender && gender.length < 3) {
+        setGenderError('Podaj płeć');
         isValid = false;
     }
 

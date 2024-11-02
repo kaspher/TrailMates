@@ -35,13 +35,15 @@ internal sealed class RegisterCommandHandler(
 
         await userRepository.Add(
             new User(
-                Guid.NewGuid(),
-                command.FirstName,
-                command.LastName,
-                command.Email,
-                command.Gender,
-                passwordHasher.Hash(command.Password),
-                ["guest"]
+                Id: Guid.NewGuid(),
+                FirstName: command.FirstName,
+                LastName: command.LastName,
+                Email: command.Email,
+                Gender: command.Gender,
+                Country: "",
+                City: "",
+                Password: passwordHasher.Hash(command.Password),
+                Roles: ["user"]
             )
         );
 

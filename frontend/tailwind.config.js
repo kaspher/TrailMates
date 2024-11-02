@@ -4,9 +4,9 @@ module.exports = {
     theme: {
         extend: {
             backgroundImage: {
-                '404-sky': "url('/src/assets/img/404_sky.svg')",
-                '404-forest': "url('/src/assets/img/404_forest.svg')",
-                '404-background': "url('/src/assets/img/404_1.png')"
+                '404-sky': "url('/src/assets/img/404/404_sky.svg')",
+                '404-forest': "url('/src/assets/img/404/404_forest.svg')",
+                '404-background': "url('/src/assets/img/404/404_1.png')"
             }
         },
     },

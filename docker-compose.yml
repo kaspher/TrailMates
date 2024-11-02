@@ -1,13 +1,25 @@
-version: '3'
+version: '3.9'
+
 services:
-  postgres:
-    image: postgres:16.2
-    platform: linux/amd64
-    container_name: trail-mates-postgres
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: TrailMates.Api/Dockerfile
     ports:
-      - "5432:5432"
+      - "8080:8080"
+      - "8081:8081"
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    volumes:
-      - ./docker/postgres_volume:/var/lib/postgresql/data
-  
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=development

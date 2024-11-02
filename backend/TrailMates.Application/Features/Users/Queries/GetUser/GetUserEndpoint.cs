@@ -4,26 +4,27 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using TrailMates.Application.Abstractions;
+using TrailMates.Application.Common;
 using TrailMates.Domain.Errors;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace TrailMates.Application.Features.Users.Queries.GetUserByEmail;
+namespace TrailMates.Application.Features.Users.Queries.GetUser;
 
-public class GetUserByEmailEndpoint : IEndpoint
+public class GetUserEndpoint : IEndpoint
 {
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) =>
         endpoints
             .MapGroup("/api/users")
-            .MapGet("", HandleGet)
-            .WithName("get_user_by_email")
-            .WithTags("Users");
+            .MapGet("/{userId}", HandleGet)
+            .WithName("get_user")
+            .WithTags(Constants.UsersTag);
 
     private static Task<IResult> HandleGet(
-        string email,
+        Guid userId,
         IMediator dispatcher,
         CancellationToken cancellationToken
     ) =>
         dispatcher
-            .Send(new GetUserByEmailQuery(email), cancellationToken)
+            .Send(new GetUserQuery(userId), cancellationToken)
             .Match(Results.Ok, error => error.ToErrorProblemResult());
 }

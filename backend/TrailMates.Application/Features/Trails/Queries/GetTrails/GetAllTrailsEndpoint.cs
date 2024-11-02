@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using TrailMates.Application.Abstractions;
+using TrailMates.Application.Common;
 using TrailMates.Domain.Errors;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
@@ -16,7 +17,7 @@ internal sealed class GetAllTrailsEndpoint : IEndpoint
             .MapGroup("/api/trails")
             .MapGet("", HandleGet)
             .WithName("get_trails")
-            .WithTags("Trails");
+            .WithTags(Constants.TrailsTag);
 
     private static Task<IResult> HandleGet(
         IMediator dispatcher,

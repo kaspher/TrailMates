@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using TrailMates.Api;
 using TrailMates.Application;
 using TrailMates.Domain;
 using TrailMates.Infrastructure;
+using TrailMates.Infrastructure.Common.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,7 @@ builder
     .Services.AddCore()
     .AddApplication()
     .AddInfrastructure(builder.Configuration)
-    .AddPresentation()
+    .AddPresentation(builder.Configuration)
     .AddCors(options =>
     {
         options.AddPolicy(
@@ -29,8 +31,19 @@ builder
     });
 
 var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "TrailMates API V1");
+        options.RoutePrefix = string.Empty;
+    });
 
-app.UseInfrastructure().UseApplication().UsePresentation();
-app.UseCors("AllowSpecificOrigin");
+    using var serviceScope = app.Services.CreateScope();
+    using var dbContext = serviceScope.ServiceProvider.GetService<UsersDbContext>();
+    dbContext?.Database.MigrateAsync();
+}
 
+app.UseInfrastructure().UseApplication().UsePresentation().UseCors("AllowSpecificOrigin");
 app.Run();
