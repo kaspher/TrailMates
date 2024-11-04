@@ -1,8 +1,37 @@
-import {Link, Outlet} from 'react-router-dom';
-import {useAuth} from '../../hooks/auth/AuthProvider';
+import { Link, Outlet } from 'react-router-dom';
+import { useAuth } from '../../hooks/auth/AuthProvider';
+import { useState, useEffect, useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+
+const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
 
 const Layout = () => {
-    const {user, logOut} = useAuth();
+    const { user, logOut } = useAuth();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    const handleDropdownClose = () => {
+        setIsDropdownOpen(false);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                handleDropdownClose();
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownRef]);
 
     return (
         <>
@@ -12,7 +41,6 @@ const Layout = () => {
                     <div className="flex items-center justify-between">
                         <div className="flex shrink-0">
                             <Link aria-current="page" className="flex items-center" to="/">
-                                {/*<img className="h-7 w-auto" src="nasze/logo" alt="logo"/>*/}
                                 <p className="font-bold text-xl text-green-600">TrailMates Logo</p>
                             </Link>
                         </div>
@@ -29,12 +57,44 @@ const Layout = () => {
                         </div>
                         <div className="flex items-center justify-end gap-4">
                             {user ? (
-                                <button
-                                    onClick={logOut}
-                                    className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-                                >
-                                    Wyloguj się
-                                </button>
+                                <div className="relative" ref={dropdownRef}>
+                                    <button
+                                        onClick={toggleDropdown}
+                                        className="flex items-center space-x-2"
+                                    >
+                                        <span className="text-gray-900 font-medium">Witaj, {user.name}</span>
+                                        <img
+                                            src={cloudFrontDomainName + user.id}
+                                            alt="users avatar"
+                                            className="h-10 w-10 rounded-full object-cover object-center"
+                                        />
+                                    </button>
+                                    {isDropdownOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                            <div className="py-1">
+                                                <Link
+                                                    to={`/profile/${user.id}`}
+                                                    className="block mb-1 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left flex items-center"
+                                                    onClick={handleDropdownClose}
+                                                >
+                                                    <FontAwesomeIcon icon={faUser} className="mr-2" />
+                                                    Mój profil
+                                                </Link>
+                                                <hr className="my-2 border-gray-500 border-t-2 mx-2" />
+                                                <button
+                                                    onClick={() => {
+                                                        logOut();
+                                                        handleDropdownClose();
+                                                    }}
+                                                    className="block mt-1 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left flex items-center"
+                                                >
+                                                    <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+                                                    Wyloguj się
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             ) : (
                                 <>
                                     <Link
@@ -50,7 +110,7 @@ const Layout = () => {
                 </div>
             </header>
             <div>
-                <Outlet/>
+                <Outlet />
             </div>
         </>
     );

@@ -11,6 +11,7 @@ using TrailMates.Application.Abstractions.Authentication;
 using TrailMates.Infrastructure.Common.Authentication;
 using TrailMates.Infrastructure.Common.Configuration;
 using TrailMates.Infrastructure.Common.Persistence;
+using TrailMates.Infrastructure.Services;
 using TrailMates.Infrastructure.Trails.Persistence;
 using TrailMates.Infrastructure.Users.Persistence;
 
@@ -56,6 +57,8 @@ public static class Extensions
         services.AddScoped<ITrailRepository, InMemoryTrailsRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
+        services.AddScoped<IUserService, UserService>();
+
         services.AddDbContext<UsersDbContext>(options =>
             options.UseNpgsql(dbSettings.ConnectionString)
         );
@@ -87,13 +90,6 @@ public static class Extensions
 
     public static WebApplication UseInfrastructure(this WebApplication app)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "TrailMates API V1");
-            options.RoutePrefix = string.Empty;
-        });
-
         return app;
     }
 }

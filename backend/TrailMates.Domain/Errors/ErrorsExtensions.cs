@@ -1,10 +1,11 @@
 ﻿using System.Net;
+using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Http;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace TrailMates.Domain.Errors;
 
-public static class ResultsExtensions
+public static class ErrorsExtensions
 {
     public static IResult ToErrorProblemResult(this Error error) =>
         error.Reason switch
@@ -31,4 +32,12 @@ public static class ResultsExtensions
                 ),
             _ => throw new ArgumentOutOfRangeException()
         };
+
+    public static UnitResult<Error> ToInputValidationResult(
+        this FluentValidation.Results.ValidationResult validationResults,
+        string title = "input data validation error"
+    ) =>
+        validationResults.IsValid
+            ? UnitResult.Success<Error>()
+            : UnitResult.Failure(Errors.Validation(title, validationResults.ToDictionary()));
 }

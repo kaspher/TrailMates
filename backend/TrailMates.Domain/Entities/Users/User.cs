@@ -6,6 +6,8 @@ public record User(
     string LastName,
     string Email,
     string Gender,
+    string Country,
+    string City,
     string Password,
     string[] Roles
 );

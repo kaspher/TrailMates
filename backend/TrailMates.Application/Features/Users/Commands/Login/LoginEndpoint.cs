@@ -1,10 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TrailMates.Application.Abstractions;
+using TrailMates.Application.Common;
 using TrailMates.Application.Features.Users.Commands.Contracts;
 using TrailMates.Domain.Errors;
 using IResult = Microsoft.AspNetCore.Http.IResult;
@@ -18,14 +20,17 @@ internal sealed class LoginEndpoint : IEndpoint
             .MapGroup("/api/account")
             .MapPost("/login", HandlePost)
             .WithName("login")
-            .WithTags("Users");
+            .WithTags(Constants.AccountTag);
 
     private static Task<IResult> HandlePost(
         [FromBody] LoginRequest request,
         IMediator dispatcher,
+        IValidator<LoginRequest> validator,
         CancellationToken cancellationToken
     ) =>
-        dispatcher
-            .Send(new LoginCommand(request.Email, request.Password), cancellationToken)
+        validator
+            .Validate(request)
+            .ToInputValidationResult()
+            .Bind(() => dispatcher.Send(request.ToCommand(), cancellationToken))
             .Match(Results.Ok, error => error.ToErrorProblemResult());
 }
