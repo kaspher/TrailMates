@@ -10,6 +10,8 @@ import {
   faTasks,
 } from "@fortawesome/free-solid-svg-icons";
 import logoUrl from "../../assets/img/logo/longlogo.svg";
+import logoUrl2 from "../../assets/img/logo/logo.svg"
+import userAvatar from "../../assets/img/user-avatar.png"
 
 const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
 
@@ -61,11 +63,11 @@ const Layout = () => {
           <div className="flex items-center justify-between">
             <div className="flex shrink-0">
               <Link aria-current="page" className="flex items-center" to="/">
-                <img
-                  src={logoUrl}
-                  alt="TrailMates Logo"
-                  className="h-10 w-auto filter brightness-0"
-                />
+              <img
+                src={isMobileView ? logoUrl2 : logoUrl}
+                alt="TrailMates"
+                className={`w-auto filter brightness-0 ${isMobileView ? 'h-8' : 'h-5'}`}
+              />
               </Link>
             </div>
 
@@ -104,7 +106,7 @@ const Layout = () => {
                     </span>
                   )}
                   <img
-                    src={user ? cloudFrontDomainName + user.id : logoUrl}
+                    src={user ? cloudFrontDomainName + user.id : userAvatar}
                     alt="users avatar"
                     className="h-10 w-10 rounded-full object-cover object-center"
                   />

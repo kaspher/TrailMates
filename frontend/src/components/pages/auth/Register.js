@@ -118,9 +118,10 @@ function Register() {
             Zarejestruj się
           </button>
         </form>
-        <div className="mt-6 text-blue-500 text-center">
-          <Link to="/login" className="hover:underline">
-            Masz już konto? Zaloguj się tutaj!
+        <div className="mt-6 text-center">
+        Masz już konto?{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Zaloguj się tutaj!
           </Link>
         </div>
       </div>
