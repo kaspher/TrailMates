@@ -1,6 +1,6 @@
 ﻿namespace TrailMates.Domain.Errors;
 
-public static class Errors
+public static class ErrorsTypes
 {
     public static Error Failure(string message, Exception? cause = null) =>
         Error.Create(new FailureReason(message, cause));

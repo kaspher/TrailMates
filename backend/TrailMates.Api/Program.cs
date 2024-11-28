@@ -39,10 +39,10 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "TrailMates API V1");
         options.RoutePrefix = string.Empty;
     });
-
-    using var serviceScope = app.Services.CreateScope();
-    using var dbContext = serviceScope.ServiceProvider.GetService<UsersDbContext>();
-    dbContext?.Database.MigrateAsync();
+    //
+    // using var serviceScope = app.Services.CreateScope();
+    // using var dbContext = serviceScope.ServiceProvider.GetService<UsersDbContext>();
+    // dbContext?.Database.MigrateAsync();
 }
 
 app.UseInfrastructure().UseApplication().UsePresentation().UseCors("AllowSpecificOrigin");

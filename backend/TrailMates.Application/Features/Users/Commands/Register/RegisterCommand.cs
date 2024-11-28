@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using TrailMates.Application.Abstractions;
 using TrailMates.Application.Abstractions.Authentication;
+using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Application.Mediator;
 using TrailMates.Domain.Entities.Users;
 using TrailMates.Domain.Errors;
@@ -29,7 +30,7 @@ internal sealed class RegisterCommandHandler(
         if (existsResult.IsSuccess)
         {
             return UnitResult.Failure(
-                Errors.BadRequest($"User with email {command.Email} already exists")
+                ErrorsTypes.BadRequest($"User with email {command.Email} already exists")
             );
         }
 

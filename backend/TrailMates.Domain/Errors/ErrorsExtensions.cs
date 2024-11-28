@@ -39,5 +39,5 @@ public static class ErrorsExtensions
     ) =>
         validationResults.IsValid
             ? UnitResult.Success<Error>()
-            : UnitResult.Failure(Errors.Validation(title, validationResults.ToDictionary()));
+            : UnitResult.Failure(ErrorsTypes.Validation(title, validationResults.ToDictionary()));
 }

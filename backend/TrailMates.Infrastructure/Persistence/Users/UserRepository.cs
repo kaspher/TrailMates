@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TrailMates.Application.Abstractions;
 using TrailMates.Application.Abstractions.Authentication;
+using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Domain.Entities.Users;
 using TrailMates.Domain.Errors;
 using TrailMates.Infrastructure.Common.Persistence;
 
-namespace TrailMates.Infrastructure.Users.Persistence;
+namespace TrailMates.Infrastructure.Persistence.Users;
 
 internal sealed class UserRepository(
     UsersDbContext dbContext,
@@ -28,7 +29,7 @@ internal sealed class UserRepository(
             .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         return entity is null
-            ? Result.Failure<User, Error>(Errors.NotFound($"User with id {id} was not found"))
+            ? Result.Failure<User, Error>(ErrorsTypes.NotFound($"User with id {id} was not found"))
             : Result.Success<User, Error>(entity);
     }
 
@@ -38,7 +39,7 @@ internal sealed class UserRepository(
 
         return exists
             ? UnitResult.Success<Error>()
-            : UnitResult.Failure(Errors.NotFound($"User with email {email} was not found"));
+            : UnitResult.Failure(ErrorsTypes.NotFound($"User with email {email} was not found"));
     }
 
     public async Task<Result<string, Error>> Login(string email, string password)
@@ -47,13 +48,13 @@ internal sealed class UserRepository(
 
         if (user is null)
             return Result.Failure<string, Error>(
-                Errors.NotFound("User with provided credentials not found.")
+                ErrorsTypes.NotFound("User with provided credentials not found.")
             );
 
         var verified = passwordHasher.Verify(password, user.Password);
 
         return !verified
-            ? Result.Failure<string, Error>(Errors.BadRequest("Wrong email or password."))
+            ? Result.Failure<string, Error>(ErrorsTypes.BadRequest("Wrong email or password."))
             : tokenProvider.Create(user);
     }
 

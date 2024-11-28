@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TrailMates.Domain.Entities.Users;
 
-namespace TrailMates.Infrastructure.Users.Persistence;
+namespace TrailMates.Infrastructure.Persistence.Users;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using TrailMates.Domain.Entities.Users;
 using TrailMates.Domain.Errors;
 
-namespace TrailMates.Application.Abstractions;
+namespace TrailMates.Application.Abstractions.Repositories;
 
 public interface IUserRepository
 {

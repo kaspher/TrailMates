@@ -8,22 +8,22 @@ using TrailMates.Application.Common;
 using TrailMates.Domain.Errors;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace TrailMates.Application.Features.Trails.Queries.GetTrails;
+namespace TrailMates.Application.Features.Events.Queries.GetEvents;
 
-internal sealed class GetAllTrailsEndpoint : IEndpoint
+internal sealed class GetEventsEndpoint : IEndpoint
 {
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) =>
         endpoints
-            .MapGroup("/api/trails")
+            .MapGroup("/api/events")
             .MapGet("", HandleGet)
-            .WithName("get_trails")
-            .WithTags(Constants.TrailsTag);
+            .WithName("get_events")
+            .WithTags(Constants.EventsTag);
 
     private static Task<IResult> HandleGet(
         IMediator dispatcher,
         CancellationToken cancellationToken
     ) =>
         dispatcher
-            .Send(new GetAllTrailsQuery(), cancellationToken)
+            .Send(new GetEventsQuery(), cancellationToken)
             .Match(Results.Ok, error => error.ToErrorProblemResult());
 }
