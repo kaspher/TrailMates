@@ -1,15 +1,20 @@
+// USUNAC PRZED PUBLIKACJA CALY PLIK !!! NARUSZA BEZPIECZENSTWO
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { Modal, FlatList, TouchableOpacity, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const DevList = ({ screens }) => {
-  const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation();
 
   const toggleModal = () => setModalVisible(!isModalVisible);
 
   const navigateToScreen = (screen) => {
-    navigation.navigate(screen);
+    if (['Home', 'UserProfile', 'Maps'].includes(screen)) {
+      navigation.navigate('MainTabs', { screen });
+    } else {
+      navigation.navigate(screen);
+    }
     toggleModal();
   };
 
@@ -17,9 +22,9 @@ const DevList = ({ screens }) => {
     <View>
       <TouchableOpacity
         onPress={toggleModal}
-        className="bg-gray-800 px-4 py-2 rounded-md self-start"
+        className="bg-gray-800 px-4 py-2 rounded-md"
       >
-        <Text className="text-white font-bold text-sm">DevList</Text>
+        <Text className="text-white font-bold text-sm text-center">LISTA EKRANÓW</Text>
       </TouchableOpacity>
 
       <Modal

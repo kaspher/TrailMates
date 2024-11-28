@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
+import CloseButton from '../../assets/icons/x-solid.svg'
 
-const Alert = ({ message, duration = 3000, onClose }) => {
+const Alert = ({ message, duration = 6000, onClose }) => {
   const slideAnim = useRef(new Animated.Value(-100)).current;
   const progressAnim = useRef(new Animated.Value(100)).current;
 
@@ -34,11 +35,11 @@ const Alert = ({ message, duration = 3000, onClose }) => {
   return (
     <Animated.View
       style={{ transform: [{ translateY: slideAnim }] }}
-      className="absolute top-0 left-0 right-0 bg-white z-50 flex flex-row items-center justify-between px-4 py-3 rounded-s"
+      className="absolute top-0 left-0 right-0 bg-white z-50 flex flex-row items-center justify-between px-4 py-6 rounded-s"
     >
       <Text className="text-black text-lg font-bold flex-1 text-center">{message}</Text>
       <TouchableOpacity onPress={onClose} className="px-2">
-        <Text className="text-black text-xl font-bold">X</Text>
+        <CloseButton width={15} height={15} />
       </TouchableOpacity>
       <View className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
         <Animated.View

@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Alert from '../Alert';
+import Alert from '../utils/Alert';
 import LongLogo from "../../assets/longlogo.svg";
+import { validateResetEmail } from '../utils/Validator';
 
 const ForgotPassword = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [alertMessage, setAlertMessage] = useState(null);
 
   const handlePasswordReset = () => {
-    if (!email.includes('@')) {
-      setAlertMessage('Wprowadź poprawny adres e-mail.');
-    } else {
-      setAlertMessage('Instrukcja resetowania hasła została wysłana na podany adres e-mail.');
-    }
+    validateResetEmail(email, setAlertMessage);
   };
 
   return (

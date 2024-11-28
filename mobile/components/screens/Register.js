@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Alert from '../Alert';
+import Alert from '../utils/Alert';
 import LongLogo from "../../assets/longlogo.svg";
+import { validateRegisterInputs } from '../utils/Validator';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -15,37 +16,10 @@ const RegisterScreen = ({ navigation }) => {
 
   const [alertMessage, setAlertMessage] = useState(null);
 
-  const validateInputs = () => {
-    const { firstName, lastName, email, password, confirmPassword } = formData;
-
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      setAlertMessage('Wszystkie pola są wymagane!');
-      return false;
+  const handleRegister = () => {
+    if (validateRegisterInputs(formData, setAlertMessage)) {
+      console.log("Rejestracja udana:", formData);
     }
-
-    if (!email.includes('@')) {
-      setAlertMessage('Niepoprawny adres e-mail!');
-      return false;
-    }
-
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(password)) {
-      setAlertMessage('Hasło musi zawierać dużą literę, małą literę i cyfrę.');
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      setAlertMessage('Hasła nie pasują do siebie!');
-      return false;
-    }
-
-    if (!validateAge(birthDate)) {
-      setAlertMessage('Musisz mieć skończone 13 lat, by się zarejestrować.');
-      return false;
-    }
-
-    setAlertMessage('Rejestracja udana!');
-    return true;
   };
 
   return (
@@ -89,13 +63,13 @@ const RegisterScreen = ({ navigation }) => {
             value={formData.confirmPassword}
             onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
           />
-          <TouchableOpacity onPress={validateInputs} className="bg-primary p-4 rounded-md">
+          <TouchableOpacity onPress={handleRegister} className="bg-primary p-4 rounded-md">
             <Text className="text-white text-center font-bold">ZAREJESTRUJ SIĘ</Text>
           </TouchableOpacity>
         </View>
         <View className="flex-row justify-center items-center mt-6">
           <Text className="text-white font-regular">Posiadasz już konto? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Text className="text-green-300 font-regular">Zaloguj się</Text>
           </TouchableOpacity>
         </View>
