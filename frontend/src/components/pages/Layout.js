@@ -148,14 +148,24 @@ const Layout = () => {
                         </>
                       )}
                       {user && (
-                        <Link
-                          to="/profile"
-                          className="block mb-1 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left flex items-center"
-                          onClick={handleDropdownClose}
-                        >
-                          <FontAwesomeIcon icon={faUser} className="mr-2" />
-                          Mój profil
-                        </Link>
+                        <>
+                          <Link
+                            to="/profile"
+                            className="block mb-1 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left flex items-center"
+                            onClick={handleDropdownClose}
+                          >
+                            <FontAwesomeIcon icon={faUser} className="mr-2" />
+                            Mój profil
+                          </Link>
+                          <Link
+                            to="/activities"
+                            className="block mb-1 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left flex items-center"
+                            onClick={handleDropdownClose}
+                          >
+                            <FontAwesomeIcon icon={faTasks} className="mr-2" />
+                            Twoje aktywności
+                          </Link>
+                        </>
                       )}
                       <hr className="my-2 border-gray-500 border-t-2 mx-2" />
                       {user ? (
