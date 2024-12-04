@@ -12,7 +12,7 @@ module.exports = {
         "primary": "#386641",
         "secondary": "#111111",
         "background": "#f2faf4",
-        "hover-background": "#294a2f",
+        "hover-background": "#5a7a5a",
         "hover-text": "#fff",
       }
     },
