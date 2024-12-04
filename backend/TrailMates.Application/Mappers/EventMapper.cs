@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using TrailMates.Application.DTO;
+using TrailMates.Application.Specifications.Common;
 using TrailMates.Domain.Entities.Events;
 
 namespace TrailMates.Application.Mappers;
@@ -20,6 +21,10 @@ public static class EventMapper
             evnt.ParticipantsLimit
         );
 
-    public static ImmutableList<EventDto> ToDto(this ImmutableList<Event> events) =>
-        events.Select(ToDto).ToImmutableList();
+    public static PagedList<EventDto> ToDto(this PagedList<Event> events)
+    {
+        var eventDtos = events.Items.Select(ToDto).ToList();
+
+        return new PagedList<EventDto>(eventDtos, events.Page, events.PageSize, events.TotalCount);
+    }
 }

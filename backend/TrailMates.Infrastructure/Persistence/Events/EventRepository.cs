@@ -2,6 +2,9 @@
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using TrailMates.Application.Abstractions.Repositories;
+using TrailMates.Application.Features.Events.Queries.GetEvents;
+using TrailMates.Application.Specifications.Common;
+using TrailMates.Application.Specifications.Events;
 using TrailMates.Domain.Entities.Events;
 using TrailMates.Domain.Errors;
 using TrailMates.Infrastructure.Common.Persistence;
@@ -12,16 +15,28 @@ internal sealed class EventRepository(EventsDbContext dbContext) : IEventReposit
 {
     private readonly DbSet<Event> _events = dbContext.Events;
 
-    public async Task<Result<ImmutableList<Event>, Error>> GetAll(
+    public async Task<Result<PagedList<Event>, Error>> GetAll(
+        GetEventsRequest request,
         CancellationToken cancellationToken = default
     )
     {
-        var events = await _events
+        var eventsQuery = _events
             .AsNoTracking()
-            .OrderBy(e => e.StartDate)
-            .ToListAsync(cancellationToken);
+            .ApplyFilters(
+                request.StartDateFrom,
+                request.StartDateTo,
+                request.ParticipantsLimitFrom,
+                request.ParticipantsLimitTo
+            )
+            .ApplySorting(request.SortBy, request.SortDescending);
 
-        return Result.Success<ImmutableList<Event>, Error>(events.ToImmutableList());
+        var events = await PagedList<Event>.CreateAsync(
+            eventsQuery,
+            request.Page,
+            request.PageSize
+        );
+
+        return Result.Success<PagedList<Event>, Error>(events);
     }
 
     public async Task<Result<Event, Error>> GetById(

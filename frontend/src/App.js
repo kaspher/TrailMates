@@ -10,7 +10,6 @@ import UserProfile from "./components/pages/UserProfile";
 import Login from "./components/pages/auth/Login";
 import Register from "./components/pages/auth/Register";
 import AuthProvider from "./hooks/auth/AuthProvider";
-import UserProfile from "./components/pages/UserProfile";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -22,12 +21,12 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="trails" element={<Trails />} />
-            <Route path="*" element={<NoPage />} />
             <Route path="activities" element={<Activities />} />
             <Route path="events" element={<Events />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
       </AuthProvider>

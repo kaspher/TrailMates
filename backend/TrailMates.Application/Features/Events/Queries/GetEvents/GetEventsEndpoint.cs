@@ -20,10 +20,11 @@ internal sealed class GetEventsEndpoint : IEndpoint
             .WithTags(Constants.EventsTag);
 
     private static Task<IResult> HandleGet(
+        [AsParameters] GetEventsRequest request,
         IMediator dispatcher,
         CancellationToken cancellationToken
     ) =>
         dispatcher
-            .Send(new GetEventsQuery(), cancellationToken)
+            .Send(request.ToQuery(), cancellationToken)
             .Match(Results.Ok, error => error.ToErrorProblemResult());
 }

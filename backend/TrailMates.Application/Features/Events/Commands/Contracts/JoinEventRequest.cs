@@ -5,7 +5,7 @@ namespace TrailMates.Application.Features.Events.Commands.Contracts;
 
 public record JoinEventRequest(Guid EventId, Guid UserId)
 {
-    public JoinEventCommand ToCommand() => new(new(this));
+    public JoinEventCommand ToCommand() => new(this);
 
     public class Validator : AbstractValidator<JoinEventRequest>
     {

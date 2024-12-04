@@ -29,9 +29,8 @@ const Layout = () => {
   };
 
   useEffect(() => {
-    // Detect screen size
     const handleResize = () => {
-      setIsMobileView(window.innerWidth < 768); // Mobile view when width < 768px
+      setIsMobileView(window.innerWidth < 768);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -111,7 +110,7 @@ const Layout = () => {
                     </span>
                   )}
                   <img
-                    src={user ? cloudFrontDomainName + user.id : logoUrl} //logoUrl placeholder for user avatar
+                    src={user ? cloudFrontDomainName + user.id : logoUrl}
                     alt="users avatar"
                     className="h-10 w-10 rounded-full object-cover object-center"
                   />

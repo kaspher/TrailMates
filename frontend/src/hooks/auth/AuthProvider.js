@@ -13,7 +13,7 @@ const AuthContext = createContext(null);
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(
-    localStorage.getItem("access_token") || "",
+    localStorage.getItem("access_token") || ""
   );
   const navigate = useNavigate();
 
