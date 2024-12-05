@@ -9,19 +9,19 @@ const SplashScreen = ({ navigation }) => {
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 1500,
+      duration: 500,
       useNativeDriver: true,
     }).start();
 
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 1500,
+        duration: 500,
         useNativeDriver: true,
       }).start(() => {
         navigation.replace('Login');
       });
-    }, 3000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [fadeAnim, navigation]);

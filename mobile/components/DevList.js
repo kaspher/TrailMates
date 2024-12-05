@@ -10,7 +10,7 @@ const DevList = ({ screens }) => {
   const toggleModal = () => setModalVisible(!isModalVisible);
 
   const navigateToScreen = (screen) => {
-    if (['Home', 'UserProfile', 'Maps'].includes(screen)) {
+    if (['Home', 'UserProfile', 'Trails', 'Menu'].includes(screen)) {
       navigation.navigate('MainTabs', { screen });
     } else {
       navigation.navigate(screen);

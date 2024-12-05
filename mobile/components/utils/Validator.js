@@ -1,7 +1,4 @@
-// walidacja statyczna konta admin@admin.com  
 export const validateLoginInputs = (email, password, setAlertMessage) => {
-  const validEmail = "admin@admin.com";
-  const validPassword = "admin";
   
   if (email !== validEmail) {
     setAlertMessage('Niepoprawny adres e-mail!');

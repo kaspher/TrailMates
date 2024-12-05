@@ -3,25 +3,60 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Alert from '../utils/Alert';
 import LongLogo from "../../assets/longlogo.svg";
-import { validateRegisterInputs } from '../utils/Validator';
+import DropDownPicker from 'react-native-dropdown-picker'; // Import the dropdown picker
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
+    email: '',
     firstName: '',
     lastName: '',
-    email: '',
+    gender: '',
     password: '',
     confirmPassword: '',
   });
-
   const [alertMessage, setAlertMessage] = useState(null);
 
-  const handleRegister = () => {
-    if (validateRegisterInputs(formData, setAlertMessage)) {
-      console.log("Rejestracja udana:", formData);
+  const [open, setOpen] = useState(false);
+  const [gender, setGender] = useState(formData.gender);
+
+  const handleRegister = async () => {
+    if (formData.password !== formData.confirmPassword) {
+      setAlertMessage('Hasła się nie zgadzają.');
+      console.log('Hasła się nie zgadzają:', formData.password, formData.confirmPassword);
+      return;
+    }
+
+    console.log('Wysyłane dane:', formData);
+
+    try {
+      const response = await fetch('http://10.0.2.2:5253/api/account/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          gender: gender,
+        }), 
+      });
+
+      console.log('Odpowiedź serwera:', response);
+
+      if (response.ok) {
+        setAlertMessage('Rejestracja zakończona sukcesem. Możesz się teraz zalogować.');
+        // navigation.navigate('Login');
+      }
+      else{
+        setAlertMessage('Wprowadź poprawne dane')
+      }
+    } catch (error) {
+      console.log('Błąd podczas rejestracji:', error);
+      setAlertMessage('Błąd podczas rejestracji.');
     }
   };
-
   return (
     <SafeAreaView className="flex-1 h-screen w-screen bg-secondary">
       <View className="flex-1 justify-center items-center m-3">
@@ -41,7 +76,35 @@ const RegisterScreen = ({ navigation }) => {
             placeholder="Nazwisko"
             value={formData.lastName}
             onChangeText={(text) => setFormData({ ...formData, lastName: text })}
+          />          
+          <DropDownPicker
+            open={open}
+            value={gender}
+            items={[
+              { label: 'Mężczyzna', value: 'Mężczyzna' },
+              { label: 'Kobieta', value: 'Kobieta' },
+              { label: 'Inne', value: 'Inne' },
+            ]}
+            setOpen={setOpen}
+            setValue={(value) => {
+              setGender(value);
+              setFormData({ ...formData, gender: value });
+            }}
+            placeholder="Płeć"
+            containerStyle={{ marginBottom: 16 }}
+            style={{
+              borderColor: '#D1D5DB',
+              borderWidth: 1,
+              borderRadius: 8,
+              paddingHorizontal: 10,
+              paddingVertical: 12,
+            }}
+            dropDownStyle={{
+              backgroundColor: 'white',
+              borderColor: '#D1D5DB',
+            }}
           />
+
           <TextInput
             className="border border-gray-300 rounded-md p-3 mb-4 font-regular"
             placeholder="Adres e-mail"

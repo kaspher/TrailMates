@@ -5,6 +5,7 @@ import LongLogo from "../../assets/longlogo.svg";
 import Alert from '../utils/Alert';
 import { validateLoginInputs } from '../utils/Validator';
 import DevList from '../DevList';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [alertMessage, setAlertMessage] = useState(null);
@@ -16,7 +17,7 @@ const LoginScreen = ({ navigation }) => {
   const [screens, setScreens] = useState([]);
 
   useEffect(() => {
-    //NIZEJDO USUNIECIA PRZED PUBLIKACJA (WCZYTYWANIE LISTY WSZYSTKICH EKRANÓW W ŚCIEŻCE ../../components/screens)
+    // NIZEJ DO USUNIECIA PRZED PUBLIKACJA (WCZYTYWANIE LISTY WSZYSTKICH EKRANÓW W ŚCIEŻCE ../../components/screens)
     const loadScreens = () => {
       const screenModules = require
         .context('../../components/screens', true, /\.js$/)
@@ -29,13 +30,35 @@ const LoginScreen = ({ navigation }) => {
     };
 
     loadScreens();
-  }, []);
-  // WYZEJ DO USUNIECIA PRZED PUBLIKACJA
+  }, []); 
 
-  const handleLogin = () => {
-    if (validateLoginInputs(formData.email, formData.password, setAlertMessage)) {
-      console.log("Zalogowano pomyślnie:", formData);
-      navigation.navigate('MainTabs');
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://10.0.2.2:5253/api/account/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Zalogowano pomyślnie:", data);
+
+        await AsyncStorage.setItem('authToken', data);
+
+        navigation.navigate('MainTabs');
+      } else {
+        setAlertMessage(data.message || 'Nie udało się zalogować. Spróbuj ponownie.');
+      }
+    } catch (error) {
+      console.error("Błąd podczas logowania:", error);
+      setAlertMessage('Wystąpił błąd podczas logowania. Sprawdź połączenie i spróbuj ponownie.');
     }
   };
 
@@ -83,11 +106,8 @@ const LoginScreen = ({ navigation }) => {
 
         {/* DO USUNIECIA PRZED PUBLIKACJA */}
         <View className="mt-4 bg-primary border">
-          <Text className="text-center font-bold text-white m-3 w-screen">PANEL DEVELOPERA</Text>
+          <Text className="text-center font-bold text-white m-3">PANEL DEVELOPERA</Text>
             <DevList screens={screens} />
-            <Text className="m-3 text-white text-center font-bold">dane logowania:</Text>
-            <Text className="text-white text-center">admin@admin.com</Text>
-            <Text className="text-white text-center">pass: admin</Text>
         </View>
         {/* DO USUNIECIA PRZED PUBLIKACJA */}
       </View>

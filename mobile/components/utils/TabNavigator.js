@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../screens/Home'
-import Maps from '../screens/Maps';
-import UserProfile from '../screens/UserProfile';
-import UserIcon from '../../assets/icons/user-solid.svg'
+import Trails from '../screens/Trails';
+import MenuIcon from '../../assets/icons/bars-solid.svg'
 import MapsIcon from '../../assets/icons/map-solid.svg'
 import HomeIcon from '../../assets/icons/house-solid.svg'
+import Menu from '../screens/Menu';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,8 +33,8 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen 
-        name="Maps" 
-        component={Maps}
+        name="Trails" 
+        component={Trails}
         options={{
             tabBarIcon: ({ color, size}) => (
                 <MapsIcon width={size} height={size} fill={color} />
@@ -42,11 +42,11 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="UserProfile"
-        component={UserProfile}
+        name="Menu"
+        component={Menu}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <UserIcon width={size} height={size} fill={color} />
+            <MenuIcon width={size} height={size} fill={color} />
           ),
         }}
       />
