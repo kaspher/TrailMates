@@ -7,8 +7,7 @@ using static TrailMates.Domain.Services.Validators.EventValidator;
 
 namespace TrailMates.Application.Features.Events.Commands.JoinEvent;
 
-public readonly record struct JoinEventCommand(JoinEventRequest Request)
-    : ICommand<UnitResult<Error>>;
+public readonly record struct JoinEventCommand(EventRequest Request) : ICommand<UnitResult<Error>>;
 
 internal sealed class JoinEventCommandHandler(IEventRepository eventRepository)
     : ICommandHandler<JoinEventCommand, UnitResult<Error>>

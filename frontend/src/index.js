@@ -4,4 +4,8 @@ import "./assets/css/input.css";
 import App from "./App";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
+root.render(
+  <section className="font-poppins">
+    <App />
+  </section>
+);

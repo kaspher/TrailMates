@@ -3,12 +3,14 @@ import CustomAlert from "../CustomAlert";
 import { useAuth } from "../../hooks/auth/AuthProvider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import loadingGif from "../../assets/img/loading.gif";
 
 const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
 
 const UserProfile = () => {
   const { user } = useAuth();
   const alertRef = useRef();
+  const [loading, setLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [profilePicture, setProfilePicture] = useState();
   const [formData, setFormData] = useState({
@@ -36,22 +38,24 @@ const UserProfile = () => {
             setFormData(userData);
             setInitialData(userData);
           } else {
-            if (alertRef.current)
-              alertRef.current.showAlert(
-                "Błąd podczas pobierania danych użytkownika",
-                "error"
-              );
-          }
-        } catch (error) {
-          if (alertRef.current)
-            alertRef.current.showAlert(
-              "Wystąpił błąd podczas pobierania danych użytkownika",
+            alertRef.current?.showAlert(
+              "Błąd podczas pobierania danych użytkownika",
               "error"
             );
+          }
+        } catch (error) {
+          alertRef.current?.showAlert(
+            "Wystąpił błąd podczas pobierania danych użytkownika",
+            "error"
+          );
+        } finally {
+          setLoading(false);
         }
       };
 
       fetchUserData();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -81,26 +85,23 @@ const UserProfile = () => {
       );
 
       if (response.ok) {
-        if (alertRef.current)
-          alertRef.current.showAlert(
-            "Dane osobowe zostały zaktualizowane!",
-            "success"
-          );
+        alertRef.current?.showAlert(
+          "Dane osobowe zostały zaktualizowane!",
+          "success"
+        );
         setInitialData({ ...formData });
         setShowFormSaveButton(false);
       } else {
-        if (alertRef.current)
-          alertRef.current.showAlert(
-            "Błąd podczas aktualizacji danych osobowych",
-            "error"
-          );
-      }
-    } catch (error) {
-      if (alertRef.current)
-        alertRef.current.showAlert(
-          "Wystąpił błąd podczas aktualizacji danych osobowych",
+        alertRef.current?.showAlert(
+          "Błąd podczas aktualizacji danych osobowych",
           "error"
         );
+      }
+    } catch (error) {
+      alertRef.current?.showAlert(
+        "Wystąpił błąd podczas aktualizacji danych osobowych",
+        "error"
+      );
     }
   };
 
@@ -134,31 +135,30 @@ const UserProfile = () => {
       );
 
       if (response.ok) {
-        if (alertRef.current)
-          alertRef.current.showAlert(
-            "Avatar został zaktualizowany!",
-            "success"
-          );
+        alertRef.current?.showAlert("Avatar został zaktualizowany!", "success");
         setShowAvatarSaveButton(false);
       } else {
-        if (alertRef.current)
-          alertRef.current.showAlert(
-            "Błąd podczas aktualizacji avatara",
-            "error"
-          );
-      }
-    } catch (error) {
-      if (alertRef.current)
-        alertRef.current.showAlert(
-          "Wystąpił błąd podczas aktualizacji avatara",
+        alertRef.current?.showAlert(
+          "Błąd podczas aktualizacji avatara",
           "error"
         );
+      }
+    } catch (error) {
+      alertRef.current?.showAlert(
+        "Wystąpił błąd podczas aktualizacji avatara",
+        "error"
+      );
     }
   };
 
   return user ? (
-    <div className="container mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6 justify-center items-start">
-      <div className="w-full lg:w-1/4">
+    <div className="container mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6 justify-center items-start relative">
+      {loading && (
+        <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-75 z-10">
+          <img src={loadingGif} alt="Loading..." className="w-16 h-16" />
+        </div>
+      )}
+      <div className={`w-full lg:w-1/4 ${loading ? "blur-xs" : ""}`}>
         <div className="bg-white p-4 pb-6 rounded-lg shadow-md h-auto">
           <div className="flex flex-col items-center space-y-2">
             <label
@@ -238,7 +238,9 @@ const UserProfile = () => {
         </div>
       </div>
 
-      <div className="w-full lg:w-3/4 max-w-2xl bg-white p-4 rounded-lg shadow-md">
+      <div
+        className={`w-full lg:w-3/4 max-w-2xl bg-white p-4 rounded-lg shadow-md ${loading ? "blur-md" : ""}`}
+      >
         <h2 className="text-lg font-semibold text-gray-700 mb-3">
           Dane osobowe
         </h2>
@@ -323,7 +325,9 @@ const UserProfile = () => {
       <CustomAlert ref={alertRef} />
     </div>
   ) : (
-    <div>Loading ...</div>
+    <div className="flex justify-center items-center mt-8">
+      <img src={loadingGif} alt="Loading..." className="w-64 h-64" />
+    </div>
   );
 };
 

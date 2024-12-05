@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using TrailMates.Api;
 using TrailMates.Application;
 using TrailMates.Domain;
 using TrailMates.Infrastructure;
-using TrailMates.Infrastructure.Common.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 

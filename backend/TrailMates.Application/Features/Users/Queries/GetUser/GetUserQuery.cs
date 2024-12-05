@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using TrailMates.Application.Abstractions;
 using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Application.DTO;
 using TrailMates.Application.Mediator;

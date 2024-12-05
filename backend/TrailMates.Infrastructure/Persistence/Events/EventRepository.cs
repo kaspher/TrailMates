@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Application.Features.Events.Queries.GetEvents;
@@ -79,6 +78,16 @@ internal sealed class EventRepository(EventsDbContext dbContext) : IEventReposit
     public async Task<UnitResult<Error>> JoinEvent(Event evnt, Guid userId)
     {
         evnt.ParticipantsIds.Add(userId);
+
+        _events.Update(evnt);
+        await dbContext.SaveChangesAsync();
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> LeaveEvent(Event evnt, Guid userId)
+    {
+        evnt.ParticipantsIds.Remove(userId);
 
         _events.Update(evnt);
         await dbContext.SaveChangesAsync();

@@ -33,6 +33,19 @@ internal sealed class UserRepository(
             : Result.Success<User, Error>(entity);
     }
 
+    public async Task<Result<List<User>, Error>> GetByIds(
+        List<Guid> ids,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entities = await _users
+            .AsNoTracking()
+            .Where(user => ids.Contains(user.Id))
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<List<User>, Error>(entities);
+    }
+
     public async Task<UnitResult<Error>> Exists(string email)
     {
         var exists = await _users.AnyAsync(x => x.Email == email);

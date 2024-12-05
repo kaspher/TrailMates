@@ -6,12 +6,17 @@ import {
   faRoad,
   faFlagCheckered,
   faStopwatch,
+  faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import CustomAlert from "../CustomAlert";
+import loadingGif from "../../assets/img/loading.gif";
+import { useAuth } from "../../hooks/auth/AuthProvider";
 
 const Events = () => {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const initialFilters = {
     startDateFrom: "",
     startDateTo: "",
@@ -20,7 +25,7 @@ const Events = () => {
     sortBy: "StartDate",
     sortDescending: false,
     page: 1,
-    pageSize: 1,
+    pageSize: 10,
   };
   const [filters, setFilters] = useState(initialFilters);
   const [totalPages, setTotalPages] = useState(1);
@@ -28,6 +33,7 @@ const Events = () => {
 
   const fetchEvents = useCallback(async () => {
     try {
+      setLoading(true);
       const queryParams = new URLSearchParams();
 
       if (filters.startDateFrom)
@@ -65,6 +71,8 @@ const Events = () => {
         "Wystąpił błąd podczas pobierania wydarzeń",
         "error"
       );
+    } finally {
+      setLoading(false);
     }
   }, [filters]);
 
@@ -82,6 +90,82 @@ const Events = () => {
 
   const resetFilters = () => {
     setFilters(initialFilters);
+  };
+
+  const handleJoinEvent = async (eventId) => {
+    if (!user) {
+      alertRef.current?.showAlert(
+        "Musisz być zalogowany, aby dołączyć.",
+        "error"
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://localhost:7186/api/events/${eventId}/join`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user.id),
+        }
+      );
+
+      if (response.ok) {
+        alertRef.current?.showAlert("Dołączono do wydarzenia!", "success");
+        fetchEvents();
+      } else {
+        alertRef.current?.showAlert(
+          "Błąd podczas dołączania do wydarzenia",
+          "error"
+        );
+      }
+    } catch (error) {
+      alertRef.current?.showAlert(
+        "Wystąpił błąd podczas dołączania do wydarzenia",
+        "error"
+      );
+    }
+  };
+
+  const handleLeaveEvent = async (eventId) => {
+    if (!user) {
+      alertRef.current?.showAlert(
+        "Musisz być zalogowany, aby opuścić wydarzenie.",
+        "error"
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://localhost:7186/api/events/${eventId}/leave`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user.id),
+        }
+      );
+
+      if (response.ok) {
+        alertRef.current?.showAlert("Wydarzenie opuszczone!", "success");
+        fetchEvents();
+      } else {
+        alertRef.current?.showAlert(
+          "Błąd podczas opuszczania wydarzenia",
+          "error"
+        );
+      }
+    } catch (error) {
+      alertRef.current?.showAlert(
+        "Wystąpił błąd podczas opuszczania wydarzenia",
+        "error"
+      );
+    }
   };
 
   return (
@@ -140,12 +224,6 @@ const Events = () => {
                 min="0"
               />
             </div>
-            <button
-              className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={fetchEvents}
-            >
-              Zastosuj filtry
-            </button>
           </div>
         </aside>
 
@@ -170,69 +248,93 @@ const Events = () => {
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className="relative bg-white border border-gray-200 rounded-lg p-6 shadow-lg"
-              >
-                <button className="absolute top-4 right-4 py-2 px-4 bg-primary text-white rounded-lg hover:bg-hover-background flex items-center gap-2">
-                  Dołącz
-                  <FontAwesomeIcon icon={faUserPlus} />
-                </button>
-                <h3 className="text-2xl font-semibold mb-4 pr-16">
-                  {event.name}
-                </h3>
-                <p className="text-gray-700 mb-6 pr-16">{event.description}</p>
-                <div className="text-gray-500">
-                  <p>Organizator: {event.organizerId}</p>
-                  <p>
-                    <FontAwesomeIcon icon={faRoad} /> :{" "}
-                    <Link
-                      to={`/trail/${event.trailId}`}
-                      className="text-blue-500 underline hover:text-blue-700"
+          {loading ? (
+            <div className="flex justify-center mt-8">
+              <img src={loadingGif} alt="Loading..." className="w-64 h-64" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {events.map((event) => {
+                const isUserJoined = event.participantsIds.includes(user?.id);
+                return (
+                  <div
+                    key={event.id}
+                    className="relative bg-white border border-gray-200 rounded-lg p-6 shadow-lg"
+                  >
+                    <button
+                      onClick={() =>
+                        isUserJoined
+                          ? handleLeaveEvent(event.id)
+                          : handleJoinEvent(event.id)
+                      }
+                      className={`absolute top-4 right-4 py-2 px-4 rounded-lg flex items-center gap-2 ${
+                        isUserJoined
+                          ? "bg-red-600 text-white hover:bg-red-700"
+                          : "bg-primary text-white hover:bg-hover-background"
+                      }`}
                     >
-                      Szczegóły trasy
-                    </Link>
-                  </p>
-                  <p>
-                    <FontAwesomeIcon icon={faStopwatch} /> :{" "}
-                    {new Date(event.startDate).toLocaleString("pl-PL", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                  </p>
-                  <p>
-                    <FontAwesomeIcon icon={faFlagCheckered} /> :{" "}
-                    {new Date(event.endDate).toLocaleString("pl-PL", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                  <p>
-                    <FontAwesomeIcon icon={faUsers} /> :{" "}
-                    {event.participantsIds.length}/
-                    {event.participantsLimit === 2147483647
-                      ? "∞"
-                      : event.participantsLimit}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+                      {isUserJoined ? "Opuść" : "Dołącz"}
+                      <FontAwesomeIcon
+                        icon={isUserJoined ? faSignOutAlt : faUserPlus}
+                      />
+                    </button>
+                    <h3 className="text-2xl font-semibold mb-4 pr-16">
+                      {event.name}
+                    </h3>
+                    <p className="text-gray-700 mb-6 pr-16">
+                      {event.description}
+                    </p>
+                    <div className="text-gray-500">
+                      <p>Organizator: {event.fullName}</p>
+                      <p>
+                        <FontAwesomeIcon icon={faRoad} /> :{" "}
+                        <Link
+                          to={`/trail/${event.trailId}`}
+                          className="text-blue-500 underline hover:text-blue-700"
+                        >
+                          Szczegóły trasy
+                        </Link>
+                      </p>
+                      <p>
+                        <FontAwesomeIcon icon={faStopwatch} /> :{" "}
+                        {new Date(event.startDate).toLocaleString("pl-PL", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                      </p>
+                      <p>
+                        <FontAwesomeIcon icon={faFlagCheckered} /> :{" "}
+                        {new Date(event.endDate).toLocaleString("pl-PL", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                      <p>
+                        <FontAwesomeIcon icon={faUsers} /> :{" "}
+                        {event.participantsIds.length}/
+                        {event.participantsLimit === 2147483647
+                          ? "∞"
+                          : event.participantsLimit}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <div className="flex justify-center mt-8 space-x-2">
             <button
               className={`w-10 h-10 rounded-full ${
-                !filters.page > 1
+                filters.page === 1
                   ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-500 text-white"
+                  : "bg-primary text-white hover:bg-hover-background"
               }`}
               disabled={filters.page <= 1}
               onClick={() => handlePageChange(filters.page - 1)}
@@ -244,7 +346,7 @@ const Events = () => {
                 key={index}
                 className={`w-10 h-10 rounded-full ${
                   filters.page === index + 1
-                    ? "bg-blue-500 text-white"
+                    ? "bg-primary text-white hover:bg-hover-background"
                     : "bg-gray-200 text-gray-700"
                 }`}
                 onClick={() => handlePageChange(index + 1)}
@@ -256,7 +358,7 @@ const Events = () => {
               className={`w-10 h-10 rounded-full ${
                 filters.page >= totalPages
                   ? "bg-gray-300 cursor-not-allowed"
-                  : "bg-blue-500 text-white"
+                  : "bg-primary text-white hover:bg-hover-background"
               }`}
               disabled={filters.page >= totalPages}
               onClick={() => handlePageChange(filters.page + 1)}

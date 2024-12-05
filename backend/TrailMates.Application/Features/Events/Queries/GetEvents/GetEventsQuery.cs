@@ -11,16 +11,20 @@ namespace TrailMates.Application.Features.Events.Queries.GetEvents;
 public readonly record struct GetEventsQuery(GetEventsRequest Data)
     : IQuery<Result<PagedList<EventDto>, Error>>;
 
-internal sealed class GetEventsQueryHandler(IEventRepository repository)
-    : IQueryHandler<GetEventsQuery, Result<PagedList<EventDto>, Error>>
+internal sealed class GetEventsQueryHandler(
+    IEventRepository eventRepository,
+    IUserRepository userRepository
+) : IQueryHandler<GetEventsQuery, Result<PagedList<EventDto>, Error>>
 {
     public async Task<Result<PagedList<EventDto>, Error>> Handle(
         GetEventsQuery request,
         CancellationToken cancellationToken
     )
     {
-        var events = await repository.GetAll(request.Data, cancellationToken);
+        var events = await eventRepository.GetAll(request.Data, cancellationToken);
 
-        return Result.Success<PagedList<EventDto>, Error>(events.Value.ToDto());
+        var eventsDtos = await events.Value.ToDto(userRepository, cancellationToken);
+
+        return Result.Success<PagedList<EventDto>, Error>(eventsDtos);
     }
 }
