@@ -13,9 +13,10 @@ module.exports = {
         dark: '#111111',
       },
       fontFamily: {
-        light: 'Poppins_300Light',
-        regular: 'Poppins_400Regular',
-        bold: 'Poppins_700Bold',
+        light: 'Poppins_Light',
+        regular: 'Poppins_Regular',
+        bold: 'Poppins_Bold',
+        test: 'Test_Font_Delete',
       },
     },
   },
