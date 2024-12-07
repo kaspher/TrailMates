@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-const Activities = () => {
+const ActivitiesPage = () => {
   const [activities, setActivities] = useState([
-      //hardcoded data for now to test the layout, not copied from chat I promise
+    //hardcoded data for now to test the layout, not copied from chat I promise
     {
       id: 1,
       sport: "Mountain Bike Ride",
@@ -39,7 +39,10 @@ const Activities = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [menuVisible, setMenuVisible] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "ascending" });
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
 
@@ -78,11 +81,15 @@ const Activities = () => {
     if (sortConfig.key === "time") {
       const timeA = parseTime(a.time);
       const timeB = parseTime(b.time);
-      return sortConfig.direction === "ascending" ? timeA - timeB : timeB - timeA;
+      return sortConfig.direction === "ascending"
+        ? timeA - timeB
+        : timeB - timeA;
     } else if (sortConfig.key === "date") {
       const dateA = parseDate(a.date);
       const dateB = parseDate(b.date);
-      return sortConfig.direction === "ascending" ? dateA - dateB : dateB - dateA;
+      return sortConfig.direction === "ascending"
+        ? dateA - dateB
+        : dateB - dateA;
     } else {
       if (a[sortConfig.key] < b[sortConfig.key]) {
         return sortConfig.direction === "ascending" ? -1 : 1;
@@ -104,8 +111,10 @@ const Activities = () => {
   const editButtonClass = "text-blue-500";
   const deleteButtonClass = "text-red-500";
   const publishButtonClass = "text-black";
-  const popUpShareOptions = "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100";
-  const popUpMenuClass = "absolute mt-2 w-56 bg-white shadow-lg border rounded z-10";
+  const popUpShareOptions =
+    "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100";
+  const popUpMenuClass =
+    "absolute mt-2 w-56 bg-white shadow-lg border rounded z-10";
 
   const handleEditClick = (activity) => {
     setSelectedActivity(activity);
@@ -160,27 +169,55 @@ const Activities = () => {
           <table className="w-full border-collapse mb-5">
             <thead>
               <tr>
-                <th className={tableCellClass} onClick={() => handleSort("sport")}>
-                  Sport {sortConfig.key === "sport" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                <th
+                  className={tableCellClass}
+                  onClick={() => handleSort("sport")}
+                >
+                  Sport{" "}
+                  {sortConfig.key === "sport" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className={tableCellClass} onClick={() => handleSort("date")}>
-                  Data {sortConfig.key === "date" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                <th
+                  className={tableCellClass}
+                  onClick={() => handleSort("date")}
+                >
+                  Data{" "}
+                  {sortConfig.key === "date" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className={tableCellClass} onClick={() => handleSort("title")}>
-                  Tytuł {sortConfig.key === "title" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                <th
+                  className={tableCellClass}
+                  onClick={() => handleSort("title")}
+                >
+                  Tytuł{" "}
+                  {sortConfig.key === "title" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className={tableCellClass} onClick={() => handleSort("time")}>
-                  Czas {sortConfig.key === "time" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                <th
+                  className={tableCellClass}
+                  onClick={() => handleSort("time")}
+                >
+                  Czas{" "}
+                  {sortConfig.key === "time" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
-                <th className={tableCellClass} onClick={() => handleSort("distance")}>
-                  Dystans {sortConfig.key === "distance" && (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                <th
+                  className={tableCellClass}
+                  onClick={() => handleSort("distance")}
+                >
+                  Dystans{" "}
+                  {sortConfig.key === "distance" &&
+                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
                 </th>
                 <th className={tableCellClass}>Akcje</th>
               </tr>
             </thead>
             <tbody>
               {filteredActivities.map((activity, index) => (
-                <tr key={index} className="hover:bg-hover-background transition-all">
+                <tr
+                  key={index}
+                  className="hover:bg-hover-background transition-all"
+                >
                   <td className={tableCellClass}>{activity.sport}</td>
                   <td className={tableCellClass}>{activity.date}</td>
                   <td className={tableCellClass}>{activity.title}</td>
@@ -188,7 +225,12 @@ const Activities = () => {
                   <td className={tableCellClass}>{activity.distance}</td>
                   <td className={tableCellClass}>
                     <div className="flex space-x-4">
-                      <button className={editButtonClass} onClick={() => handleEditClick(activity)}>Edytuj</button>
+                      <button
+                        className={editButtonClass}
+                        onClick={() => handleEditClick(activity)}
+                      >
+                        Edytuj
+                      </button>
                       <button className={deleteButtonClass}>Usuń</button>
                       <div className="relative">
                         <button
@@ -279,4 +321,4 @@ const Activities = () => {
   );
 };
 
-export default Activities;
+export default ActivitiesPage;

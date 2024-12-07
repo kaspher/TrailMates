@@ -1,6 +1,6 @@
 import React from "react";
 
-function InputField({ id, type, label, value, onChange }) {
+export function InputField({ id, type, label, value, onChange }) {
   return (
     <div className="mb-4 relative">
       <input
@@ -36,5 +36,3 @@ function InputField({ id, type, label, value, onChange }) {
     </div>
   );
 }
-
-export default InputField;

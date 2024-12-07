@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomAlert from "../CustomAlert";
-import MapWithRoutes from "../trails/MapWithRoutes";
+import CustomAlert from "../../components/UI/CustomAlert";
+import MapWithRoutes from "../../components/Trails/MapWithRoutes";
 
-const Trails = () => {
+const TrailsPage = () => {
   const alertRef = useRef();
   const [trails, setTrails] = useState([]);
 
@@ -27,4 +27,4 @@ const Trails = () => {
   );
 };
 
-export default Trails;
+export default TrailsPage;

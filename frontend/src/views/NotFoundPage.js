@@ -1,4 +1,4 @@
-const NoPage = () => {
+const NotFoundPage = () => {
   return (
     <div className="relative w-screen h-screen overflow-hidden">
       <div className="absolute bottom-0 left-0 w-full h-full h-1/3 bg-404-forest bg-cover bg-bottom bg-no-repeat" />
@@ -13,4 +13,4 @@ const NoPage = () => {
   );
 };
 
-export default NoPage;
+export default NotFoundPage;

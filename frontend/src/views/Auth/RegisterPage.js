@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import InputField from "./InputField";
-import { registrationFormValidator } from "../../../utils/validators";
-import { useRegistration } from "../../../hooks/auth/useRegistration";
+import { InputField } from "../../components/UI/InputField";
+import { registrationFormValidator } from "../../utils/validators";
+import { useRegistration } from "../../hooks/useRegistration";
 
-function Register() {
+function RegisterPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,7 +30,7 @@ function Register() {
       setLastNameError,
       setEmailError,
       setPasswordError,
-      setGenderError,
+      setGenderError
     );
     if (!isFormValid) return;
 
@@ -119,7 +119,7 @@ function Register() {
           </button>
         </form>
         <div className="mt-6 text-center">
-        Masz już konto?{" "}
+          Masz już konto?{" "}
           <Link to="/login" className="text-blue-500 hover:underline">
             Zaloguj się tutaj!
           </Link>
@@ -129,4 +129,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default RegisterPage;

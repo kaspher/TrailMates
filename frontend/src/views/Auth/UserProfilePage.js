@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import CustomAlert from "../CustomAlert";
-import { useAuth } from "../../hooks/auth/AuthProvider";
+import CustomAlert from "../../components/UI/CustomAlert";
+import { useAuth } from "../../hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import loadingGif from "../../assets/img/loading.gif";
 
 const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
 
-const UserProfile = () => {
+const UserProfilePage = () => {
   const { user } = useAuth();
   const alertRef = useRef();
   const [loading, setLoading] = useState(true);
@@ -331,4 +331,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default UserProfilePage;

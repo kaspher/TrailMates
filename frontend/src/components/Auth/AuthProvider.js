@@ -1,12 +1,6 @@
-import {
-  useContext,
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { decodeToken } from "../../utils/jwtHelpers";
 
 const AuthContext = createContext(null);
 
@@ -28,11 +22,7 @@ const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("access_token");
     if (storedToken) {
       try {
-        const decodedToken = jwtDecode(storedToken);
-        const userData = {
-          id: decodedToken.id,
-          name: decodedToken.unique_name,
-        };
+        const userData = decodeToken(storedToken);
         setUser(userData);
         setToken(storedToken);
       } catch (error) {
@@ -64,7 +54,7 @@ const AuthProvider = ({ children }) => {
       const accessToken = await response.json();
 
       if (accessToken) {
-        const decodedToken = jwtDecode(accessToken);
+        const decodedToken = decodeToken(accessToken);
         const userData = {
           id: decodedToken.id,
           name: decodedToken.unique_name,
@@ -86,8 +76,4 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-export default AuthProvider;
-
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export { AuthContext, AuthProvider };

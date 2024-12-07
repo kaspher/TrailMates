@@ -9,11 +9,11 @@ import {
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
-import CustomAlert from "../CustomAlert";
+import CustomAlert from "../../components/UI/CustomAlert";
 import loadingGif from "../../assets/img/loading.gif";
-import { useAuth } from "../../hooks/auth/AuthProvider";
+import { useAuth } from "../../hooks/useAuth";
 
-const Events = () => {
+const EventsPage = () => {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -373,4 +373,4 @@ const Events = () => {
   );
 };
 
-export default Events;
+export default EventsPage;

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import InputField from "./InputField";
-import { useAuth } from "../../../hooks/auth/AuthProvider";
-import { loginFormValidator } from "../../../utils/validators";
+import { InputField } from "../../components/UI/InputField";
+import { useAuth } from "../../hooks/useAuth";
+import { loginFormValidator } from "../../utils/validators";
 
-function Login() {
+function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -17,7 +17,7 @@ function Login() {
       email,
       password,
       setEmailError,
-      setPasswordError,
+      setPasswordError
     );
     if (!isFormValid) return;
 
@@ -71,4 +71,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default LoginPage;

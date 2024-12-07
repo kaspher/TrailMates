@@ -13,7 +13,7 @@ export const useRegistration = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(userData),
-        },
+        }
       );
 
       if (response.status === 400) {
