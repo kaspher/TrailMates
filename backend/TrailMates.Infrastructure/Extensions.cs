@@ -8,12 +8,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TrailMates.Application.Abstractions;
 using TrailMates.Application.Abstractions.Authentication;
+using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Infrastructure.Common.Authentication;
 using TrailMates.Infrastructure.Common.Configuration;
 using TrailMates.Infrastructure.Common.Persistence;
+using TrailMates.Infrastructure.Persistence.Events;
+using TrailMates.Infrastructure.Persistence.Trails;
+using TrailMates.Infrastructure.Persistence.Users;
 using TrailMates.Infrastructure.Services;
-using TrailMates.Infrastructure.Trails.Persistence;
-using TrailMates.Infrastructure.Users.Persistence;
 
 namespace TrailMates.Infrastructure;
 
@@ -54,14 +56,20 @@ public static class Extensions
         var dbSettings = new DatabaseSettings();
         configuration.Bind(DatabaseSettings.DatabaseSettingsKey, dbSettings);
 
-        services.AddScoped<ITrailRepository, InMemoryTrailsRepository>();
+        services.AddScoped<ITrailRepository, InMemoryTrailRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IEventRepository, EventRepository>();
 
         services.AddScoped<IUserService, UserService>();
 
         services.AddDbContext<UsersDbContext>(options =>
             options.UseNpgsql(dbSettings.ConnectionString)
         );
+        services.AddDbContext<EventsDbContext>(options =>
+            options.UseNpgsql(dbSettings.ConnectionString)
+        );
+
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
     }
 
     private static void AddAuthenticationInternal(

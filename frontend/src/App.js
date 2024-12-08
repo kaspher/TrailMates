@@ -1,14 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
-import Home from "./components/pages/Home";
-import NoPage from "./components/pages/NoPage";
-import Trails from "./components/pages/Trails";
-import Layout from "./components/pages/Layout";
-import Activities from "./components/pages/Activities";
-import Login from "./components/pages/auth/Login";
-import Register from "./components/pages/auth/Register";
-import AuthProvider from "./hooks/auth/AuthProvider";
-import UserProfile from "./components/pages/UserProfile";
+import Home from "./views/HomePage";
+import NoPage from "./views/NotFoundPage";
+import Trails from "./views/Trails/TrailsPage";
+import Layout from "./views/Layout";
+import Activities from "./views/Activities/ActivitiesPage";
+import Events from "./views/Events/EventsPage";
+import UserProfile from "./views/Auth/UserProfilePage";
+import Login from "./views/Auth/LoginPage";
+import Register from "./views/Auth/RegisterPage";
+import { AuthProvider } from "./components/Auth/AuthProvider";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -20,11 +21,12 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="trails" element={<Trails />} />
-            <Route path="*" element={<NoPage />} />
             <Route path="activities" element={<Activities />} />
+            <Route path="events" element={<Events />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>
       </AuthProvider>
