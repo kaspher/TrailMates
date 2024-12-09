@@ -8,15 +8,17 @@ module.exports = {
         "404-forest": "url('/src/assets/img/404/404_forest.svg')",
         "404-background": "url('/src/assets/img/404/404_1.png')",
       },
-      colors:{
-        "primary": "#386641",
-        "secondary": "#111111",
-        "background": "#f2faf4",
-        "hover-background": "#294a2f",
+      colors: {
+        primary: "#386641",
+        secondary: "#111111",
+        background: "#f2faf4",
+        "hover-background": "#214d29",
         "hover-text": "#fff",
-      }
+      },
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"],
+      },
     },
   },
   plugins: [require("@tailwindcss/forms")],
 };
-

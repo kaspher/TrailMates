@@ -2,7 +2,8 @@
 
 public static class Constants
 {
-    public static string AccountTag = "Account";
-    public static string UsersTag = "Users";
-    public static string TrailsTag = "Trails";
+    public const string AccountTag = "Account";
+    public const string UsersTag = "Users";
+    public const string TrailsTag = "Trails";
+    public const string EventsTag = "Events";
 }

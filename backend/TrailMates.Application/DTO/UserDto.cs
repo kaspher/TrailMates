@@ -1,6 +1,4 @@
-﻿using TrailMates.Domain.Entities.Users;
-
-namespace TrailMates.Application.DTO;
+﻿namespace TrailMates.Application.DTO;
 
 public readonly record struct UserDto(
     string FirstName,
