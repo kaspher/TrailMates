@@ -18,7 +18,7 @@ internal sealed class JoinEventEndpoint : IEndpoint
         endpoints
             .MapGroup("/api/events/{eventId}")
             .MapPost("/join", HandlePost)
-            .WithName("join_event")
+            .WithName("join-event")
             .WithTags(Constants.EventsTag);
 
     private static Task<IResult> HandlePost(

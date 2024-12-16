@@ -8,6 +8,8 @@ public record User(
     string Gender,
     string Country,
     string City,
-    string Password,
-    string[] Roles
-);
+    string Password
+)
+{
+    public List<Role> Roles { get; set; } = [];
+}

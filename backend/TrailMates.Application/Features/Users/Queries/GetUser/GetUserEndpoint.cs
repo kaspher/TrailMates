@@ -16,7 +16,7 @@ public class GetUserEndpoint : IEndpoint
         endpoints
             .MapGroup("/api/users")
             .MapGet("/{userId}", HandleGet)
-            .WithName("get_user")
+            .WithName("get-user")
             .WithTags(Constants.UsersTag);
 
     private static Task<IResult> HandleGet(

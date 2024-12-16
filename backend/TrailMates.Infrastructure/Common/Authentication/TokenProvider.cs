@@ -41,7 +41,7 @@ public class TokenProvider(IConfiguration configuration) : ITokenProvider
         ci.AddClaim(new Claim(ClaimTypes.Email, user.Email));
 
         foreach (var role in user.Roles)
-            ci.AddClaim(new Claim(ClaimTypes.Role, role));
+            ci.AddClaim(new Claim(ClaimTypes.Role, role.Name));
 
         return ci;
     }

@@ -6,12 +6,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using TrailMates.Application.Abstractions;
 using TrailMates.Application.Abstractions.Authentication;
 using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Infrastructure.Common.Authentication;
 using TrailMates.Infrastructure.Common.Configuration;
 using TrailMates.Infrastructure.Common.Persistence;
+using TrailMates.Infrastructure.Persistence.Activities;
 using TrailMates.Infrastructure.Persistence.Events;
 using TrailMates.Infrastructure.Persistence.Trails;
 using TrailMates.Infrastructure.Persistence.Users;
@@ -56,18 +58,24 @@ public static class Extensions
         var dbSettings = new DatabaseSettings();
         configuration.Bind(DatabaseSettings.DatabaseSettingsKey, dbSettings);
 
-        services.AddScoped<ITrailRepository, InMemoryTrailRepository>();
+        services.AddScoped<ITrailRepository, TrailRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IActivityRepository, ActivityRepository>();
 
         services.AddScoped<IUserService, UserService>();
 
         services.AddDbContext<UsersDbContext>(options =>
             options.UseNpgsql(dbSettings.ConnectionString)
         );
-        services.AddDbContext<EventsDbContext>(options =>
-            options.UseNpgsql(dbSettings.ConnectionString)
-        );
+        services.AddDbContext<CoreDbContext>(options =>
+        {
+            var dataSourceBuilder = new NpgsqlDataSourceBuilder(dbSettings.ConnectionString);
+            dataSourceBuilder.EnableDynamicJson();
+            var dataSource = dataSourceBuilder.Build();
+            options.UseNpgsql(dataSource);
+        });
 
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
     }

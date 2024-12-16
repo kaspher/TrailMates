@@ -26,7 +26,8 @@ internal sealed class UserRepository(
     {
         var entity = await _users
             .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
         return entity is null
             ? Result.Failure<User, Error>(ErrorsTypes.NotFound($"User with id {id} was not found"))
@@ -53,6 +54,15 @@ internal sealed class UserRepository(
         return exists
             ? UnitResult.Success<Error>()
             : UnitResult.Failure(ErrorsTypes.NotFound($"User with email {email} was not found"));
+    }
+
+    public async Task<UnitResult<Error>> Exists(Guid id)
+    {
+        var exists = await _users.AnyAsync(x => x.Id == id);
+
+        return exists
+            ? UnitResult.Success<Error>()
+            : UnitResult.Failure(ErrorsTypes.NotFound($"User with id {id} was not found"));
     }
 
     public async Task<Result<string, Error>> Login(string email, string password)

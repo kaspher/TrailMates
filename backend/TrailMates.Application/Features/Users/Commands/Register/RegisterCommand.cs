@@ -17,6 +17,7 @@ public readonly record struct RegisterCommand(
 
 internal sealed class RegisterCommandHandler(
     IUserRepository userRepository,
+    IRoleRepository roleRepository,
     IPasswordHasher passwordHasher
 ) : ICommandHandler<RegisterCommand, UnitResult<Error>>
 {
@@ -33,6 +34,10 @@ internal sealed class RegisterCommandHandler(
             );
         }
 
+        var userRoleResult = await roleRepository.GetByName(RoleConstants.User, cancellationToken);
+        if (userRoleResult.IsFailure)
+            return userRoleResult.ConvertFailure<UnitResult<Error>>();
+
         await userRepository.Add(
             new User(
                 Id: Guid.NewGuid(),
@@ -42,9 +47,11 @@ internal sealed class RegisterCommandHandler(
                 Gender: command.Gender,
                 Country: "",
                 City: "",
-                Password: passwordHasher.Hash(command.Password),
-                Roles: ["user"]
+                Password: passwordHasher.Hash(command.Password)
             )
+            {
+                Roles = [userRoleResult.Value]
+            }
         );
 
         return UnitResult.Success<Error>();

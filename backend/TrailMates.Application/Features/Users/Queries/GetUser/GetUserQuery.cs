@@ -18,5 +18,13 @@ internal sealed class GetUserQueryHandler(IUserRepository repository)
     ) => await repository.GetById(request.UserId, cancellationToken).Map(ToDto);
 
     private static UserDto ToDto(User user) =>
-        new(user.FirstName, user.LastName, user.Email, user.Gender, user.Country, user.City);
+        new(
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            user.Gender,
+            user.Country,
+            user.City,
+            user.Roles.Select(r => r.Name).ToList()
+        );
 }

@@ -19,7 +19,7 @@ internal sealed class AddEventEndpoint : IEndpoint
         endpoints
             .MapGroup("/api/events")
             .MapPost("", HandlePost)
-            .WithName("add_event")
+            .WithName("add-event")
             .WithTags(Constants.EventsTag);
 
     private static Task<IResult> HandlePost(
