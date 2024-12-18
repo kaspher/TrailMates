@@ -16,7 +16,7 @@ internal sealed class GetEventsEndpoint : IEndpoint
         endpoints
             .MapGroup("/api/events")
             .MapGet("", HandleGet)
-            .WithName("get_events")
+            .WithName("get-events")
             .WithTags(Constants.EventsTag);
 
     private static Task<IResult> HandleGet(

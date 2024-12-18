@@ -31,9 +31,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Migrations\Events\" />
+      <Folder Include="Migrations\Core\" />
       <Folder Include="Migrations\Users\" />
-      <Folder Include="Persistence\" />
     </ItemGroup>
 
 </Project>

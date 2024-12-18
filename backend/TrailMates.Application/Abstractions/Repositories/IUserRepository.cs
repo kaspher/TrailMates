@@ -13,6 +13,7 @@ public interface IUserRepository
         CancellationToken cancellationToken = default
     );
     Task<UnitResult<Error>> Exists(string email);
+    Task<UnitResult<Error>> Exists(Guid id);
     Task<Result<string, Error>> Login(string email, string password);
     Task Add(User user);
     Task UpdateProfile(User user);

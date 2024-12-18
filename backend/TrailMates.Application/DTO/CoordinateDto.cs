@@ -1,7 +1,3 @@
 ﻿namespace TrailMates.Application.DTO;
 
-public class CoordinateDto(double latitude, double longitude)
-{
-    public double Latitude { get; set; } = latitude;
-    public double Longitude { get; set; } = longitude;
-}
+public record CoordinateDto(double Latitude, double Longitude, int Order);

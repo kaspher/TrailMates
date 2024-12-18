@@ -16,7 +16,7 @@ internal sealed class GetTrailsEndpoint : IEndpoint
         endpoints
             .MapGroup("/api/trails")
             .MapGet("", HandleGet)
-            .WithName("get_trails")
+            .WithName("get-trails")
             .WithTags(Constants.TrailsTag);
 
     private static Task<IResult> HandleGet(

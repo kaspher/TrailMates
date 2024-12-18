@@ -10,7 +10,7 @@ using TrailMates.Infrastructure.Common.Persistence;
 
 namespace TrailMates.Infrastructure.Persistence.Events;
 
-internal sealed class EventRepository(EventsDbContext dbContext) : IEventRepository
+internal sealed class EventRepository(CoreDbContext dbContext) : IEventRepository
 {
     private readonly DbSet<Event> _events = dbContext.Events;
 

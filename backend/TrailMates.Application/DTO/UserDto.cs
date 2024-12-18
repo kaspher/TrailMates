@@ -1,4 +1,6 @@
-﻿namespace TrailMates.Application.DTO;
+﻿using TrailMates.Domain.Entities.Users;
+
+namespace TrailMates.Application.DTO;
 
 public readonly record struct UserDto(
     string FirstName,
@@ -6,5 +8,6 @@ public readonly record struct UserDto(
     string Email,
     string Gender,
     string Country,
-    string City
+    string City,
+    List<string> Roles
 );

@@ -1,7 +1,14 @@
 ﻿namespace TrailMates.Domain.Entities.Trails;
 
-public class Trail(Guid id, IEnumerable<Coordinate> coordinates)
+public record Trail(Guid Id, string Name, Guid OwnerId, string Visibility = VisibilityType.Private)
 {
-    public Guid Id { get; private set; } = id;
-    public IEnumerable<Coordinate> Coordinates { get; private set; } = coordinates;
+    public List<Coordinate> Coordinates { get; set; } = [];
+}
+
+public record Coordinate(double Latitude, double Longitude, int Order);
+
+public abstract class VisibilityType
+{
+    public const string Private = "Private";
+    public const string Public = "Public";
 }

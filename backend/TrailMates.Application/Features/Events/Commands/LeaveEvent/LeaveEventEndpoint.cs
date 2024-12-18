@@ -18,7 +18,7 @@ internal sealed class LeaveEventEndpoint : IEndpoint
         endpoints
             .MapGroup("/api/events/{eventId}")
             .MapPost("/leave", HandlePost)
-            .WithName("leave_event")
+            .WithName("leave-event")
             .WithTags(Constants.EventsTag);
 
     private static Task<IResult> HandlePost(

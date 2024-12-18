@@ -12,6 +12,7 @@ public readonly record struct AddEventCommand(AddEventRequest Request)
 
 internal sealed class AddEventCommandHandler(
     IEventRepository eventRepository,
+    IUserRepository userRepository,
     ITrailRepository trailRepository
 ) : ICommandHandler<AddEventCommand, UnitResult<Error>>
 {
@@ -20,6 +21,10 @@ internal sealed class AddEventCommandHandler(
         CancellationToken cancellationToken
     )
     {
+        var userExistsResult = await userRepository.Exists(command.Request.OrganizerId);
+        if (userExistsResult.IsFailure)
+            return userExistsResult.ConvertFailure<UnitResult<Error>>();
+
         var trailExistsResult = await trailRepository.Exists(command.Request.TrailId);
         if (trailExistsResult.IsFailure)
             return trailExistsResult.ConvertFailure<UnitResult<Error>>();

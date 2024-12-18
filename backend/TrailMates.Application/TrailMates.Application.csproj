@@ -20,10 +20,6 @@
     </ItemGroup>
     
     <ItemGroup>
-      <Folder Include="Features\Trails\" />
-    </ItemGroup>
-    
-    <ItemGroup>
       <ProjectReference Include="..\TrailMates.Domain\TrailMates.Domain.csproj" />
     </ItemGroup>
 
