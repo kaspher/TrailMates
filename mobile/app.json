@@ -14,23 +14,16 @@
     },
     "ios": {
       "supportsTablet": true
-      
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.bezi19.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-font"
-    ],
-    "packagerOpts": {
-      "hostType": "localhost",
-      "port": 7186
     }
   }
 }

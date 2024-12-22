@@ -3,8 +3,6 @@ import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LongLogo from "../../assets/longlogo.svg";
 import Alert from '../utils/Alert';
-import { validateLoginInputs } from '../utils/Validator';
-import DevList from '../DevList';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
@@ -13,24 +11,6 @@ const LoginScreen = ({ navigation }) => {
     email: '',
     password: '',
   });
-
-  const [screens, setScreens] = useState([]);
-
-  useEffect(() => {
-    // NIZEJ DO USUNIECIA PRZED PUBLIKACJA (WCZYTYWANIE LISTY WSZYSTKICH EKRANÓW W ŚCIEŻCE ../../components/screens)
-    const loadScreens = () => {
-      const screenModules = require
-        .context('../../components/screens', true, /\.js$/)
-        .keys();
-
-      const screenNames = screenModules.map((file) =>
-        file.replace('./', '').replace('.js', '')
-      );
-      setScreens(screenNames);
-    };
-
-    loadScreens();
-  }, []); 
 
   const handleLogin = async () => {
     try {
@@ -103,13 +83,6 @@ const LoginScreen = ({ navigation }) => {
             <Text className="text-green-300">Zarejestruj się</Text>
           </TouchableOpacity>
         </View>
-
-        {/* DO USUNIECIA PRZED PUBLIKACJA */}
-        <View className="mt-4 bg-primary border">
-          <Text className="text-center font-bold text-white m-3">PANEL DEVELOPERA</Text>
-            <DevList screens={screens} />
-        </View>
-        {/* DO USUNIECIA PRZED PUBLIKACJA */}
       </View>
     </SafeAreaView>
   );

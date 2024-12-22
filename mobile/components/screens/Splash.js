@@ -3,7 +3,7 @@ import { View, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LongLogo from '../../assets/longlogo.svg';
 
-const SplashScreen = ({ navigation }) => {
+const Splash = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -35,4 +35,4 @@ const SplashScreen = ({ navigation }) => {
   );
 };
 
-export default SplashScreen;
+export default Splash;

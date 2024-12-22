@@ -1,12 +1,22 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import MapboxGL from '@rnmapbox/maps';
+import { View, StyleSheet } from 'react-native';
 
-const Trails = () => {
+//statyczne współrzędne Gdańska
+const longitude = 54.372158;
+const latitude = 	18.638306;
+
+export default function Trails() {
   return (
-    <View className="flex-1 justify-center items-center bg-light">
-      <Text className="text-2xl font-bold">Trails</Text>
+    <View style={styles.container}>
+      <MapboxGL.MapView style={styles.map}>
+        <MapboxGL.Camera zoomLevel={8} centerCoordinate={[longitude, latitude]} />
+      </MapboxGL.MapView>
     </View>
   );
-};
+}
 
-export default Trails;
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  map: { flex: 1 },
+});
