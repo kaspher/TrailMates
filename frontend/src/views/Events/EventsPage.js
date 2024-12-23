@@ -7,11 +7,10 @@ import loadingGif from "../../assets/img/loading.gif";
 import { useAuth } from "../../hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faArrowRight,
-  faArrowLeft,
   faChevronRight,
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
+import { fetchEvents, joinEvent, leaveEvent } from "../../services/eventsApi";
 
 const EventsPage = () => {
   const { user } = useAuth();
@@ -42,38 +41,12 @@ const EventsPage = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEventsData = useCallback(async () => {
     try {
       setLoading(true);
-      const queryParams = new URLSearchParams();
-      if (filters.startDateFrom)
-        queryParams.append("startDateFrom", filters.startDateFrom);
-      if (filters.startDateTo)
-        queryParams.append("startDateTo", filters.startDateTo);
-      if (filters.participantsLimitFrom)
-        queryParams.append(
-          "participantsLimitFrom",
-          filters.participantsLimitFrom
-        );
-      if (filters.participantsLimitTo)
-        queryParams.append("participantsLimitTo", filters.participantsLimitTo);
-      queryParams.append("sortBy", filters.sortBy);
-      queryParams.append("sortDescending", filters.sortDescending);
-      queryParams.append("page", filters.page);
-      queryParams.append("pageSize", filters.pageSize);
-      const response = await fetch(
-        `https://localhost:7186/api/events?${queryParams.toString()}`
-      );
-      if (response.ok) {
-        const eventData = await response.json();
-        setEvents(eventData.items || eventData);
-        setTotalPages(Math.ceil(eventData.totalCount / filters.pageSize));
-      } else {
-        alertRef.current?.showAlert(
-          "Błąd podczas pobierania wydarzeń",
-          "error"
-        );
-      }
+      const eventData = await fetchEvents(filters);
+      setEvents(eventData.items || eventData);
+      setTotalPages(Math.ceil(eventData.totalCount / filters.pageSize));
     } catch (error) {
       alertRef.current?.showAlert(
         "Wystąpił błąd podczas pobierania wydarzeń",
@@ -85,8 +58,8 @@ const EventsPage = () => {
   }, [filters]);
 
   useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
+    fetchEventsData();
+  }, [fetchEventsData]);
 
   const updateFilters = (field, value) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -103,26 +76,12 @@ const EventsPage = () => {
       return;
     }
     try {
-      const response = await fetch(
-        `https://localhost:7186/api/events/${eventId}/join`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(user.id),
-        }
-      );
-      if (response.ok) {
-        alertRef.current?.showAlert("Dołączono do wydarzenia!", "success");
-        fetchEvents();
-      } else {
-        alertRef.current?.showAlert(
-          "Błąd podczas dołączania do wydarzenia",
-          "error"
-        );
-      }
-    } catch (error) {
+      await joinEvent(eventId, user.id);
+      alertRef.current?.showAlert("Dołączono do wydarzenia!", "success");
+      fetchEventsData();
+    } catch {
       alertRef.current?.showAlert(
-        "Wystąpił błąd podczas dołączania do wydarzenia",
+        "Błąd podczas dołączania do wydarzenia",
         "error"
       );
     }
@@ -137,26 +96,12 @@ const EventsPage = () => {
       return;
     }
     try {
-      const response = await fetch(
-        `https://localhost:7186/api/events/${eventId}/leave`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(user.id),
-        }
-      );
-      if (response.ok) {
-        alertRef.current?.showAlert("Wydarzenie opuszczone!", "success");
-        fetchEvents();
-      } else {
-        alertRef.current?.showAlert(
-          "Błąd podczas opuszczania wydarzenia",
-          "error"
-        );
-      }
-    } catch (error) {
+      await leaveEvent(eventId, user.id);
+      alertRef.current?.showAlert("Wydarzenie opuszczone!", "success");
+      fetchEventsData();
+    } catch {
       alertRef.current?.showAlert(
-        "Wystąpił błąd podczas opuszczania wydarzenia",
+        "Błąd podczas opuszczania wydarzenia",
         "error"
       );
     }

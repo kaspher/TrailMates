@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect, useRef } from "react";
 import MobileLayout from "../components/Layout/MobileLayout";
@@ -13,6 +13,11 @@ const Layout = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
   const dropdownRef = useRef(null);
+
+  const location = useLocation();
+
+  const noPaddingRoutes = ["/trails"];
+  const shouldResetPadding = noPaddingRoutes.includes(location.pathname);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -73,7 +78,7 @@ const Layout = () => {
           logoUrl={logoUrl}
         />
       )}
-      <div className="pt-20">
+      <div className={shouldResetPadding ? "pt-0" : "pt-20"}>
         <Outlet />
       </div>
     </>
