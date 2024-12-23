@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomAlert from "../../components/UI/CustomAlert";
 import { useAuth } from "../../hooks/useAuth";
+import {
+  getUserById,
+  updateUserProfile,
+  updateUserProfilePicture,
+} from "../../services/usersApi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import loadingGif from "../../assets/img/loading.gif";
-
-const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
 
 const UserProfilePage = () => {
   const { user } = useAuth();
@@ -26,33 +29,23 @@ const UserProfilePage = () => {
   const [showFormSaveButton, setShowFormSaveButton] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setProfilePicture(cloudFrontDomainName + user.id);
-      const fetchUserData = async () => {
-        try {
-          const response = await fetch(
-            `https://localhost:7186/api/users/${user.id}`
-          );
-          if (response.ok) {
-            const userData = await response.json();
-            setFormData(userData);
-            setInitialData(userData);
-          } else {
-            alertRef.current?.showAlert(
-              "Błąd podczas pobierania danych użytkownika",
-              "error"
-            );
-          }
-        } catch (error) {
-          alertRef.current?.showAlert(
-            "Wystąpił błąd podczas pobierania danych użytkownika",
-            "error"
-          );
-        } finally {
-          setLoading(false);
-        }
-      };
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const userData = await getUserById(user.id);
+        setFormData(userData);
+        setInitialData(userData);
+        setProfilePicture(
+          `${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME}${user.id}`
+        );
+      } catch (error) {
+        alertRef.current?.showAlert(error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (user) {
       fetchUserData();
     } else {
       setLoading(false);
@@ -73,35 +66,16 @@ const UserProfilePage = () => {
 
   const handleFormSubmit = async () => {
     try {
-      const response = await fetch(
-        `https://localhost:7186/api/users/${user.id}/update-profile`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (response.ok) {
-        alertRef.current?.showAlert(
-          "Dane osobowe zostały zaktualizowane!",
-          "success"
-        );
-        setInitialData({ ...formData });
-        setShowFormSaveButton(false);
-      } else {
-        alertRef.current?.showAlert(
-          "Błąd podczas aktualizacji danych osobowych",
-          "error"
-        );
-      }
-    } catch (error) {
+      console.log(formData);
+      await updateUserProfile(user.id, formData);
       alertRef.current?.showAlert(
-        "Wystąpił błąd podczas aktualizacji danych osobowych",
-        "error"
+        "Dane osobowe zostały zaktualizowane!",
+        "success"
       );
+      setInitialData({ ...formData });
+      setShowFormSaveButton(false);
+    } catch (error) {
+      alertRef.current?.showAlert(error.message, "error");
     }
   };
 
@@ -122,32 +96,12 @@ const UserProfilePage = () => {
   const handleAvatarSubmit = async () => {
     if (!selectedFile) return;
 
-    const avatarFormData = new FormData();
-    avatarFormData.append("picture", selectedFile);
-
     try {
-      const response = await fetch(
-        `https://localhost:7186/api/users/${user.id}/update-profile-picture`,
-        {
-          method: "POST",
-          body: avatarFormData,
-        }
-      );
-
-      if (response.ok) {
-        alertRef.current?.showAlert("Avatar został zaktualizowany!", "success");
-        setShowAvatarSaveButton(false);
-      } else {
-        alertRef.current?.showAlert(
-          "Błąd podczas aktualizacji avatara",
-          "error"
-        );
-      }
+      await updateUserProfilePicture(user.id, selectedFile);
+      alertRef.current?.showAlert("Avatar został zaktualizowany!", "success");
+      setShowAvatarSaveButton(false);
     } catch (error) {
-      alertRef.current?.showAlert(
-        "Wystąpił błąd podczas aktualizacji avatara",
-        "error"
-      );
+      alertRef.current?.showAlert(error.message, "error");
     }
   };
 
