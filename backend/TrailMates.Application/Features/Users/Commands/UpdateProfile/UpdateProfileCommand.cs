@@ -22,7 +22,8 @@ internal sealed class UpdateProfileCommandHandler(IUserRepository userRepository
         if (userResult.IsFailure)
             return userResult.ConvertFailure<UnitResult<Error>>();
 
-        await userRepository.UpdateProfile(command.UserDto.Map(userResult.Value));
+        userResult.Value.Overwrite(command.UserDto);
+        await userRepository.UpdateProfile(userResult.Value);
         return UnitResult.Success<Error>();
     }
 }

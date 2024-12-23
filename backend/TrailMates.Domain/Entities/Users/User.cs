@@ -11,5 +11,14 @@ public record User(
     string Password
 )
 {
+    public Guid Id { get; set; } = Id;
+    public string FirstName { get; set; } = FirstName;
+    public string LastName { get; set; } = LastName;
+    public string Email { get; set; } = Email;
+    public string Gender { get; set; } = Gender;
+    public string Country { get; set; } = Country;
+    public string City { get; set; } = City;
+    public string Password { get; set; } = Password;
+
     public List<Role> Roles { get; set; } = [];
 }
