@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import CustomAlert from "../../components/UI/CustomAlert";
 import MapWithRoutes from "../../components/Trails/MapWithRoutes";
+import { fetchTrails } from "../../services/trailsApi";
 
 const TrailsPage = () => {
   const alertRef = useRef();
@@ -9,8 +10,7 @@ const TrailsPage = () => {
   useEffect(() => {
     (async () => {
       try {
-        const response = await fetch("https://localhost:7186/api/trails");
-        const trailsData = await response.json();
+        const trailsData = await fetchTrails();
         setTrails(trailsData);
       } catch (err) {
         if (alertRef.current)

@@ -25,7 +25,6 @@ internal sealed class UserRepository(
     )
     {
         var entity = await _users
-            .AsNoTracking()
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
@@ -89,7 +88,7 @@ internal sealed class UserRepository(
 
     public async Task UpdateProfile(User user)
     {
-        dbContext.Update(user);
+        _users.Update(user);
         await dbContext.SaveChangesAsync();
     }
 

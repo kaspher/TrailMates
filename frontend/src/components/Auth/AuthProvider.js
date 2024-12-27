@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../../utils/jwtHelpers";
+import { BASE_URL } from "../../config";
 
 const AuthContext = createContext(null);
 
@@ -34,7 +35,7 @@ const AuthProvider = ({ children }) => {
 
   const loginAction = async (email, password, setEmailError) => {
     try {
-      const response = await fetch("https://localhost:7186/api/account/login", {
+      const response = await fetch(`${BASE_URL}/account/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
