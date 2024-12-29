@@ -1,8 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./App.{js,jsx,ts,tsx}", 
-    "./components/**/*.{js,jsx,ts,tsx}"
-  ],
+  content: ["./App.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
@@ -13,10 +11,10 @@ module.exports = {
         dark: '#111111',
       },
       fontFamily: {
-        light: 'Poppins_Light',
-        regular: 'Poppins_Regular',
-        bold: 'Poppins_Bold',
-        test: 'Test_Font_Delete',
+        light: 'Poppins-Light',
+        regular: 'Poppins-Regular',
+        bold: 'Poppins-Bold',
+        test: 'Test-Font-Delete',
       },
     },
   },

@@ -25,7 +25,7 @@ const UserProfile = ({ navigation }) => {
         
         if (token) {
           const decoded = jwtDecode(token);
-          console.log('Decoded Token:', decoded);
+          console.log('Zdekodowany token:', decoded);
 
           if (decoded && decoded.unique_name) {
             setUserName(decoded.unique_name);
