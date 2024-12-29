@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
 import Alert from '../utils/Alert';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import CenterIcon from '../../assets/icons/paper-plane-regular.svg';
+import LocationIcon from '../../assets/icons/location-arrow-solid.svg';
 
 export default function Trails() {
   const [location, setLocation] = useState(null);
@@ -175,14 +175,14 @@ export default function Trails() {
         className="absolute bottom-5 right-5 bg-primary p-4 rounded-full shadow-md"
         onPress={isTracking ? stopTracking : startTracking}
       >
-        <Text className="text-white font-bold text-base">{isTracking ? 'Zakończ trasę' : 'Rozpocznij trasę'}</Text>
+        <Text className="text-white font-regular text-base">{isTracking ? 'Zakończ trasę' : 'Rozpocznij trasę'}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         className="absolute bottom-24 right-5 bg-primary p-4 rounded-full shadow-md"
         onPress={centerMapOnMarker}
       >
-        <CenterIcon width={24} height={24} fill="#FFFFFF" />
+        <LocationIcon width={24} height={24} fill="#FFFFFF" />
       </TouchableOpacity>
     </SafeAreaView>
   );
