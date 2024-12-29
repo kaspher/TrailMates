@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, SafeAreaView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Alert from '../utils/Alert';
 
 const UserProfile = ({ navigation }) => {
   const [userName, setUserName] = useState('');
