@@ -171,6 +171,10 @@ namespace TrailMates.Infrastructure.Migrations.Core
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Visibility")
                         .IsRequired()
                         .HasColumnType("text");

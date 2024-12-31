@@ -44,7 +44,7 @@ const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        if (response.status === 404) {
+        if (response.status === 400 || response.status === 404) {
           setEmailError("Podany adres email lub hasło są nie poprawne!");
           return;
         }

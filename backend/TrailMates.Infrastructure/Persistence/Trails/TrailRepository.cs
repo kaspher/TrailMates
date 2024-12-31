@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using TrailMates.Application.Abstractions.Repositories;
+using TrailMates.Application.Features.Trails.Queries.GetTrails;
+using TrailMates.Application.Specifications.Trails;
 using TrailMates.Domain.Entities.Trails;
 using TrailMates.Domain.Errors;
 using TrailMates.Infrastructure.Common.Persistence;
@@ -20,8 +22,24 @@ public sealed class TrailRepository(CoreDbContext dbContext) : ITrailRepository
             : UnitResult.Failure(ErrorsTypes.NotFound($"Trail with id {trailId} was not found"));
     }
 
-    public async Task<List<Trail>> GetAll(CancellationToken cancellationToken = default) =>
-        await _trails.ToListAsync(cancellationToken);
+    public async Task<List<Trail>> GetAll(
+        GetTrailsRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var trails = await _trails.ToListAsync(cancellationToken);
+
+        var filteredTrails = trails.ApplyFilters(
+            request.MinimumLatitude,
+            request.MaximumLatitude,
+            request.MinimumLongitude,
+            request.MaximumLongitude,
+            request.TrailTypes,
+            request.Visibility
+        );
+
+        return filteredTrails.ToList();
+    }
 
     public async Task<Result<Trail, Error>> GetById(
         Guid id,

@@ -25,7 +25,12 @@ internal sealed class AddTrailCommandHandler(
             return userExistsResult.ConvertFailure<UnitResult<Error>>();
 
         await trailRepository.Add(
-            new Trail(Guid.NewGuid(), command.Request.Name, command.Request.OwnerId)
+            new Trail(
+                Guid.NewGuid(),
+                command.Request.Name,
+                command.Request.OwnerId,
+                command.Request.TrailType
+            )
             {
                 Coordinates = command.Request.Coordinates
             }

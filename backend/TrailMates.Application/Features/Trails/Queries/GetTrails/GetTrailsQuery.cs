@@ -8,18 +8,22 @@ using Result = CSharpFunctionalExtensions.Result;
 
 namespace TrailMates.Application.Features.Trails.Queries.GetTrails;
 
-public readonly record struct GetTrailsQuery : IQuery<Result<List<TrailDto>, Error>>;
+public readonly record struct GetTrailsQuery(GetTrailsRequest Request)
+    : IQuery<Result<List<TrailDto>, Error>>;
 
-internal sealed class GetTrailsQueryHandler(ITrailRepository repository)
-    : IQueryHandler<GetTrailsQuery, Result<List<TrailDto>, Error>>
+internal sealed class GetTrailsQueryHandler(
+    ITrailRepository repository,
+    IUserRepository userRepository
+) : IQueryHandler<GetTrailsQuery, Result<List<TrailDto>, Error>>
 {
     public async Task<Result<List<TrailDto>, Error>> Handle(
-        GetTrailsQuery request,
+        GetTrailsQuery query,
         CancellationToken cancellationToken
     )
     {
-        var trails = await repository.GetAll(cancellationToken);
+        var trails = await repository.GetAll(query.Request, cancellationToken);
+        var trailsDtos = await trails.ToDto(userRepository, cancellationToken);
 
-        return Result.Success<List<TrailDto>, Error>(trails.ToDto());
+        return Result.Success<List<TrailDto>, Error>(trailsDtos);
     }
 }

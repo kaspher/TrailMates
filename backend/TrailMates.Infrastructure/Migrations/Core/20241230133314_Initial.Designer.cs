@@ -14,7 +14,7 @@ using TrailMates.Infrastructure.Common.Persistence;
 namespace TrailMates.Infrastructure.Migrations.Core
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20241216182516_Initial")]
+    [Migration("20241230133314_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -173,6 +173,10 @@ namespace TrailMates.Infrastructure.Migrations.Core
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Visibility")
                         .IsRequired()

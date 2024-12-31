@@ -24,6 +24,7 @@ namespace TrailMates.Infrastructure.Migrations.Core
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false),
                     Visibility = table.Column<string>(type: "text", nullable: false),
                     Coordinates = table.Column<List<Coordinate>>(type: "jsonb", nullable: false)
                 },
