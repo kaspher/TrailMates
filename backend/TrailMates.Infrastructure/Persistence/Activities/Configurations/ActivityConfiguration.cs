@@ -11,10 +11,9 @@ internal sealed class ActivityConfiguration : IEntityTypeConfiguration<Activity>
     {
         builder.ToTable("Activities");
         builder.HasKey(a => a.Id);
-
         builder.Property(a => a.Title).IsRequired().HasMaxLength(255);
-
         builder.Property(a => a.Description).HasMaxLength(1000);
+        builder.Property(a => a.OwnerId).IsRequired();
 
         builder
             .HasOne<Trail>()

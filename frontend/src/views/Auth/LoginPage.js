@@ -9,8 +9,8 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
   const auth = useAuth();
+
   const handleSubmit = (ev) => {
     ev.preventDefault();
     const isFormValid = loginFormValidator(

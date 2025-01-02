@@ -66,7 +66,6 @@ const UserProfilePage = () => {
 
   const handleFormSubmit = async () => {
     try {
-      console.log(formData);
       await updateUserProfile(user.id, formData);
       alertRef.current?.showAlert(
         "Dane osobowe zostały zaktualizowane!",

@@ -69,11 +69,13 @@ public static class Extensions
         services.AddDbContext<UsersDbContext>(options =>
             options.UseNpgsql(dbSettings.ConnectionString)
         );
+
+        var dataSource = new NpgsqlDataSourceBuilder(dbSettings.ConnectionString)
+            .EnableDynamicJson()
+            .Build();
+
         services.AddDbContext<CoreDbContext>(options =>
         {
-            var dataSourceBuilder = new NpgsqlDataSourceBuilder(dbSettings.ConnectionString);
-            dataSourceBuilder.EnableDynamicJson();
-            var dataSource = dataSourceBuilder.Build();
             options.UseNpgsql(dataSource);
         });
 

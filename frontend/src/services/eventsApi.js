@@ -15,7 +15,7 @@ export const fetchEvents = async (filters) => {
   queryParams.append("page", filters.page);
   queryParams.append("pageSize", filters.pageSize);
 
-  const response = await fetch(`${BASE_URL}events?${queryParams.toString()}`);
+  const response = await fetch(`${BASE_URL}/events?${queryParams.toString()}`);
   if (!response.ok) {
     throw new Error("Failed to fetch events");
   }

@@ -20,10 +20,11 @@ internal sealed class GetTrailsEndpoint : IEndpoint
             .WithTags(Constants.TrailsTag);
 
     private static Task<IResult> HandleGet(
+        [AsParameters] GetTrailsRequest request,
         IMediator dispatcher,
         CancellationToken cancellationToken
     ) =>
         dispatcher
-            .Send(new GetTrailsQuery(), cancellationToken)
+            .Send(request.ToQuery(), cancellationToken)
             .Match(Results.Ok, error => error.ToErrorProblemResult());
 }
