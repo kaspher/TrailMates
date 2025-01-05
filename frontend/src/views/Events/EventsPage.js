@@ -25,6 +25,17 @@ const EventsPage = () => {
     sortDescending: false,
     page: 1,
     pageSize: 10,
+    trailTypes: {
+      Cycling: false,
+      Running: false,
+      Walking: false,
+    },
+    statuses: {
+      Open: true,
+      Active: false,
+      Cancelled: false,
+      Completed: false,
+    },
   };
   const [filters, setFilters] = useState(initialFilters);
   const [totalPages, setTotalPages] = useState(1);
@@ -155,7 +166,7 @@ const EventsPage = () => {
           </p>
         </header>
         <div
-          className={`flex ${isMobileView ? "justify-center" : "justify-end"} mt-4 mb-4`}
+          className={`flex ${isMobileView ? "justify-center" : "justify-end"} my-4`}
         >
           <select
             className="w-48 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"

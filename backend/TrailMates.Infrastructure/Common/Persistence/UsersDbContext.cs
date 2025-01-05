@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrailMates.Domain.Entities.Users;
-using TrailMates.Infrastructure.Persistence.Users;
 using TrailMates.Infrastructure.Persistence.Users.Configurations;
 
 namespace TrailMates.Infrastructure.Common.Persistence;

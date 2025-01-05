@@ -2,7 +2,7 @@ export const loginFormValidator = (
   email,
   password,
   setEmailError,
-  setPasswordError,
+  setPasswordError
 ) => {
   setEmailError("");
   setPasswordError("");
@@ -32,7 +32,7 @@ export const registrationFormValidator = (
   setLastNameError,
   setEmailError,
   setPasswordError,
-  setGenderError,
+  setGenderError
 ) => {
   setFirstNameError("");
   setLastNameError("");

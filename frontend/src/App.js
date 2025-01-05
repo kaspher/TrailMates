@@ -7,6 +7,7 @@ import Layout from "./views/Layout";
 import Activities from "./views/Activities/ActivitiesPage";
 import Events from "./views/Events/EventsPage";
 import UserProfile from "./views/Auth/UserProfilePage";
+import UserStatistics from "./views/Auth/UserStatisticsPage";
 import Login from "./views/Auth/LoginPage";
 import Register from "./views/Auth/RegisterPage";
 import { AuthProvider } from "./components/Auth/AuthProvider";
@@ -24,6 +25,7 @@ function App() {
             <Route path="activities" element={<Activities />} />
             <Route path="events" element={<Events />} />
             <Route path="profile" element={<UserProfile />} />
+            <Route path="profile/:userId" element={<UserStatistics />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="*" element={<NoPage />} />

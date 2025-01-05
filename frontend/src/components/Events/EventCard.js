@@ -9,30 +9,27 @@ import {
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
+import {
+  eventStatusColors,
+  eventStatusTranslations,
+} from "../../utils/statusMappings";
 
 const EventCard = ({
   event,
   isUserJoined,
   handleJoinEvent,
   handleLeaveEvent,
-  user,
 }) => (
-  <div className="relative bg-white border border-gray-200 rounded-lg p-6 shadow-lg">
-    <button
-      onClick={() =>
-        isUserJoined ? handleLeaveEvent(event.id) : handleJoinEvent(event.id)
-      }
-      className={`absolute top-4 right-4 py-2 px-4 rounded-lg flex items-center gap-2 ${
-        isUserJoined
-          ? "bg-red-600 text-white hover:bg-red-700"
-          : "bg-primary text-white hover:bg-hover-background"
-      }`}
-    >
-      {isUserJoined ? "Opuść" : "Dołącz"}
-      <FontAwesomeIcon icon={isUserJoined ? faSignOutAlt : faUserPlus} />
-    </button>
-    <h3 className="text-2xl font-semibold mb-4 pr-16">{event.name}</h3>
-    <p className="text-gray-700 mb-6 pr-16">{event.description}</p>
+  <div className="relative bg-white border border-gray-200 rounded-lg p-6 pb-12 shadow-lg mb-8">
+    <div className="flex justify-between items-start">
+      <h3 className="text-2xl font-semibold">{event.name}</h3>
+      <div
+        className={`px-3 py-1 rounded text-white text-sm font-medium ${eventStatusColors[event.status]}`}
+      >
+        {eventStatusTranslations[event.status]}
+      </div>
+    </div>
+    <p className="text-gray-700 my-4">{event.description}</p>
     <div className="text-gray-500">
       <p>Organizator: {event.fullName}</p>
       <p>
@@ -68,6 +65,30 @@ const EventCard = ({
         <FontAwesomeIcon icon={faUsers} /> : {event.participantsIds.length}/
         {event.participantsLimit === 2147483647 ? "∞" : event.participantsLimit}
       </p>
+    </div>
+    <div className="relative group">
+      <button
+        onClick={() =>
+          isUserJoined ? handleLeaveEvent(event.id) : handleJoinEvent(event.id)
+        }
+        disabled={event.status !== "Open"}
+        className={`absolute bottom-[-24px] right-0 py-2 px-4 rounded-lg flex items-center gap-2 ${
+          isUserJoined
+            ? "bg-red-600 text-white hover:bg-red-700"
+            : event.status !== "Open"
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-primary text-white hover:bg-hover-background"
+        }`}
+      >
+        {isUserJoined ? "Opuść" : "Dołącz"}
+        <FontAwesomeIcon icon={isUserJoined ? faSignOutAlt : faUserPlus} />
+      </button>
+      {event.status !== "Open" && (
+        <span className="absolute right-0 bottom-[-60px] w-48 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity text-center">
+          Nie można dołączyć (
+          {eventStatusTranslations[event.status].toLowerCase()})
+        </span>
+      )}
     </div>
   </div>
 );

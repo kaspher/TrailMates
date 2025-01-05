@@ -24,3 +24,14 @@ export const fetchTrails = async (bounds, filters) => {
     throw err;
   }
 };
+
+export const fetchUserTrails = async (userId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/trails?UserId=${userId}`);
+    if (!response.ok) throw new Error("Failed to fetch user trails");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user trails:", error);
+    throw error;
+  }
+};

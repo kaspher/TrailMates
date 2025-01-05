@@ -71,3 +71,32 @@ export const zoomToTrail = async (map, trail) => {
     padding: 200,
   });
 };
+
+export const getAddressFromCoordinates = async (longitude, latitude) => {
+  try {
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}&language=pl`
+    );
+    const data = await response.json();
+    if (data.features && data.features.length > 0) {
+      const relevantFeatures = data.features.find(
+        feature => 
+          feature.place_type.includes('place') || 
+          feature.place_type.includes('locality') ||
+          feature.place_type.includes('neighborhood')
+      );
+      
+      if (relevantFeatures) {
+        return relevantFeatures.text;
+      }
+      
+      const mainFeature = data.features[0];
+      const addressParts = mainFeature.place_name.split(',');
+      return addressParts[0].trim();
+    }
+    return null;
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    return null;
+  }
+};

@@ -14,7 +14,7 @@ using TrailMates.Infrastructure.Common.Persistence;
 namespace TrailMates.Infrastructure.Migrations.Core
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20241230133314_Initial")]
+    [Migration("20250103201143_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

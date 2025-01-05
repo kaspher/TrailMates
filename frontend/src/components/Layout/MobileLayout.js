@@ -9,6 +9,7 @@ import {
   faCalendarAlt,
   faRunning,
   faBars,
+  faChartBar,
 } from "@fortawesome/free-solid-svg-icons";
 
 const MobileLayout = ({
@@ -90,6 +91,14 @@ const MobileLayout = ({
                   >
                     <FontAwesomeIcon icon={faUser} className="mr-2" />
                     Mój profil
+                  </Link>
+                  <Link
+                    to={`/profile/${user.id}`}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left flex items-center"
+                    onClick={handleDropdownClose}
+                  >
+                    <FontAwesomeIcon icon={faChartBar} className="mr-2" />
+                    Moje statystyki
                   </Link>
                   <Link
                     to="/activities"

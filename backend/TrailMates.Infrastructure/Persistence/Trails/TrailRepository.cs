@@ -30,6 +30,7 @@ public sealed class TrailRepository(CoreDbContext dbContext) : ITrailRepository
         var trails = await _trails.ToListAsync(cancellationToken);
 
         var filteredTrails = trails.ApplyFilters(
+            request.UserId,
             request.MinimumLatitude,
             request.MaximumLatitude,
             request.MinimumLongitude,
@@ -53,6 +54,19 @@ public sealed class TrailRepository(CoreDbContext dbContext) : ITrailRepository
                 ErrorsTypes.NotFound($"Trail with id: {id} has not been found")
             )
             : Result.Success<Trail, Error>(entity);
+    }
+
+    public async Task<Result<List<Trail>, Error>> GetByIds(
+        List<Guid> ids,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entities = await _trails
+            .AsNoTracking()
+            .Where(user => ids.Contains(user.Id))
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<List<Trail>, Error>(entities);
     }
 
     public async Task Add(Trail trail)

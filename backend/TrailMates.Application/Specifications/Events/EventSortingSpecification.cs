@@ -4,8 +4,8 @@ namespace TrailMates.Application.Specifications.Events;
 
 public static class EventSortingSpecification
 {
-    public static IQueryable<Event> ApplySorting(
-        this IQueryable<Event> query,
+    public static IEnumerable<Event> ApplySorting(
+        this IEnumerable<Event> events,
         string? sortBy,
         bool sortDescending
     )
@@ -14,21 +14,21 @@ public static class EventSortingSpecification
         {
             "name"
                 => sortDescending
-                    ? query.OrderByDescending(e => e.Name)
-                    : query.OrderBy(e => e.Name),
+                    ? events.OrderByDescending(e => e.Name)
+                    : events.OrderBy(e => e.Name),
             "startdate"
                 => sortDescending
-                    ? query.OrderByDescending(e => e.StartDate)
-                    : query.OrderBy(e => e.StartDate),
+                    ? events.OrderByDescending(e => e.StartDate)
+                    : events.OrderBy(e => e.StartDate),
             "enddate"
                 => sortDescending
-                    ? query.OrderByDescending(e => e.EndDate)
-                    : query.OrderBy(e => e.EndDate),
+                    ? events.OrderByDescending(e => e.EndDate)
+                    : events.OrderBy(e => e.EndDate),
             "participantslimit"
                 => sortDescending
-                    ? query.OrderByDescending(e => e.ParticipantsLimit)
-                    : query.OrderBy(e => e.ParticipantsLimit),
-            _ => query.OrderBy(e => e.StartDate)
+                    ? events.OrderByDescending(e => e.ParticipantsLimit)
+                    : events.OrderBy(e => e.ParticipantsLimit),
+            _ => events.OrderBy(e => e.StartDate)
         };
     }
 }

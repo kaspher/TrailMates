@@ -13,6 +13,10 @@ public interface IEventRepository
         CancellationToken cancellationToken = default
     );
     Task<Result<Event, Error>> GetById(Guid id, CancellationToken cancellationToken = default);
+    Task<Result<List<Event>, Error>> GetByUserId(
+        Guid userId,
+        CancellationToken cancellationToken = default
+    );
     Task<UnitResult<Error>> AddEvent(Event evnt);
     Task<UnitResult<Error>> JoinEvent(Event evnt, Guid userId);
     Task<UnitResult<Error>> LeaveEvent(Event evnt, Guid userId);

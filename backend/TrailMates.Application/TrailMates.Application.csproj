@@ -22,5 +22,11 @@
     <ItemGroup>
       <ProjectReference Include="..\TrailMates.Domain\TrailMates.Domain.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Features\Activities\Commands\AddLike\" />
+      <Folder Include="Features\Activities\Commands\DeleteComment\" />
+      <Folder Include="Features\Activities\Commands\DeleteLike\" />
+    </ItemGroup>
 
 </Project>
