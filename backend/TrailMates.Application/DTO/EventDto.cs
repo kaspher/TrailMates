@@ -6,6 +6,7 @@ public record EventDto(
     string Description,
     string FullName,
     Guid TrailId,
+    string TrailType,
     string Status,
     List<Guid> ParticipantsIds,
     DateTime StartDate,

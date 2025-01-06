@@ -6,6 +6,7 @@ public static class TrailFilteringSpecification
 {
     public static IEnumerable<Trail> ApplyFilters(
         this IEnumerable<Trail> trails,
+        Guid? userId,
         double? minimumLatitude,
         double? maximumLatitude,
         double? minimumLongitude,
@@ -14,6 +15,8 @@ public static class TrailFilteringSpecification
         string? visibility
     )
     {
+        if (userId.HasValue)
+            trails = trails.Where(x => x.OwnerId == userId);
         if (
             minimumLatitude.HasValue
             || maximumLatitude.HasValue
@@ -31,7 +34,7 @@ public static class TrailFilteringSpecification
             );
         }
 
-        if (trailTypes != null && trailTypes.Length != 0)
+        if (trailTypes is not null && trailTypes.Length != 0)
             trails = trails.Where(trail =>
                 trailTypes
                     .Select(type => type.ToLowerInvariant())

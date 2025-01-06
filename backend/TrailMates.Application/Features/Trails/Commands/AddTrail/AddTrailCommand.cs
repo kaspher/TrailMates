@@ -29,7 +29,7 @@ internal sealed class AddTrailCommandHandler(
                 Guid.NewGuid(),
                 command.Request.Name,
                 command.Request.OwnerId,
-                command.Request.TrailType
+                command.Request.Type
             )
             {
                 Coordinates = command.Request.Coordinates

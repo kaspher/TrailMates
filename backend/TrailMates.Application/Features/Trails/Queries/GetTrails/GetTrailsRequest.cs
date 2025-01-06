@@ -4,6 +4,7 @@ using TrailMates.Domain.Entities.Trails;
 namespace TrailMates.Application.Features.Trails.Queries.GetTrails;
 
 public record GetTrailsRequest(
+    [FromQuery] Guid? UserId = null,
     [FromQuery] double? MinimumLatitude = null,
     [FromQuery] double? MaximumLatitude = null,
     [FromQuery] double? MinimumLongitude = null,

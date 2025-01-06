@@ -13,7 +13,8 @@ public readonly record struct GetEventsQuery(GetEventsRequest Data)
 
 internal sealed class GetEventsQueryHandler(
     IEventRepository eventRepository,
-    IUserRepository userRepository
+    IUserRepository userRepository,
+    ITrailRepository trailRepository
 ) : IQueryHandler<GetEventsQuery, Result<PagedList<EventDto>, Error>>
 {
     public async Task<Result<PagedList<EventDto>, Error>> Handle(
@@ -23,7 +24,11 @@ internal sealed class GetEventsQueryHandler(
     {
         var events = await eventRepository.GetAll(request.Data, cancellationToken);
 
-        var eventsDtos = await events.Value.ToDto(userRepository, cancellationToken);
+        var eventsDtos = await events.Value.ToDto(
+            userRepository,
+            trailRepository,
+            cancellationToken
+        );
 
         return Result.Success<PagedList<EventDto>, Error>(eventsDtos);
     }

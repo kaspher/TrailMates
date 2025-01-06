@@ -13,5 +13,9 @@ public interface ITrailRepository
         CancellationToken cancellationToken = default
     );
     Task<Result<Trail, Error>> GetById(Guid id, CancellationToken cancellationToken = default);
+    Task<Result<List<Trail>, Error>> GetByIds(
+        List<Guid> ids,
+        CancellationToken cancellationToken = default
+    );
     Task Add(Trail trail);
 }

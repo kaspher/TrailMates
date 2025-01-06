@@ -2,7 +2,7 @@
 
 namespace TrailMates.Application.DTO;
 
-public class ActivityDto(
+public record ActivityDto(
     Guid Id,
     string Title,
     string Description,

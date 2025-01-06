@@ -10,7 +10,8 @@ using TrailMates.Infrastructure.Common.Persistence;
 
 namespace TrailMates.Infrastructure.Persistence.Events;
 
-internal sealed class EventRepository(CoreDbContext dbContext) : IEventRepository
+internal sealed class EventRepository(CoreDbContext dbContext, ITrailRepository trailRepository)
+    : IEventRepository
 {
     private readonly DbSet<Event> _events = dbContext.Events;
 
@@ -19,21 +20,21 @@ internal sealed class EventRepository(CoreDbContext dbContext) : IEventRepositor
         CancellationToken cancellationToken = default
     )
     {
-        var eventsQuery = _events
-            .AsNoTracking()
+        var eventsQuery = await _events
+            .ApplySorting(request.SortBy, request.SortDescending)
             .ApplyFilters(
+                trailRepository,
+                request.UserId,
+                request.TrailId,
                 request.StartDateFrom,
                 request.StartDateTo,
                 request.ParticipantsLimitFrom,
-                request.ParticipantsLimitTo
-            )
-            .ApplySorting(request.SortBy, request.SortDescending);
+                request.ParticipantsLimitTo,
+                request.Statuses,
+                request.TrailTypes
+            );
 
-        var events = await PagedList<Event>.CreateAsync(
-            eventsQuery,
-            request.Page,
-            request.PageSize
-        );
+        var events = PagedList<Event>.CreateFromList(eventsQuery, request.Page, request.PageSize);
 
         return Result.Success<PagedList<Event>, Error>(events);
     }
@@ -52,6 +53,18 @@ internal sealed class EventRepository(CoreDbContext dbContext) : IEventRepositor
                 ErrorsTypes.NotFound($"Event with id {id} was not found")
             )
             : Result.Success<Event, Error>(entity);
+    }
+
+    public async Task<Result<List<Event>, Error>> GetByUserId(
+        Guid userId,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var events = await _events
+            .Where(x => x.OrganizerId == userId)
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<List<Event>, Error>(events);
     }
 
     public async Task<UnitResult<Error>> AddEvent(Event evnt)

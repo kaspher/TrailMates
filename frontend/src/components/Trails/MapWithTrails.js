@@ -6,20 +6,91 @@ import {
   zoomToTrail,
   calculateDistance,
 } from "../../utils/trailsUtils";
-import { TRAIL_COLORS } from "../../constants/colors";
+import { colorManager } from "../../utils/colorManager";
 import { fetchTrails } from "../../services/trailsApi";
 import TrailPanel from "./TrailPanel";
 import Filters from "../Trails/Filters";
+import TrailDetailsModal from "./TrailDetailsModal";
 
 const MapWithTrails = ({ trails, setTrails }) => {
   const mapContainerRef = useRef(null);
   const [map, setMap] = useState(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [selectedTrail, setSelectedTrail] = useState(null);
   const filtersRef = useRef({
     lengthRange: { from: "", to: "" },
     trailTypes: {},
   });
   const currentLayersRef = useRef(new Set());
+  const pulseAnimationRef = useRef(null);
+
+  const startPulseAnimation = useCallback(
+    (layerId) => {
+      if (pulseAnimationRef.current) {
+        cancelAnimationFrame(pulseAnimationRef.current);
+      }
+
+      let start = null;
+      const duration = 1500;
+      const minWidth = 4;
+      const maxWidth = 7;
+
+      const animate = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = (timestamp - start) % duration;
+        const phase = progress / duration;
+
+        const width =
+          minWidth +
+          (maxWidth - minWidth) * (0.5 * (1 + Math.sin(2 * Math.PI * phase)));
+
+        if (map && map.getLayer(layerId)) {
+          map.setPaintProperty(layerId, "line-width", width);
+        }
+
+        pulseAnimationRef.current = requestAnimationFrame(animate);
+      };
+
+      pulseAnimationRef.current = requestAnimationFrame(animate);
+    },
+    [map]
+  );
+
+  const stopPulseAnimation = useCallback(
+    (layerId) => {
+      if (pulseAnimationRef.current) {
+        cancelAnimationFrame(pulseAnimationRef.current);
+        pulseAnimationRef.current = null;
+      }
+
+      if (map && map.getLayer(layerId)) {
+        map.setPaintProperty(layerId, "line-width", 4);
+      }
+    },
+    [map]
+  );
+
+  const handleTrailClick = useCallback(
+    (trail) => {
+      const oldSelectedLayerId = selectedTrail
+        ? `route-${selectedTrail.id}`
+        : null;
+      const newLayerId = `route-${trail.id}`;
+
+      if (selectedTrail && selectedTrail.id === trail.id) {
+        setSelectedTrail(null);
+        stopPulseAnimation(newLayerId);
+      } else {
+        if (oldSelectedLayerId) {
+          stopPulseAnimation(oldSelectedLayerId);
+        }
+        setSelectedTrail(trail);
+        startPulseAnimation(newLayerId);
+      }
+      zoomToTrail(map, trail);
+    },
+    [map, selectedTrail, startPulseAnimation, stopPulseAnimation]
+  );
 
   const filterTrailsByLength = useCallback((trails) => {
     const { from, to } = filtersRef.current.lengthRange;
@@ -48,7 +119,25 @@ const MapWithTrails = ({ trails, setTrails }) => {
         map.getStyle().layers.map((layer) => layer.id)
       );
       const existingSources = new Set(Object.keys(map.getStyle().sources));
-      const newLayers = new Set();
+      const newSources = new Set();
+
+      currentLayersRef.current.forEach((sourceId) => {
+        const layerId = sourceId;
+        if (map.getLayer(layerId)) {
+          map.off("click", layerId);
+          map.off("mouseenter", layerId);
+          map.off("mouseleave", layerId);
+        }
+      });
+
+      const visibleTrailColors = colorManager.getVisibleTrailsColors(
+        trails.map((trail) => trail.id)
+      );
+
+      if (selectedTrail && !trails.find((t) => t.id === selectedTrail.id)) {
+        stopPulseAnimation(`route-${selectedTrail.id}`);
+        setSelectedTrail(null);
+      }
 
       for (const trail of trails) {
         const coordinates = trail.coordinates
@@ -62,18 +151,37 @@ const MapWithTrails = ({ trails, setTrails }) => {
         const sourceId = `route-${trail.id}`;
         const layerId = `route-${trail.id}`;
 
-        newLayers.add(layerId);
+        newSources.add(sourceId);
 
-        if (!existingSources.has(sourceId)) {
-          map.addSource(sourceId, {
-            type: "geojson",
-            data: {
-              type: "Feature",
-              properties: {},
-              geometry: routeGeometry,
-            },
-          });
-        } else {
+        try {
+          if (!existingSources.has(sourceId)) {
+            if (map.getSource(sourceId)) {
+              if (map.getLayer(layerId)) {
+                map.removeLayer(layerId);
+              }
+              map.removeSource(sourceId);
+            }
+
+            map.addSource(sourceId, {
+              type: "geojson",
+              data: {
+                type: "Feature",
+                properties: {},
+                geometry: routeGeometry,
+              },
+            });
+          } else {
+            const source = map.getSource(sourceId);
+            if (source) {
+              source.setData({
+                type: "Feature",
+                properties: {},
+                geometry: routeGeometry,
+              });
+            }
+          }
+        } catch (error) {
+          console.warn(`Error handling source ${sourceId}:`, error);
           const source = map.getSource(sourceId);
           if (source) {
             source.setData({
@@ -85,8 +193,7 @@ const MapWithTrails = ({ trails, setTrails }) => {
         }
 
         if (!existingLayers.has(layerId)) {
-          const color =
-            TRAIL_COLORS[trails.indexOf(trail) % TRAIL_COLORS.length];
+          const isSelected = selectedTrail && selectedTrail.id === trail.id;
           map.addLayer({
             id: layerId,
             type: "line",
@@ -96,27 +203,58 @@ const MapWithTrails = ({ trails, setTrails }) => {
               "line-cap": "round",
             },
             paint: {
-              "line-color": color,
-              "line-width": 5,
+              "line-color": visibleTrailColors[trail.id],
+              "line-width": 4,
+              "line-opacity": isSelected ? 1 : 0.8,
             },
           });
+
+          map.on("click", layerId, () => handleTrailClick(trail));
+
+          map.on("mouseenter", layerId, () => {
+            map.getCanvas().style.cursor = "pointer";
+            if (!selectedTrail || selectedTrail.id !== trail.id) {
+              map.setPaintProperty(layerId, "line-width", 5);
+              map.setPaintProperty(layerId, "line-opacity", 0.9);
+            }
+          });
+
+          map.on("mouseleave", layerId, () => {
+            map.getCanvas().style.cursor = "";
+            if (!selectedTrail || selectedTrail.id !== trail.id) {
+              map.setPaintProperty(layerId, "line-width", 4);
+              map.setPaintProperty(layerId, "line-opacity", 0.8);
+            }
+          });
+
+          if (isSelected) {
+            startPulseAnimation(layerId);
+          }
         }
       }
 
-      currentLayersRef.current.forEach((layerId) => {
-        if (!newLayers.has(layerId)) {
+      currentLayersRef.current.forEach((sourceId) => {
+        if (!newSources.has(sourceId)) {
+          const layerId = sourceId;
           if (map.getLayer(layerId)) {
             map.removeLayer(layerId);
           }
-          if (map.getSource(layerId)) {
-            map.removeSource(layerId);
+          if (map.getSource(sourceId)) {
+            map.removeSource(sourceId);
           }
         }
       });
 
-      currentLayersRef.current = newLayers;
+      currentLayersRef.current = newSources;
     }
-  }, [map, trails]);
+  }, [
+    map,
+    trails,
+    handleTrailClick,
+    selectedTrail,
+    startPulseAnimation,
+    stopPulseAnimation,
+  ]);
 
   useEffect(() => {
     const initializeMap = () => {
@@ -125,7 +263,14 @@ const MapWithTrails = ({ trails, setTrails }) => {
         style: "mapbox://styles/mapbox/outdoors-v12",
         center: [18.6466384, 54.3520252],
         zoom: 9,
+        dragRotate: false,
+        touchZoomRotate: false,
+        pitchWithRotate: false,
+        maxPitch: 0,
       });
+
+      map.dragRotate.disable();
+      map.touchZoomRotate.disableRotation();
 
       map.on("load", async () => {
         setMap(map);
@@ -139,6 +284,12 @@ const MapWithTrails = ({ trails, setTrails }) => {
     };
 
     if (!map) initializeMap();
+
+    return () => {
+      if (pulseAnimationRef.current) {
+        cancelAnimationFrame(pulseAnimationRef.current);
+      }
+    };
   }, [map, updateTrails]);
 
   useEffect(() => {
@@ -169,8 +320,17 @@ const MapWithTrails = ({ trails, setTrails }) => {
         trails={trails}
         isPanelOpen={isPanelOpen}
         togglePanel={() => setIsPanelOpen(!isPanelOpen)}
-        zoomToTrail={(trail) => zoomToTrail(map, trail)}
+        onTrailClick={handleTrailClick}
       />
+      {selectedTrail && (
+        <TrailDetailsModal
+          trail={selectedTrail}
+          onClose={() => {
+            stopPulseAnimation(`route-${selectedTrail.id}`);
+            setSelectedTrail(null);
+          }}
+        />
+      )}
     </div>
   );
 };
