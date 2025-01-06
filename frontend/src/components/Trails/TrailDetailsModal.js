@@ -12,7 +12,10 @@ import {
   eventStatusColors,
   eventStatusTranslations,
 } from "../../utils/statusMappings";
-import { calculateDistance, getAddressFromCoordinates } from "../../utils/trailsUtils";
+import {
+  calculateDistance,
+  getAddressFromCoordinates,
+} from "../../utils/trailsUtils";
 import { fetchEvents, joinEvent, leaveEvent } from "../../services/eventsApi";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -29,10 +32,16 @@ const TrailDetailsModal = ({ trail, onClose }) => {
       if (coordinates.length > 0) {
         const start = coordinates[0];
         const end = coordinates[coordinates.length - 1];
-        
-        const startAddr = await getAddressFromCoordinates(start.longitude, start.latitude);
-        const endAddr = await getAddressFromCoordinates(end.longitude, end.latitude);
-        
+
+        const startAddr = await getAddressFromCoordinates(
+          start.longitude,
+          start.latitude
+        );
+        const endAddr = await getAddressFromCoordinates(
+          end.longitude,
+          end.latitude
+        );
+
         setStartAddress(startAddr || "Adres nieznany");
         setEndAddress(endAddr || "Adres nieznany");
       }
@@ -115,7 +124,10 @@ const TrailDetailsModal = ({ trail, onClose }) => {
             <div className="space-y-3">
               <div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FontAwesomeIcon icon={faLocationDot} className="text-primary" />
+                  <FontAwesomeIcon
+                    icon={faLocationDot}
+                    className="text-primary"
+                  />
                   <span>Start</span>
                 </div>
                 <p className="font-medium ml-6">{startAddress}</p>
@@ -162,7 +174,9 @@ const TrailDetailsModal = ({ trail, onClose }) => {
                         {event.name}
                       </h4>
                       <div
-                        className={`px-2 py-1 rounded text-white text-xs font-medium ${eventStatusColors[event.status]}`}
+                        className={`px-2 py-1 rounded text-white text-xs font-medium ${
+                          eventStatusColors[event.status]
+                        }`}
                       >
                         {eventStatusTranslations[event.status]}
                       </div>

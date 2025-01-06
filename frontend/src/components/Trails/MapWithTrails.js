@@ -161,7 +161,7 @@ const MapWithTrails = ({ trails, setTrails }) => {
               }
               map.removeSource(sourceId);
             }
-            
+
             map.addSource(sourceId, {
               type: "geojson",
               data: {

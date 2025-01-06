@@ -24,7 +24,9 @@ const EventCard = ({
     <div className="flex justify-between items-start">
       <h3 className="text-2xl font-semibold">{event.name}</h3>
       <div
-        className={`px-3 py-1 rounded text-white text-sm font-medium ${eventStatusColors[event.status]}`}
+        className={`px-3 py-1 rounded text-white text-sm font-medium ${
+          eventStatusColors[event.status]
+        }`}
       >
         {eventStatusTranslations[event.status]}
       </div>
@@ -76,8 +78,8 @@ const EventCard = ({
           isUserJoined
             ? "bg-red-600 text-white hover:bg-red-700"
             : event.status !== "Open"
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-primary text-white hover:bg-hover-background"
+            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+            : "bg-primary text-white hover:bg-hover-background"
         }`}
       >
         {isUserJoined ? "Opuść" : "Dołącz"}
