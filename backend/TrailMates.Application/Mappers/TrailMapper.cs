@@ -43,6 +43,31 @@ public static class TrailMapper
         return trailDtos;
     }
 
+    public static async Task<TrailDto> ToDto(
+        this Trail trail,
+        IUserRepository userRepository,
+        CancellationToken cancellationToken
+    )
+    {
+        var ownerResult = await userRepository.GetById(trail.OwnerId, cancellationToken);
+
+        var ownerFullName = ownerResult.IsSuccess
+            ? $"{ownerResult.Value.FirstName} {ownerResult.Value.LastName}"
+            : "Unknown Owner";
+
+        var trailDto = new TrailDto(
+            trail.Id,
+            trail.Name,
+            trail.OwnerId,
+            ownerFullName,
+            trail.Coordinates.Select(ToDto).ToList(),
+            trail.Type,
+            trail.Visibility
+        );
+
+        return trailDto;
+    }
+
     private static CoordinateDto ToDto(Coordinate coordinate) =>
         new(coordinate.Latitude, coordinate.Longitude, coordinate.Order);
 }
