@@ -60,12 +60,9 @@ export const zoomToTrail = async (map, trail) => {
     return;
   }
 
-  const bounds = coordinates.reduce(
-    (bounds, coord) => {
-      return bounds.extend(coord);
-    },
-    new mapboxgl.LngLatBounds(coordinates[0], coordinates[0])
-  );
+  const bounds = coordinates.reduce((bounds, coord) => {
+    return bounds.extend(coord);
+  }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
 
   map.fitBounds(bounds, {
     padding: 200,
@@ -79,20 +76,43 @@ export const getAddressFromCoordinates = async (longitude, latitude) => {
     );
     const data = await response.json();
     if (data.features && data.features.length > 0) {
-      const relevantFeatures = data.features.find(
-        feature => 
-          feature.place_type.includes('place') || 
-          feature.place_type.includes('locality') ||
-          feature.place_type.includes('neighborhood')
-      );
-      
-      if (relevantFeatures) {
-        return relevantFeatures.text;
+      let street = null;
+      let city = null;
+
+      data.features.forEach((feature) => {
+        if (
+          feature.place_type.includes("address") ||
+          feature.place_type.includes("street")
+        ) {
+          street = feature.text;
+        }
+        if (feature.place_type.includes("place")) {
+          city = feature.text;
+        }
+      });
+
+      if (!street && data.features[0]) {
+        street = data.features[0].text;
       }
-      
-      const mainFeature = data.features[0];
-      const addressParts = mainFeature.place_name.split(',');
-      return addressParts[0].trim();
+
+      if (!city && data.features[0].context) {
+        const cityContext = data.features[0].context.find((item) =>
+          item.id.startsWith("place")
+        );
+        if (cityContext) {
+          city = cityContext.text;
+        }
+      }
+
+      if (city && street) {
+        return `${street}, ${city}`;
+      } else if (city) {
+        return city;
+      } else if (street) {
+        return street;
+      }
+
+      return data.features[0].place_name.split(",")[0];
     }
     return null;
   } catch (error) {
