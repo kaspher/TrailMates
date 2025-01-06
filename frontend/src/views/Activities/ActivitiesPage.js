@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { FaImage } from 'react-icons/fa';
 
 const ActivitiesPage = () => {
   const [activities, setActivities] = useState([
@@ -45,6 +46,20 @@ const ActivitiesPage = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuVisible(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = (index) => {
     setMenuVisible(menuVisible === index ? null : index);
@@ -111,10 +126,8 @@ const ActivitiesPage = () => {
   const editButtonClass = "text-blue-500";
   const deleteButtonClass = "text-red-500";
   const publishButtonClass = "text-black";
-  const popUpShareOptions =
-    "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100";
-  const popUpMenuClass =
-    "absolute mt-2 w-56 bg-white shadow-lg border rounded z-10";
+  const popUpShareOptions = "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-150 ease-in-out";
+  const popUpMenuClass = "absolute right-0 mt-2 w-56 bg-white shadow-lg border rounded-lg z-50 overflow-hidden";
 
   const handleEditClick = (activity) => {
     setSelectedActivity(activity);
@@ -139,6 +152,154 @@ const ActivitiesPage = () => {
       )
     );
     handleModalClose();
+  };
+
+  const handlePublish = (activityId, visibility) => {
+    console.log(`Publishing activity ${activityId} with visibility: ${visibility}`);
+    setMenuVisible(null); 
+  };
+
+  const EditActivityModal = ({ isOpen, onClose, activity, onSave }) => {
+    const [editedActivity, setEditedActivity] = useState(activity);
+    const [description, setDescription] = useState('');
+    const [images, setImages] = useState([]);
+    const [previewImages, setPreviewImages] = useState([]);
+
+    useEffect(() => {
+      if (activity) {
+        setEditedActivity(activity);
+        setDescription(activity.description || '');
+        setImages([]);
+        setPreviewImages([]);
+      }
+    }, [activity]);
+
+    const handleImageChange = (e) => {
+      const files = Array.from(e.target.files);
+      setImages(prevImages => [...prevImages, ...files]);
+
+      const newPreviewImages = files.map(file => URL.createObjectURL(file));
+      setPreviewImages(prevPreviewImages => [...prevPreviewImages, ...newPreviewImages]);
+    };
+
+    const removeImage = (index) => {
+      setImages(prevImages => prevImages.filter((_, i) => i !== index));
+      setPreviewImages(prevPreviews => {
+        URL.revokeObjectURL(prevPreviews[index]);
+        return prevPreviews.filter((_, i) => i !== index);
+      });
+    };
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData();
+      formData.append('name', editedActivity.name);
+      formData.append('description', description);
+      images.forEach((image, index) => {
+        formData.append(`images`, image);
+      });
+      
+      
+      try {
+        await onSave(formData);
+        onClose();
+      } catch (error) {
+        console.error('Error saving activity:', error);
+      }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
+        <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <h2 className="text-2xl font-bold mb-4">Edytuj aktywność</h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Tytuł
+              </label>
+              <input
+                type="text"
+                value={editedActivity.name}
+                onChange={(e) => setEditedActivity({...editedActivity, name: e.target.value})}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Opis
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows="4"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Dodaj opis swojej aktywności..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Zdjęcia
+              </label>
+              <div className="flex flex-wrap gap-4 mb-4">
+                {previewImages.map((preview, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      className="w-32 h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <label className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="text-center">
+                  <FaImage className="mx-auto text-gray-400 text-2xl" />
+                  <span className="mt-2 block text-sm text-gray-600">
+                    Dodaj zdjęcia
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Anuluj
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Zapisz zmiany
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -224,7 +385,7 @@ const ActivitiesPage = () => {
                   <td className={tableCellClass}>{activity.time}</td>
                   <td className={tableCellClass}>{activity.distance}</td>
                   <td className={tableCellClass}>
-                    <div className="flex space-x-4">
+                    <div className="flex space-x-4 items-center">
                       <button
                         className={editButtonClass}
                         onClick={() => handleEditClick(activity)}
@@ -232,7 +393,7 @@ const ActivitiesPage = () => {
                         Edytuj
                       </button>
                       <button className={deleteButtonClass}>Usuń</button>
-                      <div className="relative">
+                      <div className="relative inline-block" ref={menuRef}>
                         <button
                           className={`${publishButtonClass} flex items-center`}
                           onClick={() => toggleMenu(index)}
@@ -255,10 +416,16 @@ const ActivitiesPage = () => {
                         </button>
                         {menuVisible === index && (
                           <div className={popUpMenuClass}>
-                            <button className={popUpShareOptions}>
+                            <button 
+                              onClick={() => handlePublish(activity.id, 'public')}
+                              className={popUpShareOptions}
+                            >
                               Opublikuj dla wszystkich
                             </button>
-                            <button className={popUpShareOptions}>
+                            <button 
+                              onClick={() => handlePublish(activity.id, 'private')}
+                              className={popUpShareOptions}
+                            >
                               Opublikuj tylko dla siebie
                             </button>
                           </div>
@@ -274,48 +441,12 @@ const ActivitiesPage = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl mb-4">Edit Activity</h2>
-            <form onSubmit={handleFormSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700">Sport</label>
-                <input
-                  type="text"
-                  name="sport"
-                  value={selectedActivity.sport}
-                  onChange={handleFormChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={selectedActivity.title}
-                  onChange={handleFormChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleModalClose}
-                  className="bg-gray-500 text-white py-2 px-4 rounded mr-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-primary text-white py-2 px-4 rounded"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditActivityModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          activity={selectedActivity}
+          onSave={handleFormSubmit}
+        />
       )}
     </div>
   );
