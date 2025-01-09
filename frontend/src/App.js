@@ -11,6 +11,8 @@ import UserStatistics from "./views/Auth/UserStatisticsPage";
 import Login from "./views/Auth/LoginPage";
 import Register from "./views/Auth/RegisterPage";
 import { AuthProvider } from "./components/Auth/AuthProvider";
+import BlogPage from "./views/Posts/BlogPage";
+import DetailedPost from "./views/Posts/DetailedPost";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -28,6 +30,8 @@ function App() {
             <Route path="profile/:userId" element={<UserStatistics />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="blog" element={<BlogPage />} />
+            <Route path="post/:postId" element={<DetailedPost />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>

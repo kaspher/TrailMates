@@ -58,7 +58,6 @@ export const joinEvent = async (eventId, userId) => {
 };
 
 export const leaveEvent = async (eventId, userId) => {
-  console.log(eventId, userId);
   const response = await fetch(`${BASE_URL}/events/${eventId}/leave`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

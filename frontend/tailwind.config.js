@@ -14,6 +14,7 @@ module.exports = {
         background: "#f2faf4",
         "hover-background": "#214d29",
         "hover-text": "#fff",
+        "custom-green": "#356740"
       },
       fontFamily: {
         poppins: ["Poppins", "sans-serif"],
