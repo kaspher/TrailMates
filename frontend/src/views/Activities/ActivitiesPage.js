@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { FaImage } from 'react-icons/fa';
 
 const ActivitiesPage = () => {
   const [activities, setActivities] = useState([
@@ -45,6 +46,20 @@ const ActivitiesPage = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuVisible(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = (index) => {
     setMenuVisible(menuVisible === index ? null : index);
@@ -107,15 +122,6 @@ const ActivitiesPage = () => {
       activity.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const tableCellClass = "p-2 border border-gray-300";
-  const editButtonClass = "text-blue-500";
-  const deleteButtonClass = "text-red-500";
-  const publishButtonClass = "text-black";
-  const popUpShareOptions =
-    "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100";
-  const popUpMenuClass =
-    "absolute mt-2 w-56 bg-white shadow-lg border rounded z-10";
-
   const handleEditClick = (activity) => {
     setSelectedActivity(activity);
     setIsModalOpen(true);
@@ -141,109 +147,314 @@ const ActivitiesPage = () => {
     handleModalClose();
   };
 
-  return (
-    <div className="max-w-5xl mx-auto my-2 bg-background p-5 shadow-md rounded-lg">
-      <h1 className="text-4xl mb-5 text-primary">Twoje aktywności</h1>
-      <div className="flex items-center mb-5 rounded-lg bg-background text-secondary">
-        <input
-          type="text"
-          className="mr-2 p-2 border rounded w-full sm:w-1/4"
-          placeholder="Szukaj po sporcie lub tytule"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      <div className="activities">
-        <div className="flex items-center mb-2">
-          <h2 className="text-xl text-primary mr-2">Lista aktywności</h2>
-          {sortConfig.key && (
-            <button
-              onClick={resetSort}
-              className="bg-red-500 text-white py-1 px-3 rounded-lg"
-            >
-              Reset Sort
-            </button>
-          )}
+  const handlePublish = (activityId, visibility) => {
+    console.log(`Publishing activity ${activityId} with visibility: ${visibility}`);
+    setMenuVisible(null); 
+  };
+
+  const EditActivityModal = ({ isOpen, onClose, activity, onSave }) => {
+    const [editedActivity, setEditedActivity] = useState(activity);
+    const [description, setDescription] = useState('');
+    const [images, setImages] = useState([]);
+    const [previewImages, setPreviewImages] = useState([]);
+
+    useEffect(() => {
+      if (activity) {
+        setEditedActivity(activity);
+        setDescription(activity.description || '');
+        setImages([]);
+        setPreviewImages([]);
+      }
+    }, [activity]);
+
+    const handleImageChange = (e) => {
+      const files = Array.from(e.target.files);
+      setImages(prevImages => [...prevImages, ...files]);
+
+      const newPreviewImages = files.map(file => URL.createObjectURL(file));
+      setPreviewImages(prevPreviewImages => [...prevPreviewImages, ...newPreviewImages]);
+    };
+
+    const removeImage = (index) => {
+      setImages(prevImages => prevImages.filter((_, i) => i !== index));
+      setPreviewImages(prevPreviews => {
+        URL.revokeObjectURL(prevPreviews[index]);
+        return prevPreviews.filter((_, i) => i !== index);
+      });
+    };
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData();
+      formData.append('name', editedActivity.name);
+      formData.append('description', description);
+      images.forEach((image, index) => {
+        formData.append(`images`, image);
+      });
+      
+      
+      try {
+        await onSave(formData);
+        onClose();
+      } catch (error) {
+        console.error('Error saving activity:', error);
+      }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
+        <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <h2 className="text-2xl font-bold mb-4">Edytuj aktywność</h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Tytuł
+              </label>
+              <input
+                type="text"
+                value={editedActivity.name}
+                onChange={(e) => setEditedActivity({...editedActivity, name: e.target.value})}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Opis
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows="4"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Dodaj opis swojej aktywności..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Zdjęcia
+              </label>
+              <div className="flex flex-wrap gap-4 mb-4">
+                {previewImages.map((preview, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      className="w-32 h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <label className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="text-center">
+                  <FaImage className="mx-auto text-gray-400 text-2xl" />
+                  <span className="mt-2 block text-sm text-gray-600">
+                    Dodaj zdjęcia
+                  </span>
+                </div>
+              </label>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Anuluj
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Zapisz zmiany
+              </button>
+            </div>
+          </form>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mb-5">
+      </div>
+    );
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-8xl">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-semibold text-gray-800">Twoje aktywności</h1>
+            {sortConfig.key && (
+              <button
+                onClick={resetSort}
+                className="flex items-center px-3 py-1 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <svg 
+                  className="w-4 h-4 mr-1" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="2" 
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Reset sortowania
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Szukaj aktywności..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <svg
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full">
             <thead>
-              <tr>
-                <th
-                  className={tableCellClass}
+              <tr className="bg-gray-50">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("sport")}
                 >
-                  Sport{" "}
-                  {sortConfig.key === "sport" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Sport
+                    {sortConfig.key === "sport" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("date")}
                 >
-                  Data{" "}
-                  {sortConfig.key === "date" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Data
+                    {sortConfig.key === "date" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("title")}
                 >
-                  Tytuł{" "}
-                  {sortConfig.key === "title" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Tytuł
+                    {sortConfig.key === "title" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("time")}
                 >
-                  Czas{" "}
-                  {sortConfig.key === "time" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Czas
+                    {sortConfig.key === "time" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("distance")}
                 >
-                  Dystans{" "}
-                  {sortConfig.key === "distance" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Dystans
+                    {sortConfig.key === "distance" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th className={tableCellClass}>Akcje</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Akcje
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {filteredActivities.map((activity, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-hover-background transition-all"
-                >
-                  <td className={tableCellClass}>{activity.sport}</td>
-                  <td className={tableCellClass}>{activity.date}</td>
-                  <td className={tableCellClass}>{activity.title}</td>
-                  <td className={tableCellClass}>{activity.time}</td>
-                  <td className={tableCellClass}>{activity.distance}</td>
-                  <td className={tableCellClass}>
-                    <div className="flex space-x-4">
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {activity.sport}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {activity.date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {activity.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {activity.time}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {activity.distance}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end space-x-3">
                       <button
-                        className={editButtonClass}
                         onClick={() => handleEditClick(activity)}
+                        className="text-blue-600 hover:text-blue-900"
                       >
                         Edytuj
                       </button>
-                      <button className={deleteButtonClass}>Usuń</button>
-                      <div className="relative">
+                      <button className="text-red-600 hover:text-red-900">
+                        Usuń
+                      </button>
+                      <div className="relative inline-block">
                         <button
-                          className={`${publishButtonClass} flex items-center`}
                           onClick={() => toggleMenu(index)}
+                          className="text-custom-green hover:text-custom-green flex items-center bg-gray-50 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                           Publikuj
                           <svg
-                            className="w-4 h-4 ml-1"
-                            xmlns="http://www.w3.org/2000/svg"
+                            className={`w-4 h-4 ml-1 transform transition-transform text-custom-green ${
+                              menuVisible === index ? 'rotate-180' : ''
+                            }`}
                             fill="none"
-                            viewBox="0 0 24 24"
                             stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
                             <path
                               strokeLinecap="round"
@@ -254,13 +465,47 @@ const ActivitiesPage = () => {
                           </svg>
                         </button>
                         {menuVisible === index && (
-                          <div className={popUpMenuClass}>
-                            <button className={popUpShareOptions}>
-                              Opublikuj dla wszystkich
-                            </button>
-                            <button className={popUpShareOptions}>
-                              Opublikuj tylko dla siebie
-                            </button>
+                          <div className="fixed transform translate-y-2 -translate-x-20 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999]">
+                            <div className="py-1">
+                              <button
+                                onClick={() => handlePublish(activity.id, 'public')}
+                                className="flex items-center w-full px-4 py-2 text-sm text-custom-green hover:bg-gray-100 transition-colors"
+                              >
+                                <svg 
+                                  className="w-4 h-4 mr-2 text-custom-green" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    strokeWidth="2" 
+                                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" 
+                                  />
+                                </svg>
+                                Opublikuj dla wszystkich
+                              </button>
+                              <button
+                                onClick={() => handlePublish(activity.id, 'private')}
+                                className="flex items-center w-full px-4 py-2 text-sm text-custom-green hover:bg-gray-100 transition-colors"
+                              >
+                                <svg 
+                                  className="w-4 h-4 mr-2 text-custom-green" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    strokeWidth="2" 
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                                  />
+                                </svg>
+                                Opublikuj tylko dla siebie
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -274,48 +519,12 @@ const ActivitiesPage = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl mb-4">Edit Activity</h2>
-            <form onSubmit={handleFormSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700">Sport</label>
-                <input
-                  type="text"
-                  name="sport"
-                  value={selectedActivity.sport}
-                  onChange={handleFormChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={selectedActivity.title}
-                  onChange={handleFormChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleModalClose}
-                  className="bg-gray-500 text-white py-2 px-4 rounded mr-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-primary text-white py-2 px-4 rounded"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <EditActivityModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          activity={selectedActivity}
+          onSave={handleFormSubmit}
+        />
       )}
     </div>
   );
