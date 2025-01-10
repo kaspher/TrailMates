@@ -122,13 +122,6 @@ const ActivitiesPage = () => {
       activity.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const tableCellClass = "p-2 border border-gray-300";
-  const editButtonClass = "text-blue-500";
-  const deleteButtonClass = "text-red-500";
-  const publishButtonClass = "text-black";
-  const popUpShareOptions = "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-150 ease-in-out";
-  const popUpMenuClass = "absolute right-0 mt-2 w-56 bg-white shadow-lg border rounded-lg z-50 overflow-hidden";
-
   const handleEditClick = (activity) => {
     setSelectedActivity(activity);
     setIsModalOpen(true);
@@ -303,108 +296,165 @@ const ActivitiesPage = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto my-2 bg-background p-5 shadow-md rounded-lg">
-      <h1 className="text-4xl mb-5 text-primary">Twoje aktywności</h1>
-      <div className="flex items-center mb-5 rounded-lg bg-background text-secondary">
-        <input
-          type="text"
-          className="mr-2 p-2 border rounded w-full sm:w-1/4"
-          placeholder="Szukaj po sporcie lub tytule"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      <div className="activities">
-        <div className="flex items-center mb-2">
-          <h2 className="text-xl text-primary mr-2">Lista aktywności</h2>
-          {sortConfig.key && (
-            <button
-              onClick={resetSort}
-              className="bg-red-500 text-white py-1 px-3 rounded-lg"
+    <div className="container mx-auto px-4 py-8 max-w-8xl">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-semibold text-gray-800">Twoje aktywności</h1>
+            {sortConfig.key && (
+              <button
+                onClick={resetSort}
+                className="flex items-center px-3 py-1 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <svg 
+                  className="w-4 h-4 mr-1" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth="2" 
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Reset sortowania
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Szukaj aktywności..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <svg
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Reset Sort
-            </button>
-          )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mb-5">
+
+        <div className="overflow-x-auto scrollbar-thin">
+          <table className="w-full">
             <thead>
-              <tr>
-                <th
-                  className={tableCellClass}
+              <tr className="bg-gray-50">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("sport")}
                 >
-                  Sport{" "}
-                  {sortConfig.key === "sport" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Sport
+                    {sortConfig.key === "sport" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("date")}
                 >
-                  Data{" "}
-                  {sortConfig.key === "date" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Data
+                    {sortConfig.key === "date" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("title")}
                 >
-                  Tytuł{" "}
-                  {sortConfig.key === "title" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Tytuł
+                    {sortConfig.key === "title" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("time")}
                 >
-                  Czas{" "}
-                  {sortConfig.key === "time" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Czas
+                    {sortConfig.key === "time" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th
-                  className={tableCellClass}
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort("distance")}
                 >
-                  Dystans{" "}
-                  {sortConfig.key === "distance" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
+                  <div className="flex items-center">
+                    Dystans
+                    {sortConfig.key === "distance" && (
+                      <span className="ml-2">{sortConfig.direction === "ascending" ? "↑" : "↓"}</span>
+                    )}
+                  </div>
                 </th>
-                <th className={tableCellClass}>Akcje</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Akcje
+                </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-200">
               {filteredActivities.map((activity, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-hover-background transition-all"
-                >
-                  <td className={tableCellClass}>{activity.sport}</td>
-                  <td className={tableCellClass}>{activity.date}</td>
-                  <td className={tableCellClass}>{activity.title}</td>
-                  <td className={tableCellClass}>{activity.time}</td>
-                  <td className={tableCellClass}>{activity.distance}</td>
-                  <td className={tableCellClass}>
-                    <div className="flex space-x-4 items-center">
+                <tr key={index} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {activity.sport}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {activity.date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {activity.title}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {activity.time}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {activity.distance}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex justify-end space-x-3">
                       <button
-                        className={editButtonClass}
                         onClick={() => handleEditClick(activity)}
+                        className="text-blue-600 hover:text-blue-900"
                       >
                         Edytuj
                       </button>
-                      <button className={deleteButtonClass}>Usuń</button>
-                      <div className="relative inline-block" ref={menuRef}>
+                      <button className="text-red-600 hover:text-red-900">
+                        Usuń
+                      </button>
+                      <div className="relative inline-block">
                         <button
-                          className={`${publishButtonClass} flex items-center`}
                           onClick={() => toggleMenu(index)}
+                          className="text-custom-green hover:text-custom-green flex items-center bg-gray-50 px-3 py-1 rounded-lg hover:bg-gray-100 transition-colors"
                         >
                           Publikuj
                           <svg
-                            className="w-4 h-4 ml-1"
-                            xmlns="http://www.w3.org/2000/svg"
+                            className={`w-4 h-4 ml-1 transform transition-transform text-custom-green ${
+                              menuVisible === index ? 'rotate-180' : ''
+                            }`}
                             fill="none"
-                            viewBox="0 0 24 24"
                             stroke="currentColor"
+                            viewBox="0 0 24 24"
                           >
                             <path
                               strokeLinecap="round"
@@ -415,19 +465,47 @@ const ActivitiesPage = () => {
                           </svg>
                         </button>
                         {menuVisible === index && (
-                          <div className={popUpMenuClass}>
-                            <button 
-                              onClick={() => handlePublish(activity.id, 'public')}
-                              className={popUpShareOptions}
-                            >
-                              Opublikuj dla wszystkich
-                            </button>
-                            <button 
-                              onClick={() => handlePublish(activity.id, 'private')}
-                              className={popUpShareOptions}
-                            >
-                              Opublikuj tylko dla siebie
-                            </button>
+                          <div className="fixed transform translate-y-2 -translate-x-20 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999]">
+                            <div className="py-1">
+                              <button
+                                onClick={() => handlePublish(activity.id, 'public')}
+                                className="flex items-center w-full px-4 py-2 text-sm text-custom-green hover:bg-gray-100 transition-colors"
+                              >
+                                <svg 
+                                  className="w-4 h-4 mr-2 text-custom-green" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    strokeWidth="2" 
+                                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" 
+                                  />
+                                </svg>
+                                Opublikuj dla wszystkich
+                              </button>
+                              <button
+                                onClick={() => handlePublish(activity.id, 'private')}
+                                className="flex items-center w-full px-4 py-2 text-sm text-custom-green hover:bg-gray-100 transition-colors"
+                              >
+                                <svg 
+                                  className="w-4 h-4 mr-2 text-custom-green" 
+                                  fill="none" 
+                                  stroke="currentColor" 
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    strokeWidth="2" 
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                                  />
+                                </svg>
+                                Opublikuj tylko dla siebie
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
