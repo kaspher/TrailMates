@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
-import Home from "./views/HomePage";
+import Home from "./views/Home/HomePage";
 import NoPage from "./views/NotFoundPage";
 import Trails from "./views/Trails/TrailsPage";
 import Layout from "./views/Layout";
