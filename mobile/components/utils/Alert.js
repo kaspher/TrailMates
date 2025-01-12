@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
-import CloseButton from '../../assets/icons/x-solid.svg'
+import CloseButton from '../../assets/icons/x-solid.svg';
 
 const Alert = ({ message, duration = 6000, onClose }) => {
   const slideAnim = useRef(new Animated.Value(-100)).current;
@@ -35,22 +35,30 @@ const Alert = ({ message, duration = 6000, onClose }) => {
   return (
     <Animated.View
       style={{ transform: [{ translateY: slideAnim }] }}
-      className="absolute top-0 left-0 right-0 bg-white z-50 flex flex-row items-center justify-between px-4 py-6 rounded-s"
+      className="absolute top-10 left-4 right-4 z-50"
     >
-      <Text className="text-black text-lg font-bold flex-1 text-center">{message}</Text>
-      <TouchableOpacity onPress={onClose} className="px-2">
-        <CloseButton width={15} height={15} />
-      </TouchableOpacity>
-      <View className="absolute bottom-0 left-0 right-0 h-1 bg-gray-300">
-        <Animated.View
-          style={{
-            width: progressAnim.interpolate({
-              inputRange: [0, 100],
-              outputRange: ['0%', '100%'],
-            }),
-          }}
-          className="h-full bg-teal-500"
-        />
+      <View className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <View className="p-4">
+          <View className="flex-row justify-between items-center">
+            <Text className="text-gray-800 flex-1 mr-2">{message}</Text>
+            <TouchableOpacity onPress={onClose}>
+              <CloseButton width={15} height={15} fill="#386641" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Pasek postępu */}
+        <View className="h-[4px] bg-gray-200 w-full">
+          <Animated.View
+            style={{
+              width: progressAnim.interpolate({
+                inputRange: [0, 100],
+                outputRange: ['0%', '100%'],
+              }),
+            }}
+            className="h-full bg-primary"
+          />
+        </View>
       </View>
     </Animated.View>
   );

@@ -1,15 +1,18 @@
+import 'react-native-gesture-handler';
 import './assets/global.css';
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Font from 'expo-font';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Login from './components/screens/Login';
 import Register from './components/screens/Register';
 import TabNavigator from './components/utils/TabNavigator';
 import ForgotPassword from './components/screens/ForgotPassword';
 import Splash from './components/screens/Splash';
-import UserProfile from './components/screens/UserProfile';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,15 +47,25 @@ export default function App() {
   // }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={Splash} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-        <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="UserProfile" component={UserProfile} />
-        <Stack.Screen name="MainTabs" component={TabNavigator} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="#386641" // Użyj tego samego koloru co primary w Twojej aplikacji
+          translucent={true}
+        />
+        <BottomSheetModalProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="Splash" component={Splash} />
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+              <Stack.Screen name="Register" component={Register} />
+              <Stack.Screen name="MainTabs" component={TabNavigator} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </BottomSheetModalProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -1,195 +1,235 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, SafeAreaView} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView, SafeAreaView, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const UserProfile = ({ navigation }) => {
-  const [userName, setUserName] = useState('');
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [alertMessage, setAlertMessage] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    email: '',
     gender: '',
     country: '',
     city: ''
   });
-  const [alertMessage, setAlertMessage] = useState(null);
 
-  useEffect(() => {
-    const loadTokenAndData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        
-        if (token) {
-          const decoded = jwtDecode(token);
-          console.log('Decoded Token:', decoded);
+  const insets = useSafeAreaInsets();
 
-          if (decoded && decoded.unique_name) {
-            setUserName(decoded.unique_name);
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const userId = decoded.id;
 
-            const userId = decoded.id;
-            const response = await fetch(`http://10.0.2.2:5253/api/users/${userId}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              setUserData(data);
-              setFormData({
-                firstName: data.firstName,
-                lastName: data.lastName,
-                gender: data.gender,
-                country: data.country,
-                city: data.city
-              });
-            } else {
-              console.error('Błąd pobierania danych użytkownika:', response.statusText);
-            }
-          }
-        } else {
-          console.log('Token nie znaleziono!');
-        }
-      } catch (error) {
-        console.error('Błąd podczas odczytywania tokenu lub pobierania danych:', error);
-      } finally {
-        setLoading(false);
+      const response = await fetch(`http://10.0.2.2:5253/api/users/${userId}`);
+      if (!response.ok) {
+        throw new Error('Nie udało się pobrać danych użytkownika');
       }
-    };
-
-    loadTokenAndData();
-  }, []);
-
-  const handleInputChange = (name, value) => {
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
+      const data = await response.json();
+      setUserData(data);
+      setFormData({
+        firstName: data.firstName || '',
+        lastName: data.lastName || '',
+        email: data.email || '',
+        gender: data.gender || '',
+        country: data.country || '',
+        city: data.city || ''
+      });
+    } catch (error) {
+      console.error('Błąd podczas pobierania danych użytkownika:', error);
+      setAlertMessage('Nie udało się pobrać danych użytkownika');
+    }
   };
 
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
   const handleSaveChanges = async () => {
-    const token = await AsyncStorage.getItem('authToken');
-    if (!token) {
-      setAlertMessage("Nie znaleziono tokenu autoryzacyjnego.");
-      return;
-    }
-
-    const userId = jwtDecode(token).id;
-    const updatedData = {
-      ...formData,
-      email: userData.email
-    };
-
-    setIsSaving(true);
-
     try {
+      const token = await AsyncStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const userId = decoded.id;
+
       const response = await fetch(`http://10.0.2.2:5253/api/users/${userId}/update-profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        setUserData(updatedData);
-        setAlertMessage("Dane zostały zaktualizowane.");
+        setUserData(formData);
+        setAlertMessage('Dane zostały zaktualizowane');
+        setIsEditing(false);
       } else {
-        setAlertMessage("Nie udało się zaktualizować danych.");
+        setAlertMessage('Nie udało się zaktualizować danych');
       }
     } catch (error) {
-      console.error('Błąd podczas zapisywania danych:', error);
-      setAlertMessage("Wystąpił błąd podczas zapisywania danych.");
-    } finally {
-      setIsSaving(false);
+      console.error('Błąd podczas zapisywania:', error);
+      setAlertMessage('Wystąpił błąd podczas zapisywania');
     }
   };
 
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('authToken');
-      navigation.replace('Login');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
     } catch (error) {
-      console.error('Błąd przy wylogowaniu:', error);
-      setAlertMessage('Nie udało się wylogować.');
+      console.error('Błąd podczas wylogowywania:', error);
+      setAlertMessage('Wystąpił błąd podczas wylogowywania');
     }
   };
 
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-secondary">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
   return (
-    <SafeAreaView className="flex-1 h-screen w-screen bg-light">
-      <View className="flex-1 justify-center items-center bg-light p-4">
-        <Text className="text-2xl font-bold mb-4">Witaj, {userName || 'gościu'}</Text>
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-
-        {userData ? (
-          <View className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
-            <TextInput
-              className="border border-gray-300 rounded-md p-3 mb-4 font-regular"
-              placeholder="Imię"
-              value={formData.firstName}
-              onChangeText={(text) => handleInputChange('firstName', text)}
+    <SafeAreaView className="flex-1 bg-light">
+      {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+      <ScrollView className="flex-1">
+        {/* Górna sekcja z avatarem i podstawowymi danymi */}
+        <View 
+          className="bg-primary p-6 rounded-b-[30px] shadow-lg" 
+          style={{ paddingTop: insets.top + 24 }}
+        >
+          <View className="items-center">
+            <Image
+              source={{
+                uri: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541',
+              }}
+              className="w-32 h-32 rounded-full border-4 border-white"
             />
-            <TextInput
-              className="border border-gray-300 rounded-md p-3 mb-4 font-regular"
-              placeholder="Nazwisko"
-              value={formData.lastName}
-              onChangeText={(text) => handleInputChange('lastName', text)}
-            />
-            <TextInput
-              className="border border-gray-300 rounded-md p-3 mb-4 font-regular"
-              placeholder="Płeć"
-              value={formData.gender}
-              onChangeText={(text) => handleInputChange('gender', text)}
-            />
-            <TextInput
-              className="border border-gray-300 rounded-md p-3 mb-4 font-regular"
-              placeholder="Kraj"
-              value={formData.country}
-              onChangeText={(text) => handleInputChange('country', text)}
-            />
-            <TextInput
-              className="border border-gray-300 rounded-md p-3 mb-4 font-regular"
-              placeholder="Miasto"
-              value={formData.city}
-              onChangeText={(text) => handleInputChange('city', text)}
-            />
-
-            <TouchableOpacity
-              className={`bg-primary p-4 rounded-md ${isSaving ? 'opacity-50' : ''}`}
-              onPress={handleSaveChanges}
-              disabled={isSaving}
-            >
-              <Text className="text-white text-center font-bold">
-                {isSaving ? 'Zapisuję...' : 'Zapisz zmiany'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className="bg-red-500 p-4 rounded-md mt-4"
-              onPress={handleLogout}
-            >
-              <Text className="text-white text-center font-bold">
-                Wyloguj się
-              </Text>
-            </TouchableOpacity>
+            <Text className="text-white text-2xl font-bold mt-4">
+              {userData ? `${userData.firstName} ${userData.lastName}` : 'Ładowanie...'}
+            </Text>
+            <Text className="text-white text-base mt-1">
+              {userData?.email || 'Ładowanie...'}
+            </Text>
           </View>
-        ) : (
-          <Text className="text-dark">Nie udało się pobrać danych użytkownika.</Text>
-        )}
-      </View>
+        </View>
+
+        {/* Sekcja danych użytkownika z możliwością edycji */}
+        <View className="px-6 py-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-xl font-bold flex-1">Dane użytkownika</Text>
+            {!isEditing && (
+              <TouchableOpacity
+                onPress={() => setIsEditing(true)}
+                className="bg-primary px-3 py-1 rounded-lg ml-2"
+              >
+                <Text className="text-white text-sm">Edytuj</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          
+          <View className="bg-white rounded-xl p-4 shadow-md">
+            {isEditing ? (
+              // Formularz edycji
+              <>
+                <View className="mb-4">
+                  <Text className="text-gray-600 mb-1">Imię</Text>
+                  <TextInput
+                    className="border border-gray-300 rounded-lg p-2"
+                    value={formData.firstName}
+                    onChangeText={(text) => setFormData({...formData, firstName: text})}
+                  />
+                </View>
+                <View className="mb-4">
+                  <Text className="text-gray-600 mb-1">Nazwisko</Text>
+                  <TextInput
+                    className="border border-gray-300 rounded-lg p-2"
+                    value={formData.lastName}
+                    onChangeText={(text) => setFormData({...formData, lastName: text})}
+                  />
+                </View>
+                <View className="mb-4">
+                  <Text className="text-gray-600 mb-1">Płeć</Text>
+                  <TextInput
+                    className="border border-gray-300 rounded-lg p-2"
+                    value={formData.gender}
+                    onChangeText={(text) => setFormData({...formData, gender: text})}
+                  />
+                </View>
+                <View className="mb-4">
+                  <Text className="text-gray-600 mb-1">Kraj</Text>
+                  <TextInput
+                    className="border border-gray-300 rounded-lg p-2"
+                    value={formData.country}
+                    onChangeText={(text) => setFormData({...formData, country: text})}
+                  />
+                </View>
+                <View className="mb-4">
+                  <Text className="text-gray-600 mb-1">Miasto</Text>
+                  <TextInput
+                    className="border border-gray-300 rounded-lg p-2"
+                    value={formData.city}
+                    onChangeText={(text) => setFormData({...formData, city: text})}
+                  />
+                </View>
+                <View className="flex-row justify-end space-x-4">
+                  <TouchableOpacity
+                    onPress={() => setIsEditing(false)}
+                    className="bg-gray-300 px-4 py-2 rounded-lg"
+                  >
+                    <Text>Anuluj</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleSaveChanges}
+                    className="bg-primary px-4 py-2 rounded-lg"
+                  >
+                    <Text className="text-white">Zapisz</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            ) : (
+              // Wyświetlanie danych
+              <>
+                <View className="border-b border-gray-200 py-3">
+                  <Text className="text-gray-600">Imię</Text>
+                  <Text className="text-black font-medium">{userData?.firstName || 'Brak danych'}</Text>
+                </View>
+                <View className="border-b border-gray-200 py-3">
+                  <Text className="text-gray-600">Nazwisko</Text>
+                  <Text className="text-black font-medium">{userData?.lastName || 'Brak danych'}</Text>
+                </View>
+                <View className="border-b border-gray-200 py-3">
+                  <Text className="text-gray-600">Email</Text>
+                  <Text className="text-black font-medium">{userData?.email || 'Brak danych'}</Text>
+                </View>
+                <View className="border-b border-gray-200 py-3">
+                  <Text className="text-gray-600">Płeć</Text>
+                  <Text className="text-black font-medium">{userData?.gender || 'Brak danych'}</Text>
+                </View>
+                <View className="border-b border-gray-200 py-3">
+                  <Text className="text-gray-600">Kraj</Text>
+                  <Text className="text-black font-medium">{userData?.country || 'Brak danych'}</Text>
+                </View>
+                <View className="py-3">
+                  <Text className="text-gray-600">Miasto</Text>
+                  <Text className="text-black font-medium">{userData?.city || 'Brak danych'}</Text>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+
+        {/* Przycisk wylogowania */}
+        <View className="px-6 py-4">
+          <TouchableOpacity
+            onPress={handleLogout}
+            className="bg-red-500 py-3 rounded-xl"
+          >
+            <Text className="text-white text-center font-bold">Wyloguj się</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
