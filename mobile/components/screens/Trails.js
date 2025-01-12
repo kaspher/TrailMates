@@ -26,7 +26,7 @@ const TRAIL_TYPES = {
 };
 
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Promień Ziemi w kilometrach
+  const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
   const a = 
@@ -168,7 +168,7 @@ export default function Trails({ route, navigation }) {
       }
     }
   };
-
+  
   useEffect(() => {
     const requestLocationPermission = async () => {
       try {
@@ -268,7 +268,7 @@ export default function Trails({ route, navigation }) {
       longitude: coord.longitude,
       order: index + 1
     }));
-
+  
     const trailData = JSON.stringify({
       ownerId: decoded.id,
       name: trailName,
@@ -285,7 +285,7 @@ export default function Trails({ route, navigation }) {
         },
         body: trailData
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Błąd podczas wysyłania danych:', errorData);
@@ -303,7 +303,7 @@ export default function Trails({ route, navigation }) {
       setAlertMessage('Wystąpił błąd podczas komunikacji z serwerem. Spróbuj ponownie.');
     }
   };
-
+  
   const cancelTrail = () => {
     setIsModalVisible(false);
     setTrailName('');
@@ -409,7 +409,7 @@ export default function Trails({ route, navigation }) {
     return allTrails
       .map(trail => {
         const startPoint = trail.coordinates
-          .sort((a, b) => a.order - b.order)[0]; // Bierzemy pierwszy punkt (start)
+          .sort((a, b) => a.order - b.order)[0];
         
         const distance = calculateDistance(
           userLat,
@@ -480,11 +480,18 @@ export default function Trails({ route, navigation }) {
   const handleJoinTrail = () => {
     const startPoint = selectedTrail.coordinates.sort((a, b) => a.order - b.order)[0];
     if (canJoinTrail(startPoint)) {
-      // Tu dodasz później logikę dołączania do trasy
+      // dodać logikę dołączania do trasy
       setAlertMessage('Dołączono do trasy!');
     } else {
       setAlertMessage('Jesteś za daleko by dołączyć');
     }
+  };
+
+  const resetMapOrientation = () => {
+    mapCamera.current?.setCamera({
+      heading: 0,
+      animationDuration: 500,
+    });
   };
 
   if (!location || !isLocationReady) {
@@ -498,7 +505,7 @@ export default function Trails({ route, navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 bg-light">
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+      {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
         <View className="flex-1">
           <MapboxGL.MapView 
             style={{ flex: 1 }}
@@ -507,11 +514,11 @@ export default function Trails({ route, navigation }) {
               MapboxGL.StyleURL.Satellite
             }
           >
-            <MapboxGL.Camera
-              ref={mapCamera}
-              zoomLevel={16}
+        <MapboxGL.Camera
+          ref={mapCamera}
+          zoomLevel={16}
               pitch={is3DEnabled ? 45 : 0}
-              centerCoordinate={[location.longitude, location.latitude]}
+          centerCoordinate={[location.longitude, location.latitude]}
               defaultSettings={{
                 centerCoordinate: [location.longitude, location.latitude],
                 zoomLevel: 16
@@ -571,15 +578,15 @@ export default function Trails({ route, navigation }) {
               );
             })}
 
-            <MapboxGL.PointAnnotation
-              id="userLocation"
-              coordinate={[location.longitude, location.latitude]}
-            >
-              <View className="flex items-center justify-center w-8 h-8">
-                <View className="w-8 h-8 rounded-full bg-primary border-2 border-white" />
-              </View>
-            </MapboxGL.PointAnnotation>
-          </MapboxGL.MapView>
+        <MapboxGL.PointAnnotation
+          id="userLocation"
+          coordinate={[location.longitude, location.latitude]}
+        >
+          <View className="flex items-center justify-center w-8 h-8">
+            <View className="w-8 h-8 rounded-full bg-primary border-2 border-white" />
+          </View>
+        </MapboxGL.PointAnnotation>
+      </MapboxGL.MapView>
 
           <View className="absolute top-20 right-5">
             <TouchableOpacity
@@ -597,21 +604,28 @@ export default function Trails({ route, navigation }) {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="bg-white px-2 py-3 rounded-full shadow-md w-12 h-12 items-center justify-center"
+              className="bg-white px-2 py-3 rounded-full shadow-md w-12 h-12 items-center justify-center mb-3"
               onPress={toggle3DView}
             >
               <Text className="font-bold text-primary text-lg leading-none">
                 {is3DEnabled ? '2D' : '3D'}
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-white p-3 rounded-full shadow-md"
+              onPress={resetMapOrientation}
+            >
+              <Text className="font-bold text-primary text-lg leading-none">N</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         <View className="bg-white h-16 px-4 flex-row items-center justify-between border-t border-gray-200">
-          <TouchableOpacity
+      <TouchableOpacity
             className="bg-primary px-6 py-2.5 rounded-full"
-            onPress={isTracking ? stopTracking : startTracking}
-          >
+        onPress={isTracking ? stopTracking : startTracking}
+      >
             <Text className="text-white font-medium text-base">
               {isTracking ? 'Zakończ trasę' : 'Rozpocznij trasę'}
             </Text>
@@ -676,9 +690,9 @@ export default function Trails({ route, navigation }) {
                   className="px-4 py-2 rounded-lg bg-red-500"
                 >
                   <Text className="text-white">Odrzuć</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity
+      </TouchableOpacity>
+
+      <TouchableOpacity
                   onPress={saveTrail}
                   className="px-4 py-2 rounded-lg bg-primary"
                   disabled={!trailName || !trailType}
@@ -899,7 +913,7 @@ export default function Trails({ route, navigation }) {
                         Długość: {formatDistance(calculateTotalDistance(trail.coordinates))}
                       </Text>
                     </View>
-                  </TouchableOpacity>
+      </TouchableOpacity>
                 ))}
             </ScrollView>
           </View>

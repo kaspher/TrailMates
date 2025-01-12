@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
+import GoBackArrow from '../utils/GoBackArrow';
 
 const Activities = ({ navigation }) => {
   const [activities, setActivities] = useState([]);
@@ -49,9 +50,12 @@ const Activities = ({ navigation }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-light">
+      <GoBackArrow />
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
       <View className="p-4">
-        <Text className="text-2xl font-bold mb-4">Moje Aktywności</Text>
+        <View className="flex-row justify-center">
+          <Text className="text-2xl font-bold mb-4 text-center">Moje Aktywności</Text>
+        </View>
         <ScrollView className="space-y-4">
           {activities.map((activity) => (
             <TouchableOpacity

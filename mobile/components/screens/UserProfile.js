@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import GoBackArrow from '../utils/GoBackArrow';
 
 const UserProfile = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
@@ -92,6 +93,7 @@ const UserProfile = ({ navigation }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-light">
+      <GoBackArrow />
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
       <ScrollView className="flex-1">
         {/* Górna sekcja z avatarem i podstawowymi danymi */}
