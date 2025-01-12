@@ -6,9 +6,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { calculateDistance } from "../../utils/trailsUtils";
 import { useNavigate } from "react-router-dom";
-import { trailTypeTranslations } from "../../utils/statusMappings";
+import { trailTypeTranslations } from "../../utils/mappings";
 
-const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
+const cloudFrontDomainName =
+  process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS;
 
 const TrailPanel = ({ trails, isPanelOpen, togglePanel, onTrailClick }) => {
   const navigate = useNavigate();

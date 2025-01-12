@@ -15,6 +15,8 @@ public interface IActivityRepository
         CancellationToken cancellationToken = default
     );
 
+    Task<Result<Activity, Error>> GetById(Guid id, CancellationToken cancellationToken = default);
+
     Task<UnitResult<Error>> HasAlreadyLiked(Guid activityId, Guid userId);
     Task AddActivity(Activity activity);
     Task<UnitResult<Error>> LikeExists(Guid id);

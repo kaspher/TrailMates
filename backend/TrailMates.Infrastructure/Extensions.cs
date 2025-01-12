@@ -65,6 +65,7 @@ public static class Extensions
         services.AddScoped<IActivityRepository, ActivityRepository>();
 
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IActivityService, ActivityService>();
 
         services.AddDbContext<UsersDbContext>(options =>
             options.UseNpgsql(dbSettings.ConnectionString)

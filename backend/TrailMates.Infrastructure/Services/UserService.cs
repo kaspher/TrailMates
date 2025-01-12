@@ -18,7 +18,7 @@ public class UserService(IAmazonS3 s3Client, IConfiguration configuration) : IUs
         await using var imageStream = picture.OpenReadStream();
         var putRequest = new PutObjectRequest
         {
-            BucketName = configuration["AWSCustom:BucketName"],
+            BucketName = configuration["AWSProfilePictures:BucketName"],
             Key = userId,
             InputStream = imageStream,
             ContentType = "image/jpeg",
@@ -26,6 +26,6 @@ public class UserService(IAmazonS3 s3Client, IConfiguration configuration) : IUs
         };
         await s3Client.PutObjectAsync(putRequest);
 
-        return $"{configuration["AWSCustom:CloudfrontUrl"]}/{userId}";
+        return $"{configuration["AWSProfilePictures:CloudfrontUrl"]}/{userId}";
     }
 }

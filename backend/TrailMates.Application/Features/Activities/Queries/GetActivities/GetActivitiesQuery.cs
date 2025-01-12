@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using TrailMates.Application.Abstractions;
 using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Application.DTO;
 using TrailMates.Application.Mappers;
@@ -13,7 +14,8 @@ public readonly record struct GetActivitiesQuery(GetActivitiesRequest Data)
 
 internal sealed class GetActivitiesQueryHandler(
     IActivityRepository activityRepository,
-    IUserRepository userRepository
+    IUserRepository userRepository,
+    IActivityService activityService
 ) : IQueryHandler<GetActivitiesQuery, Result<PagedList<ActivityDto>, Error>>
 {
     public async Task<Result<PagedList<ActivityDto>, Error>> Handle(
@@ -23,7 +25,11 @@ internal sealed class GetActivitiesQueryHandler(
     {
         var activities = await activityRepository.GetAll(request.Data, cancellationToken);
 
-        var activitiesDtos = await activities.Value.ToDto(userRepository, cancellationToken);
+        var activitiesDtos = await activities.Value.ToDto(
+            userRepository,
+            activityService,
+            cancellationToken
+        );
 
         return Result.Success<PagedList<ActivityDto>, Error>(activitiesDtos);
     }

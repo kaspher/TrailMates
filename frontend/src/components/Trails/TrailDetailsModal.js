@@ -5,13 +5,13 @@ import {
   faUserPlus,
   faSignOutAlt,
   faLocationDot,
-  faFlag,
+  faFlagCheckered,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   trailTypeTranslations,
   eventStatusColors,
   eventStatusTranslations,
-} from "../../utils/statusMappings";
+} from "../../utils/mappings";
 import {
   calculateDistance,
   getAddressFromCoordinates,
@@ -134,7 +134,10 @@ const TrailDetailsModal = ({ trail, onClose }) => {
               </div>
               <div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <FontAwesomeIcon icon={faFlag} className="text-primary" />
+                  <FontAwesomeIcon
+                    icon={faFlagCheckered}
+                    className="text-primary"
+                  />
                   <span>Meta</span>
                 </div>
                 <p className="font-medium ml-6">{endAddress}</p>
@@ -146,7 +149,7 @@ const TrailDetailsModal = ({ trail, onClose }) => {
             <h3 className="text-lg font-semibold text-secondary mb-2">Autor</h3>
             <div className="flex items-center space-x-3">
               <img
-                src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME}${trail.ownerId}`}
+                src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${trail.ownerId}`}
                 alt={trail.ownerFullName}
                 className="w-10 h-10 rounded-full object-cover"
               />

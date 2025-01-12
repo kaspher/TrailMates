@@ -32,6 +32,7 @@ internal sealed class ActivityRepository(CoreDbContext dbContext) : IActivityRep
         var activitiesQuery = _activities
             .Include(a => a.Comments)
             .Include(a => a.Likes)
+            .OrderByDescending(a => a.CreatedAt)
             .AsNoTracking();
 
         var activities = await PagedList<Activity>.CreateFromQuery(
@@ -43,16 +44,33 @@ internal sealed class ActivityRepository(CoreDbContext dbContext) : IActivityRep
         return Result.Success<PagedList<Activity>, Error>(activities);
     }
 
+    public async Task<Result<Activity, Error>> GetById(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var entity = await _activities
+            .Include(a => a.Comments)
+            .Include(a => a.Likes)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        return entity is null
+            ? Result.Failure<Activity, Error>(
+                ErrorsTypes.NotFound($"Activity with id: {id} has not been found")
+            )
+            : Result.Success<Activity, Error>(entity);
+    }
+
     public async Task<UnitResult<Error>> HasAlreadyLiked(Guid activityId, Guid userId)
     {
         var liked = await _activities
             .Include(a => a.Likes)
-            .AnyAsync(a => a.Likes.Any(l => l.UserId == userId));
+            .AnyAsync(a => a.Likes.Any(l => l.ActivityId == activityId && l.UserId == userId));
 
         return liked
             ? UnitResult.Success<Error>()
             : UnitResult.Failure(
-                ErrorsTypes.NotFound(
+                ErrorsTypes.BadRequest(
                     $"User with id {userId} already liked activity with id {activityId}"
                 )
             );

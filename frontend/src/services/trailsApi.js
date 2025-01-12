@@ -15,7 +15,7 @@ export const fetchTrails = async (bounds, filters) => {
 
   try {
     const response = await fetch(
-      `${BASE_URL}/trails?MinimumLatitude=${_sw.lat}&MaximumLatitude=${_ne.lat}&MinimumLongitude=${_sw.lng}&MaximumLongitude=${_ne.lng}&${trailTypesQuery}`
+      `${BASE_URL}/trails?MinimumLatitude=${_sw.lat}&MaximumLatitude=${_ne.lat}&MinimumLongitude=${_sw.lng}&MaximumLongitude=${_ne.lng}&${trailTypesQuery}&Visibility=Public`
     );
     if (!response.ok) throw new Error("Failed to fetch trails");
     return await response.json();
@@ -23,6 +23,16 @@ export const fetchTrails = async (bounds, filters) => {
     console.error(err);
     throw err;
   }
+};
+
+export const getTrailById = async (trailId) => {
+  const response = await fetch(`${BASE_URL}/trails/${trailId}`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
 };
 
 export const fetchUserTrails = async (userId) => {
@@ -33,5 +43,34 @@ export const fetchUserTrails = async (userId) => {
   } catch (error) {
     console.error("Error fetching user trails:", error);
     throw error;
+  }
+};
+
+export const fetchPrivateUserTrails = async (userId) => {
+  const response = await fetch(
+    `${BASE_URL}/trails?UserId=${userId}&Visibility=Private`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const updateTrail = async (trailId, data) => {
+  const response = await fetch(`${BASE_URL}/trails/${trailId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: data.name,
+      type: data.type,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
 };

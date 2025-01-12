@@ -6,7 +6,8 @@ import DesktopLayout from "../components/Layout/DesktopLayout";
 import logoUrl from "../assets/img/logo/longlogo.svg";
 import mobileLogoUrl from "../assets/img/logo/logo.svg";
 
-const cloudFrontDomainName = process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME;
+const cloudFrontDomainName =
+  process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS;
 
 const Layout = () => {
   const { user, logOut } = useAuth();
