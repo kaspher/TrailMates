@@ -2,7 +2,7 @@ import React from "react";
 import {
   trailTypeTranslations,
   eventStatusTranslations,
-} from "../../utils/statusMappings";
+} from "../../utils/mappings";
 
 const Filters = ({ filters, updateFilters, resetFilters }) => {
   const handleDateChange = (field, value) => {

@@ -8,6 +8,11 @@ public record Trail(
     string Visibility = VisibilityType.Private
 )
 {
+    public Guid Id { get; set; } = Id;
+    public string Name { get; set; } = Name;
+    public Guid OwnerId { get; set; } = OwnerId;
+    public string Type { get; set; } = Type;
+    public string Visibility { get; set; } = Visibility;
     public List<Coordinate> Coordinates { get; set; } = [];
 }
 
@@ -17,11 +22,4 @@ public abstract class VisibilityType
 {
     public const string Private = "Private";
     public const string Public = "Public";
-}
-
-public abstract class TrailType
-{
-    public const string Walking = "Walking";
-    public const string Cycling = "Cycling";
-    public const string Trekking = "Trekking";
 }

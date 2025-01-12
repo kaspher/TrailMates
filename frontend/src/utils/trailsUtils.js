@@ -2,17 +2,31 @@ import mapboxgl from "mapbox-gl";
 import { fetchTrails } from "../services/trailsApi";
 
 export const fetchRoute = async (coordinates) => {
-  if (!coordinates || coordinates.length === 0) {
-    throw new Error("No coordinates provided for route fetching");
-  }
+  const simplifiedCoordinates = coordinates.filter(
+    (_, index) =>
+      index === 0 ||
+      index === coordinates.length - 1 ||
+      index % Math.ceil(coordinates.length / 20) === 0
+  );
 
-  const coordsString = coordinates
+  const coordsString = simplifiedCoordinates
     .map((coord) => `${coord.longitude},${coord.latitude}`)
     .join(";");
+
   const response = await fetch(
-    `https://api.mapbox.com/directions/v5/mapbox/cycling/${coordsString}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}&overview=full`
+    `https://api.mapbox.com/directions/v5/mapbox/walking/${coordsString}?geometries=geojson&access_token=pk.eyJ1Ijoia2FzcGhlciIsImEiOiJjbHpmcm1idmgxM3J4MmtxenNydXdpdmF5In0.BACQgN1tgCHZOg3JPVckOQ`
   );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch route");
+  }
+
   const data = await response.json();
+
+  if (!data.routes || !data.routes[0]) {
+    throw new Error("No route found");
+  }
+
   return data.routes[0].geometry;
 };
 

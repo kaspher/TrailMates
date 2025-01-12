@@ -11,4 +11,6 @@ public interface IActivityService
         string activityId,
         List<IFormFile> pictures
     );
+
+    Task<List<string>> ListAllObjectsFromFolder(string folderName);
 }

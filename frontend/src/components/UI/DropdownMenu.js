@@ -13,7 +13,11 @@ import {
 const DropdownMenu = ({ user, isMobileView, onLogout, closeDropdown }) => {
   return (
     <div
-      className={`py-1 ${isMobileView ? "fixed top-full left-0 w-full bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-20" : "absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-20"}`}
+      className={`py-1 ${
+        isMobileView
+          ? "fixed top-full left-0 w-full bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-20"
+          : "absolute right-0 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-20"
+      }`}
     >
       <div>
         <Link
@@ -84,7 +88,7 @@ const DropdownMenu = ({ user, isMobileView, onLogout, closeDropdown }) => {
               onClick={closeDropdown}
             >
               <FontAwesomeIcon icon={faTasks} className="mr-2" />
-              Twoje aktywności
+              Moje aktywności
             </Link>
             <button
               onClick={() => {

@@ -26,12 +26,12 @@ function App() {
             <Route path="trails" element={<Trails />} />
             <Route path="activities" element={<Activities />} />
             <Route path="events" element={<Events />} />
+            <Route path="blog" element={<BlogPage />} />
+            <Route path="blog/:postId" element={<DetailedPost />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="profile/:userId" element={<UserStatistics />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="blog" element={<BlogPage />} />
-            <Route path="post/:postId" element={<DetailedPost />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>

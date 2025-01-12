@@ -18,4 +18,6 @@ public interface ITrailRepository
         CancellationToken cancellationToken = default
     );
     Task Add(Trail trail);
+    Task Update(Trail trail);
+    Task<UnitResult<Error>> UpdateVisibility(Guid trailId);
 }

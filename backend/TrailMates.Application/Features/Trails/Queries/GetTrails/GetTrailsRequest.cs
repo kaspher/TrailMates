@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TrailMates.Domain.Entities.Trails;
 
 namespace TrailMates.Application.Features.Trails.Queries.GetTrails;
 
@@ -10,7 +9,7 @@ public record GetTrailsRequest(
     [FromQuery] double? MinimumLongitude = null,
     [FromQuery] double? MaximumLongitude = null,
     [FromQuery] string[]? TrailTypes = null,
-    [FromQuery] string? Visibility = VisibilityType.Public
+    [FromQuery] string? Visibility = null
 )
 {
     public GetTrailsQuery ToQuery() => new(this);

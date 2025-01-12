@@ -9,16 +9,16 @@ using TrailMates.Domain.Errors;
 namespace TrailMates.Application.Features.Activities.Commands.AddActivity;
 
 public readonly record struct AddActivityCommand(AddActivityRequest Request)
-    : ICommand<UnitResult<Error>>;
+    : ICommand<Result<Guid, Error>>;
 
 internal sealed class AddActivityCommandHandler(
     IActivityRepository activityRepository,
     IUserRepository userRepository,
     ITrailRepository trailRepository,
     IActivityService activityService
-) : ICommandHandler<AddActivityCommand, UnitResult<Error>>
+) : ICommandHandler<AddActivityCommand, Result<Guid, Error>>
 {
-    public async Task<UnitResult<Error>> Handle(
+    public async Task<Result<Guid, Error>> Handle(
         AddActivityCommand command,
         CancellationToken cancellationToken
     )
@@ -27,11 +27,16 @@ internal sealed class AddActivityCommandHandler(
 
         var userExistsResult = await userRepository.Exists(request.OwnerId);
         if (userExistsResult.IsFailure)
-            return userExistsResult.ConvertFailure<UnitResult<Error>>();
+            return userExistsResult.ConvertFailure<Guid>();
 
         var trailExistsResult = await trailRepository.Exists(request.TrailId);
         if (trailExistsResult.IsFailure)
-            return trailExistsResult.ConvertFailure<UnitResult<Error>>();
+            return trailExistsResult.ConvertFailure<Guid>();
+
+        var visibilityUpdateResult = await trailRepository.UpdateVisibility(request.TrailId);
+
+        if (visibilityUpdateResult.IsFailure)
+            return visibilityUpdateResult.ConvertFailure<Guid>();
 
         var activityId = Guid.NewGuid();
         await activityRepository.AddActivity(
@@ -51,9 +56,8 @@ internal sealed class AddActivityCommandHandler(
             request.Pictures
         );
 
-        if (addPicturesResult.IsFailure)
-            return addPicturesResult.ConvertFailure<UnitResult<Error>>();
-
-        return UnitResult.Success<Error>();
+        return addPicturesResult.IsFailure
+            ? addPicturesResult.ConvertFailure<Guid>()
+            : Result.Success<Guid, Error>(activityId);
     }
 }

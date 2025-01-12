@@ -13,7 +13,12 @@ export const eventStatusTranslations = {
 };
 
 export const trailTypeTranslations = {
-  Cycling: "Kolarstwo",
+  Trekking: "Chodzenie",
   Running: "Bieganie",
-  Walking: "Trekking",
+  Cycling: "Kolarstwo",
+};
+
+export const visibilityTranslations = {
+  Private: "Prywatna",
+  Public: "Publiczna",
 };

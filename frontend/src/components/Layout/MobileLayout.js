@@ -106,7 +106,7 @@ const MobileLayout = ({
                     onClick={handleDropdownClose}
                   >
                     <FontAwesomeIcon icon={faTasks} className="mr-2" />
-                    Twoje aktywności
+                    Moje aktywności
                   </Link>
                   <button
                     onClick={() => {

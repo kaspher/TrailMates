@@ -57,6 +57,23 @@ public class ActivityService(IAmazonS3 s3Client, IConfiguration configuration) :
         return addedPictures;
     }
 
+    public async Task<List<string>> ListAllObjectsFromFolder(string folderName)
+    {
+        var request = new ListObjectsV2Request
+        {
+            BucketName = configuration["AWSPostsPictures:BucketName"],
+            Prefix = $"{folderName}/",
+            Delimiter = "/"
+        };
+
+        var response = await s3Client.ListObjectsV2Async(request);
+
+        return response
+            .S3Objects.Where(s3Object => !s3Object.Key.EndsWith('/'))
+            .Select(s3Object => s3Object.Key)
+            .ToList();
+    }
+
     private static string GetContentType(string fileName)
     {
         var extension = Path.GetExtension(fileName).ToLowerInvariant();

@@ -37,7 +37,7 @@ internal sealed class AddActivityEndpoint : IEndpoint
                     return await (await validator.ValidateAsync(activityRequest, cancellationToken))
                         .ToInputValidationResult()
                         .Bind(() => dispatcher.Send(activityRequest.ToCommand(), cancellationToken))
-                        .Match(Results.NoContent, error => error.ToErrorProblemResult());
+                        .Match(Results.Ok, error => error.ToErrorProblemResult());
                 }
             )
             .WithName("add-activity")
