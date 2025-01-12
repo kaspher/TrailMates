@@ -83,7 +83,7 @@ const UserStatisticsPage = () => {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex items-center space-x-4 mb-6">
           <img
-            src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME}${userId}`}
+            src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${userId}`}
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover"
           />
@@ -147,7 +147,9 @@ const UserStatisticsPage = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium text-secondary">{event.name}</h3>
                     <div
-                      className={`px-3 py-1 rounded text-white text-sm font-medium ${eventStatusColors[event.status]}`}
+                      className={`px-3 py-1 rounded text-white text-sm font-medium ${
+                        eventStatusColors[event.status]
+                      }`}
                     >
                       {eventStatusTranslations[event.status]}
                     </div>

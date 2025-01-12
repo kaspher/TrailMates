@@ -10,7 +10,7 @@ using IResult = Microsoft.AspNetCore.Http.IResult;
 
 namespace TrailMates.Application.Features.Trails.Queries.GetTrail;
 
-public class GetTrailEndpoint : IEndpoint
+internal sealed class GetTrailEndpoint : IEndpoint
 {
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) =>
         endpoints

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -22,6 +22,7 @@ const DesktopLayout = ({
 }) => {
   const [userData, setUserData] = useState(null);
   const alertRef = useRef();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -51,28 +52,44 @@ const DesktopLayout = ({
         <div className="flex-1 flex justify-center">
           <div className="flex items-center space-x-5">
             <Link
-              className="inline-block rounded-lg px-4 py-2 text-md font-medium text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900"
+              className={`inline-block rounded-lg px-4 py-2 text-md font-medium transition-all duration-200 hover:bg-gray-100 ${
+                location.pathname === "/"
+                  ? "text-custom-green"
+                  : "text-gray-900"
+              }`}
               to="/"
             >
               Strona domowa
             </Link>
             <Link
-              className="inline-block rounded-lg px-4 py-2 text-md font-medium text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900"
+              className={`inline-block rounded-lg px-4 py-2 text-md font-medium transition-all duration-200 hover:bg-gray-100 ${
+                location.pathname === "/trails"
+                  ? "text-custom-green"
+                  : "text-gray-900"
+              }`}
               to="/trails"
             >
               Mapa tras
             </Link>
             <Link
-              className="inline-block rounded-lg px-4 py-2 text-md font-medium text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900"
-              to="/activities"
-            >
-              Aktywności
-            </Link>
-            <Link
-              className="inline-block rounded-lg px-4 py-2 text-md font-medium text-gray-900 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900"
+              className={`inline-block rounded-lg px-4 py-2 text-md font-medium transition-all duration-200 hover:bg-gray-100 ${
+                location.pathname === "/events"
+                  ? "text-custom-green"
+                  : "text-gray-900"
+              }`}
               to="/events"
             >
               Wydarzenia
+            </Link>
+            <Link
+              className={`inline-block rounded-lg px-4 py-2 text-md font-medium transition-all duration-200 hover:bg-gray-100 ${
+                location.pathname === "/blog"
+                  ? "text-custom-green"
+                  : "text-gray-900"
+              }`}
+              to="/blog"
+            >
+              Blog
             </Link>
           </div>
         </div>
@@ -135,7 +152,7 @@ const DesktopLayout = ({
                   onClick={handleDropdownClose}
                 >
                   <FontAwesomeIcon icon={faTasks} className="mr-2" />
-                  Twoje aktywności
+                  Moje aktywności
                 </Link>
                 <button
                   onClick={() => {

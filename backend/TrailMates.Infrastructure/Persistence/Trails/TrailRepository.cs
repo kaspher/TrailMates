@@ -74,4 +74,24 @@ public sealed class TrailRepository(CoreDbContext dbContext) : ITrailRepository
         await _trails.AddAsync(trail);
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task Update(Trail trail)
+    {
+        _trails.Update(trail);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<UnitResult<Error>> UpdateVisibility(Guid trailId)
+    {
+        var trail = await _trails.FirstOrDefaultAsync(t => t.Id == trailId);
+        if (trail is null)
+            return UnitResult.Failure(
+                ErrorsTypes.NotFound($"Trail with id {trailId} was not found")
+            );
+        trail.Visibility = VisibilityType.Public;
+        _trails.Update(trail);
+        await dbContext.SaveChangesAsync();
+
+        return UnitResult.Success<Error>();
+    }
 }

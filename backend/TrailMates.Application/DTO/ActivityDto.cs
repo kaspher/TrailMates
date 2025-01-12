@@ -11,5 +11,6 @@ public record ActivityDto(
     Guid TrailId,
     List<Like> Likes,
     List<Comment> Comments,
+    List<string> PicturesNames,
     DateTime CreatedAt
 );

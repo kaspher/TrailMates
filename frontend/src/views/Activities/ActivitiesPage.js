@@ -1,54 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../hooks/useAuth";
+import { fetchUserTrails } from "../../services/trailsApi";
+import { calculateDistance } from "../../utils/trailsUtils";
+import {
+  trailTypeTranslations,
+  visibilityTranslations,
+} from "../../utils/mappings";
+import loadingGif from "../../assets/img/loading.gif";
+import PublishActivityModal from "../../components/Activities/PublishActivityModal";
+import EditTrailModal from "../../components/Activities/EditTrailModal";
 
 const ActivitiesPage = () => {
-  const [activities, setActivities] = useState([
-    //hardcoded data for now to test the layout, not copied from chat I promise
-    {
-      id: 1,
-      sport: "Mountain Bike Ride",
-      date: "Sat, 4/20/2024",
-      title: "Afternoon Mountain Bike Ride",
-      time: "1:22:30",
-      distance: "14.91 km",
-    },
-    {
-      id: 2,
-      sport: "Mountain Bike Ride",
-      date: "Sat, 7/15/2023",
-      title: "Szybka oliva",
-      time: "1:05:14",
-      distance: "10.81 km",
-    },
-    {
-      id: 3,
-      sport: "Ride",
-      date: "Sat, 4/29/2023",
-      title: "Afternoon Ride",
-      time: "2:06:47",
-      distance: "29.94 km",
-    },
-    {
-      id: 4,
-      sport: "Ride",
-      date: "Thu, 4/27/2023",
-      title: "Luźny trip",
-      time: "42:59",
-      distance: "14.13 km",
-    },
-  ]);
-
+  const { user } = useAuth();
+  const [trails, setTrails] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [menuVisible, setMenuVisible] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: "ascending",
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [selectedTrail, setSelectedTrail] = useState(null);
 
-  const toggleMenu = (index) => {
-    setMenuVisible(menuVisible === index ? null : index);
-  };
+  useEffect(() => {
+    const fetchTrails = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+        const trailsData = await fetchUserTrails(user.id);
+        const trailsWithStats = trailsData.map((trail) => {
+          const distance = calculateDistance(trail.coordinates);
+          const time = "1:30:00";
+          const [hours, minutes, seconds] = time.split(":").map(Number);
+          const timeInMinutes = hours * 60 + minutes + seconds / 60;
+          const pace = timeInMinutes / distance;
+          const paceMinutes = Math.floor(pace);
+          const paceSeconds = Math.round((pace - paceMinutes) * 60);
+
+          return {
+            ...trail,
+            distance: distance,
+            time,
+            pace: `${paceMinutes}:${paceSeconds
+              .toString()
+              .padStart(2, "0")}/km`,
+          };
+        });
+        setTrails(trailsWithStats);
+      } catch (error) {
+        console.error("Error fetching trails:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrails();
+  }, [user]);
 
   const handleSort = (key) => {
     let direction = "ascending";
@@ -58,265 +67,276 @@ const ActivitiesPage = () => {
     setSortConfig({ key, direction });
   };
 
-  const resetSort = () => {
-    setSortConfig({ key: null, direction: "ascending" });
-  };
-
-  const parseTime = (time) => {
-    const parts = time.split(":").map(Number);
-    if (parts.length === 2) {
-      const [minutes, seconds] = parts;
-      return minutes * 60 + seconds;
-    } else {
-      const [hours, minutes, seconds] = parts;
-      return hours * 3600 + minutes * 60 + seconds;
-    }
-  };
-
-  const parseDate = (date) => {
-    return new Date(date);
-  };
-
-  const sortedActivities = [...activities].sort((a, b) => {
-    if (sortConfig.key === "time") {
-      const timeA = parseTime(a.time);
-      const timeB = parseTime(b.time);
-      return sortConfig.direction === "ascending"
-        ? timeA - timeB
-        : timeB - timeA;
-    } else if (sortConfig.key === "date") {
-      const dateA = parseDate(a.date);
-      const dateB = parseDate(b.date);
-      return sortConfig.direction === "ascending"
-        ? dateA - dateB
-        : dateB - dateA;
-    } else {
-      if (a[sortConfig.key] < b[sortConfig.key]) {
-        return sortConfig.direction === "ascending" ? -1 : 1;
-      }
-      if (a[sortConfig.key] > b[sortConfig.key]) {
-        return sortConfig.direction === "ascending" ? 1 : -1;
-      }
-      return 0;
-    }
-  });
-
-  const filteredActivities = sortedActivities.filter(
-    (activity) =>
-      activity.sport.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      activity.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTrails = trails.filter(
+    (trail) =>
+      trail.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      trail.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const tableCellClass = "p-2 border border-gray-300";
-  const editButtonClass = "text-blue-500";
-  const deleteButtonClass = "text-red-500";
-  const publishButtonClass = "text-black";
-  const popUpShareOptions =
-    "block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100";
-  const popUpMenuClass =
-    "absolute mt-2 w-56 bg-white shadow-lg border rounded z-10";
+  const sortedTrails = [...filteredTrails].sort((a, b) => {
+    if (!sortConfig.key) return 0;
 
-  const handleEditClick = (activity) => {
-    setSelectedActivity(activity);
-    setIsModalOpen(true);
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === "ascending" ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === "ascending" ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const handleEditClick = (trail) => {
+    setSelectedTrail(trail);
+    setIsEditModalOpen(true);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setSelectedActivity(null);
+  const handlePublishClick = (trail) => {
+    setSelectedTrail(trail);
+    setIsPublishModalOpen(true);
   };
 
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedActivity((prev) => ({ ...prev, [name]: value }));
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedTrail(null);
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    setActivities((prev) =>
-      prev.map((activity) =>
-        activity.id === selectedActivity.id ? selectedActivity : activity
-      )
-    );
-    handleModalClose();
+  const handlePublishModalClose = () => {
+    setIsPublishModalOpen(false);
+    setSelectedTrail(null);
   };
 
   return (
-    <div className="max-w-5xl mx-auto my-2 bg-background p-5 shadow-md rounded-lg">
-      <h1 className="text-4xl mb-5 text-primary">Twoje aktywności</h1>
-      <div className="flex items-center mb-5 rounded-lg bg-background text-secondary">
-        <input
-          type="text"
-          className="mr-2 p-2 border rounded w-full sm:w-1/4"
-          placeholder="Szukaj po sporcie lub tytule"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-      <div className="activities">
-        <div className="flex items-center mb-2">
-          <h2 className="text-xl text-primary mr-2">Lista aktywności</h2>
-          {sortConfig.key && (
-            <button
-              onClick={resetSort}
-              className="bg-red-500 text-white py-1 px-3 rounded-lg"
+    <div className="container mx-auto px-4 py-8 max-w-8xl">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-semibold text-gray-800">
+              Twoje trasy
+            </h1>
+            {sortConfig.key && (
+              <button
+                onClick={() =>
+                  setSortConfig({ key: null, direction: "ascending" })
+                }
+                className="flex items-center px-3 py-1 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Reset sortowania
+              </button>
+            )}
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Szukaj tras..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <svg
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Reset Sort
-            </button>
-          )}
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse mb-5">
-            <thead>
-              <tr>
-                <th
-                  className={tableCellClass}
-                  onClick={() => handleSort("sport")}
-                >
-                  Sport{" "}
-                  {sortConfig.key === "sport" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th
-                  className={tableCellClass}
-                  onClick={() => handleSort("date")}
-                >
-                  Data{" "}
-                  {sortConfig.key === "date" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th
-                  className={tableCellClass}
-                  onClick={() => handleSort("title")}
-                >
-                  Tytuł{" "}
-                  {sortConfig.key === "title" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th
-                  className={tableCellClass}
-                  onClick={() => handleSort("time")}
-                >
-                  Czas{" "}
-                  {sortConfig.key === "time" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th
-                  className={tableCellClass}
-                  onClick={() => handleSort("distance")}
-                >
-                  Dystans{" "}
-                  {sortConfig.key === "distance" &&
-                    (sortConfig.direction === "ascending" ? "↑" : "↓")}
-                </th>
-                <th className={tableCellClass}>Akcje</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredActivities.map((activity, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-hover-background transition-all"
-                >
-                  <td className={tableCellClass}>{activity.sport}</td>
-                  <td className={tableCellClass}>{activity.date}</td>
-                  <td className={tableCellClass}>{activity.title}</td>
-                  <td className={tableCellClass}>{activity.time}</td>
-                  <td className={tableCellClass}>{activity.distance}</td>
-                  <td className={tableCellClass}>
-                    <div className="flex space-x-4">
-                      <button
-                        className={editButtonClass}
-                        onClick={() => handleEditClick(activity)}
-                      >
-                        Edytuj
-                      </button>
-                      <button className={deleteButtonClass}>Usuń</button>
-                      <div className="relative">
-                        <button
-                          className={`${publishButtonClass} flex items-center`}
-                          onClick={() => toggleMenu(index)}
-                        >
-                          Publikuj
-                          <svg
-                            className="w-4 h-4 ml-1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </button>
-                        {menuVisible === index && (
-                          <div className={popUpMenuClass}>
-                            <button className={popUpShareOptions}>
-                              Opublikuj dla wszystkich
-                            </button>
-                            <button className={popUpShareOptions}>
-                              Opublikuj tylko dla siebie
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl mb-4">Edit Activity</h2>
-            <form onSubmit={handleFormSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700">Sport</label>
-                <input
-                  type="text"
-                  name="sport"
-                  value={selectedActivity.sport}
-                  onChange={handleFormChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={selectedActivity.title}
-                  onChange={handleFormChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={handleModalClose}
-                  className="bg-gray-500 text-white py-2 px-4 rounded mr-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-primary text-white py-2 px-4 rounded"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
         </div>
-      )}
+
+        {loading ? (
+          <div className="flex justify-center mt-8">
+            <img src={loadingGif} alt="Loading..." className="w-64 h-64" />
+          </div>
+        ) : (
+          <div className="overflow-x-auto scrollbar-thin relative">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("name")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Nazwa
+                      {sortConfig.key === "name" && (
+                        <span className="ml-2">
+                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("type")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Typ
+                      {sortConfig.key === "type" && (
+                        <span className="ml-2">
+                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("distance")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Dystans
+                      {sortConfig.key === "distance" && (
+                        <span className="ml-2">
+                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("time")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Czas
+                      {sortConfig.key === "time" && (
+                        <span className="ml-2">
+                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("pace")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Tempo
+                      {sortConfig.key === "pace" && (
+                        <span className="ml-2">
+                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleSort("visibility")}
+                  >
+                    <div className="flex items-center justify-center">
+                      Widoczność
+                      {sortConfig.key === "visibility" && (
+                        <span className="ml-2">
+                          {sortConfig.direction === "ascending" ? "↑" : "↓"}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Akcje
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedTrails.map((trail, index) => (
+                  <tr
+                    key={trail.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {trail.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {trailTypeTranslations[trail.type] || trail.type}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {trail.distance} km
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {trail.time}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {trail.pace}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {visibilityTranslations[trail.visibility] ||
+                        trail.visibility}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex justify-center items-center space-x-2">
+                        <button
+                          onClick={() => handleEditClick(trail)}
+                          className="bg-blue-100 text-blue-600 hover:bg-blue-200 px-4 py-2 rounded-lg transition-colors w-24"
+                        >
+                          Edytuj
+                        </button>
+                        <div className="relative group">
+                          <button
+                            className={`px-4 py-2 rounded-lg transition-colors w-24 ${
+                              trail.visibility === "Private"
+                                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            }`}
+                            onClick={() => {
+                              if (trail.visibility === "Private") {
+                                // handle delete
+                              }
+                            }}
+                          >
+                            Usuń
+                          </button>
+                          {trail.visibility !== "Private" && (
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                              Nie możesz usunąć publicznej trasy
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handlePublishClick(trail)}
+                          className="bg-green-200 text-green-700 hover:bg-green-300 px-4 py-2 rounded-lg transition-colors w-24"
+                        >
+                          Publikuj
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <EditTrailModal
+        isOpen={isEditModalOpen}
+        onClose={handleEditModalClose}
+        trail={selectedTrail}
+        user={user}
+        setTrails={setTrails}
+      />
+      <PublishActivityModal
+        isOpen={isPublishModalOpen}
+        onClose={handlePublishModalClose}
+        trail={selectedTrail}
+      />
     </div>
   );
 };

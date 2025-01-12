@@ -19,8 +19,7 @@ internal sealed class UpdateProfileEndpoint : IEndpoint
             .MapGroup("/api/users")
             .MapPut("/{userId}/update-profile", HandlePut)
             .WithName("update-profile")
-            .WithTags(Constants.UsersTag)
-            .DisableAntiforgery();
+            .WithTags(Constants.UsersTag);
 
     private static Task<IResult> HandlePut(
         [AsParameters] UpdateProfileRequest request,

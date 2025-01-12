@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import {
   eventStatusColors,
   eventStatusTranslations,
-} from "../../utils/statusMappings";
+} from "../../utils/mappings";
 
 const EventCard = ({
   event,

@@ -36,7 +36,7 @@ const UserProfilePage = () => {
         setFormData(userData);
         setInitialData(userData);
         setProfilePicture(
-          `${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME}${user.id}`
+          `${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${user.id}`
         );
       } catch (error) {
         alertRef.current?.showAlert(error.message, "error");
@@ -192,7 +192,9 @@ const UserProfilePage = () => {
       </div>
 
       <div
-        className={`w-full lg:w-3/4 max-w-2xl bg-white p-4 rounded-lg shadow-md ${loading ? "blur-md" : ""}`}
+        className={`w-full lg:w-3/4 max-w-2xl bg-white p-4 rounded-lg shadow-md ${
+          loading ? "blur-md" : ""
+        }`}
       >
         <h2 className="text-lg font-semibold text-gray-700 mb-3">
           Dane osobowe
