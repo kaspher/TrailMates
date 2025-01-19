@@ -20,7 +20,13 @@ const ForgotPassword = ({ navigation }) => {
           <LongLogo width={250} height={50} />
         </View>
 
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+        {alertMessage && (
+          <Alert 
+            message={alertMessage} 
+            onClose={() => setAlertMessage(null)} 
+            isAuthScreen={true}
+          />
+        )}
 
         <View className="w-4/5 bg-white p-6 rounded-lg">
           <Text className="text-lg text-center mb-4 font-regular">Resetowanie hasła</Text>

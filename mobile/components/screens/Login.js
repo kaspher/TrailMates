@@ -49,7 +49,13 @@ const LoginScreen = ({ navigation }) => {
           <LongLogo width={250} height={50} />
         </View>
 
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+        {alertMessage && (
+          <Alert 
+            message={alertMessage} 
+            onClose={() => setAlertMessage(null)} 
+            isAuthScreen={true}
+          />
+        )}
 
         <View className="w-4/5 bg-white p-6 rounded-lg">
           <TextInput
