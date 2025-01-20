@@ -5,10 +5,11 @@ import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GoBackArrow from '../utils/GoBackArrow';
-import { getAvatarUrl, DEFAULT_AVATAR } from '../utils/GetAvatarUrl';
+import { getAvatarUrl } from '../utils/GetAvatarUrl';
 
 const UserProfile = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,12 +29,13 @@ const UserProfile = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       const decoded = jwtDecode(token);
-      const userId = decoded.id;
-
+      const currentUserId = decoded.id;
+      setUserId(currentUserId);
+      
       setImageError(false);
-      setAvatarUrl(getAvatarUrl(userId));
+      setAvatarUrl(getAvatarUrl(currentUserId));
 
-      const response = await fetch(`http://10.0.2.2:5253/api/users/${userId}`);
+      const response = await fetch(`http://10.0.2.2:5253/api/users/${currentUserId}`);
       if (!response.ok) {
         throw new Error('Nie udało się pobrać danych użytkownika');
       }
@@ -109,10 +111,10 @@ const UserProfile = ({ navigation }) => {
             <View className="items-center">
               <Image
                 source={{
-                  uri: imageError ? DEFAULT_AVATAR : avatarUrl
+                  uri: userId ? getAvatarUrl(userId) : null
                 }}
                 className="w-32 h-32 rounded-full border-4 border-white"
-                onError={() => setImageError(true)}
+                onError={() => console.log('Error loading avatar')}
               />
               <Text className="text-white text-2xl font-bold mt-4">
                 {userData ? `${userData.firstName} ${userData.lastName}` : 'Ładowanie...'}

@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, StatusBar } from 'react-native';
 import { jwtDecode } from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAvatarUrl, DEFAULT_AVATAR } from '../utils/GetAvatarUrl';
+import { getAvatarUrl } from '../utils/GetAvatarUrl';
 import MenuIcon from '../../assets/icons/bars-solid.svg';
 
 const Menu = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
   const [userStats, setUserStats] = useState({
@@ -21,12 +22,13 @@ const Menu = ({ navigation }) => {
       try {
         const token = await AsyncStorage.getItem('authToken');
         const decoded = jwtDecode(token);
-        const userId = decoded.id;
+        const currentUserId = decoded.id;
+        setUserId(currentUserId);
         
         setImageError(false);
-        setAvatarUrl(getAvatarUrl(userId));
+        setAvatarUrl(getAvatarUrl(currentUserId));
 
-        const response = await fetch(`http://10.0.2.2:5253/api/users/${userId}`);
+        const response = await fetch(`http://10.0.2.2:5253/api/users/${currentUserId}`);
         if (response.ok) {
           const data = await response.json();
           setUserData(data);
@@ -62,10 +64,10 @@ const Menu = ({ navigation }) => {
               >
                 <Image
                   source={{
-                    uri: imageError ? DEFAULT_AVATAR : avatarUrl
+                    uri: userId ? getAvatarUrl(userId) : null
                   }}
                   className="w-full h-full rounded-full"
-                  onError={() => setImageError(true)}
+                  onError={() => console.log('Error loading avatar')}
                 />
               </TouchableOpacity>
               <View className="flex-1 ml-4">
