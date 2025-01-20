@@ -14,7 +14,7 @@ export const fetchRoute = async (coordinates) => {
     .join(";");
 
   const response = await fetch(
-    `https://api.mapbox.com/directions/v5/mapbox/walking/${coordsString}?geometries=geojson&access_token=pk.eyJ1Ijoia2FzcGhlciIsImEiOiJjbHpmcm1idmgxM3J4MmtxenNydXdpdmF5In0.BACQgN1tgCHZOg3JPVckOQ`
+    `https://api.mapbox.com/directions/v5/mapbox/walking/${coordsString}?geometries=geojson&access_token=${mapboxgl.accessToken}&overview=full`
   );
 
   if (!response.ok) {

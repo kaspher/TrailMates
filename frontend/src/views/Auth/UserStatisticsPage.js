@@ -88,7 +88,7 @@ const UserStatisticsPage = () => {
             className="w-20 h-20 rounded-full object-cover"
           />
           <div>
-            <h1 className="text-2xl font-bold text-secondary">{`${user.firstName} ${user.lastName}`}</h1>
+            <h1 className="text-2xl font-bold text-dark">{`${user.firstName} ${user.lastName}`}</h1>
             <p className="text-gray-600">
               {[user.city, user.country].filter(Boolean).join(", ")}
             </p>
@@ -98,9 +98,7 @@ const UserStatisticsPage = () => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4 text-secondary">
-            Dodane trasy
-          </h2>
+          <h2 className="text-xl font-semibold mb-4 text-dark">Dodane trasy</h2>
           {userTrails.length === 0 ? (
             <p className="text-gray-500">Brak dodanych tras.</p>
           ) : (
@@ -111,7 +109,7 @@ const UserStatisticsPage = () => {
                   className="border rounded-lg p-4 bg-gray-50"
                 >
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-secondary">{trail.name}</h3>
+                    <h3 className="font-medium text-dark">{trail.name}</h3>
                     <div className="px-2 py-1 rounded border border-gray-300 bg-white">
                       <FontAwesomeIcon
                         icon={
@@ -132,7 +130,7 @@ const UserStatisticsPage = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4 text-secondary">
+          <h2 className="text-xl font-semibold mb-4 text-dark">
             Dodane wydarzenia
           </h2>
           {userEvents.length === 0 ? (
@@ -145,7 +143,7 @@ const UserStatisticsPage = () => {
                   className="border rounded-lg p-4 bg-gray-50"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-secondary">{event.name}</h3>
+                    <h3 className="font-medium text-dark">{event.name}</h3>
                     <div
                       className={`px-3 py-1 rounded text-white text-sm font-medium ${
                         eventStatusColors[event.status]

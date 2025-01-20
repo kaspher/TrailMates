@@ -3,10 +3,12 @@ import { FaImage } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
 import { createActivity } from "../../services/activitiesApi";
 import { useNavigate } from "react-router-dom";
+import loadingGif from "../../assets/img/loading.gif";
 
 const PublishActivityModal = ({ isOpen, onClose, trail }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -35,6 +37,7 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const submitData = new FormData();
     submitData.append("title", formData.title);
@@ -47,14 +50,16 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
     });
 
     try {
-      const newActivity = await createActivity(submitData);
+      const activityId = await createActivity(submitData);
       onClose();
       setFormData({ title: "", description: "" });
       setImages([]);
       setPreviewImages([]);
-      navigate(`/post/${newActivity.id}`);
+      navigate(`/blog/${activityId}`);
     } catch (error) {
       console.error("Error creating activity:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,8 +67,15 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4">Dodaj aktywność</h2>
+      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+            <img src={loadingGif} alt="Loading..." className="w-16 h-16" />
+          </div>
+        )}
+        <h2 className="text-2xl font-bold mb-4">
+          Zapisz i opublikuj aktywność
+        </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -112,7 +124,7 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 hover:bg-red-600"
                   >
                     ×
                   </button>
@@ -141,14 +153,16 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
               type="button"
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              disabled={isLoading}
             >
               Anuluj
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-400"
+              disabled={isLoading}
             >
-              Zapisz
+              {isLoading ? "Publikowanie..." : "Opublikuj"}
             </button>
           </div>
         </form>

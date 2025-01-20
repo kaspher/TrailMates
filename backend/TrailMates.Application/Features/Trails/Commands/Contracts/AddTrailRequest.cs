@@ -4,7 +4,13 @@ using TrailMates.Domain.Entities.Trails;
 
 namespace TrailMates.Application.Features.Trails.Commands.Contracts;
 
-public record AddTrailRequest(Guid OwnerId, string Name, List<Coordinate> Coordinates, string Type)
+public record AddTrailRequest(
+    Guid OwnerId,
+    string Name,
+    List<Coordinate> Coordinates,
+    string Type,
+    TimeSpan Time
+)
 {
     public AddTrailCommand ToCommand() => new(this);
 
@@ -20,6 +26,7 @@ public record AddTrailRequest(Guid OwnerId, string Name, List<Coordinate> Coordi
                 .WithMessage(
                     "Unknown trail type. TrailType should be one of Cycling/Running/Trekking"
                 );
+            RuleFor(x => x.Time).NotEmpty().GreaterThanOrEqualTo(TimeSpan.Zero);
         }
 
         private static bool IsValidTrailType(string trailType)

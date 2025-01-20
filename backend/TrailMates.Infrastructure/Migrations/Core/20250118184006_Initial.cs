@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Migrations;
 using TrailMates.Domain.Entities.Trails;
 
 #nullable disable
@@ -11,7 +13,8 @@ namespace TrailMates.Infrastructure.Migrations.Core
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(name: "core");
+            migrationBuilder.EnsureSchema(
+                name: "core");
 
             migrationBuilder.CreateTable(
                 name: "Trails",
@@ -19,21 +22,18 @@ namespace TrailMates.Infrastructure.Migrations.Core
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(
-                        type: "character varying(50)",
-                        maxLength: 50,
-                        nullable: false
-                    ),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<string>(type: "text", nullable: false),
+                    Time = table.Column<TimeSpan>(type: "interval", nullable: false),
                     Visibility = table.Column<string>(type: "text", nullable: false),
-                    Coordinates = table.Column<List<Coordinate>>(type: "jsonb", nullable: false)
+                    Coordinates = table.Column<List<Coordinate>>(type: "jsonb", nullable: false),
+                    TrailCompletions = table.Column<string>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Trails", x => x.Id);
-                }
-            );
+                });
 
             migrationBuilder.CreateTable(
                 name: "Activities",
@@ -41,22 +41,11 @@ namespace TrailMates.Infrastructure.Migrations.Core
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Title = table.Column<string>(
-                        type: "character varying(255)",
-                        maxLength: 255,
-                        nullable: false
-                    ),
-                    Description = table.Column<string>(
-                        type: "character varying(1000)",
-                        maxLength: 1000,
-                        nullable: false
-                    ),
+                    Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
                     TrailId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CreatedAt = table.Column<DateTime>(
-                        type: "timestamp without time zone",
-                        nullable: false
-                    )
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,10 +56,8 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         principalSchema: "core",
                         principalTable: "Trails",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                }
-            );
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Events",
@@ -78,33 +65,16 @@ namespace TrailMates.Infrastructure.Migrations.Core
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(
-                        type: "character varying(50)",
-                        maxLength: 50,
-                        nullable: false
-                    ),
-                    Description = table.Column<string>(
-                        type: "character varying(500)",
-                        maxLength: 500,
-                        nullable: false
-                    ),
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     OrganizerId = table.Column<Guid>(type: "uuid", nullable: false),
                     TrailId = table.Column<Guid>(type: "uuid", nullable: false),
                     ParticipantsLimit = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     ParticipantsIds = table.Column<List<Guid>>(type: "uuid[]", nullable: false),
-                    StartDate = table.Column<DateTime>(
-                        type: "timestamp without time zone",
-                        nullable: false
-                    ),
-                    EndDate = table.Column<DateTime>(
-                        type: "timestamp without time zone",
-                        nullable: false
-                    ),
-                    CreatedAt = table.Column<DateTime>(
-                        type: "timestamp without time zone",
-                        nullable: false
-                    )
+                    StartDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,10 +85,8 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         principalSchema: "core",
                         principalTable: "Trails",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                }
-            );
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Comments",
@@ -128,15 +96,8 @@ namespace TrailMates.Infrastructure.Migrations.Core
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ActivityId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Content = table.Column<string>(
-                        type: "character varying(2000)",
-                        maxLength: 2000,
-                        nullable: false
-                    ),
-                    CreatedAt = table.Column<DateTime>(
-                        type: "timestamp without time zone",
-                        nullable: false
-                    )
+                    Content = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -147,10 +108,8 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         principalSchema: "core",
                         principalTable: "Activities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                }
-            );
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Likes",
@@ -170,53 +129,57 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         principalSchema: "core",
                         principalTable: "Activities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade
-                    );
-                }
-            );
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Activities_TrailId",
                 schema: "core",
                 table: "Activities",
-                column: "TrailId"
-            );
+                column: "TrailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_ActivityId",
                 schema: "core",
                 table: "Comments",
-                column: "ActivityId"
-            );
+                column: "ActivityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_TrailId",
                 schema: "core",
                 table: "Events",
-                column: "TrailId"
-            );
+                column: "TrailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Likes_ActivityId_UserId",
                 schema: "core",
                 table: "Likes",
                 columns: new[] { "ActivityId", "UserId" },
-                unique: true
-            );
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(name: "Comments", schema: "core");
+            migrationBuilder.DropTable(
+                name: "Comments",
+                schema: "core");
 
-            migrationBuilder.DropTable(name: "Events", schema: "core");
+            migrationBuilder.DropTable(
+                name: "Events",
+                schema: "core");
 
-            migrationBuilder.DropTable(name: "Likes", schema: "core");
+            migrationBuilder.DropTable(
+                name: "Likes",
+                schema: "core");
 
-            migrationBuilder.DropTable(name: "Activities", schema: "core");
+            migrationBuilder.DropTable(
+                name: "Activities",
+                schema: "core");
 
-            migrationBuilder.DropTable(name: "Trails", schema: "core");
+            migrationBuilder.DropTable(
+                name: "Trails",
+                schema: "core");
         }
     }
 }

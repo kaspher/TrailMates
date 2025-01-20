@@ -29,10 +29,12 @@ internal sealed class AddTrailCommandHandler(
                 Guid.NewGuid(),
                 command.Request.Name,
                 command.Request.OwnerId,
-                command.Request.Type
+                command.Request.Type,
+                command.Request.Time
             )
             {
-                Coordinates = command.Request.Coordinates
+                Coordinates = command.Request.Coordinates,
+                TrailCompletions = []
             }
         );
 

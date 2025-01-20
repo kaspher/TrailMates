@@ -48,4 +48,15 @@ public static class TrailFilteringSpecification
 
         return trails;
     }
+
+    public static IEnumerable<TrailCompletion> ApplyFilters(
+        this IEnumerable<TrailCompletion> trailsCompletions,
+        Guid? userId
+    )
+    {
+        if (userId.HasValue)
+            trailsCompletions = trailsCompletions.Where(x => x.UserId == userId);
+
+        return trailsCompletions;
+    }
 }

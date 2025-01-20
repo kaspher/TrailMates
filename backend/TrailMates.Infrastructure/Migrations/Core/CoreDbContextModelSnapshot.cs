@@ -171,6 +171,13 @@ namespace TrailMates.Infrastructure.Migrations.Core
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("interval");
+
+                    b.Property<string>("TrailCompletions")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text");

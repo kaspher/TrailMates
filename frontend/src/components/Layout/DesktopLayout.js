@@ -9,6 +9,7 @@ import {
 import { useEffect, useState, useRef } from "react";
 import CustomAlert from "../../components/UI/CustomAlert";
 import { getUserById } from "../../services/usersApi";
+import { ReactComponent as LongLogo } from "../../assets/img/logo/trailmates_longlogo.svg";
 
 const DesktopLayout = ({
   user,
@@ -18,7 +19,6 @@ const DesktopLayout = ({
   handleDropdownClose,
   logOut,
   dropdownRef,
-  logoUrl,
 }) => {
   const [userData, setUserData] = useState(null);
   const alertRef = useRef();
@@ -43,11 +43,7 @@ const DesktopLayout = ({
     <header className="fixed inset-x-0 top-0 z-30 mx-auto w-full max-w-screen-xl border border-gray-100 bg-white/80 py-4 shadow lg:backdrop-blur-lg lg:top-6 lg:rounded-3xl">
       <div className="px-8 flex items-center justify-between">
         <Link aria-current="page" className="flex items-center" to="/">
-          <img
-            src={logoUrl}
-            alt="TrailMates"
-            className="w-auto h-5 filter brightness-0"
-          />
+          <LongLogo height={25} className="fill-primary" />
         </Link>
         <div className="flex-1 flex justify-center">
           <div className="flex items-center space-x-5">
