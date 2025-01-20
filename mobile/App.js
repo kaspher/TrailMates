@@ -8,10 +8,9 @@ import { View, ActivityIndicator, StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Login from './components/screens/Login';
 import Register from './components/screens/Register';
-import TabNavigator from './components/utils/TabNavigator';
+import TabNavigator from './components/trailUtils/TabNavigator';
 import ForgotPassword from './components/screens/ForgotPassword';
 import Splash from './components/screens/Splash';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator();
@@ -19,52 +18,45 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  const loadFonts = async () => {
-    try {
+  useEffect(() => {
+    async function loadFonts() {
       await Font.loadAsync({
         'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
         'Poppins-Light': require('./assets/fonts/Poppins-Light.ttf'),
         'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
-        // for testing if font loads put font-test in classname
+        // do usunięcia, font do testowania czy poppins działa bo jest łudząco podobny do domyślnego
         'Test-Font-Delete': require('./assets/fonts/Test-Font-Delete.ttf'),
       });
       setFontsLoaded(true);
-    } catch (error) {
-      console.error('Error loading fonts:', error);
     }
-  };
-
-  useEffect(() => {
     loadFonts();
   }, []);
 
-  // if (!fontsLoaded) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   );
-  // }
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#386641" />
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor="#386641" // Użyj tego samego koloru co primary w Twojej aplikacji
           translucent={true}
+          backgroundColor="transparent"
+          barStyle="dark-content"
         />
-        <BottomSheetModalProvider>
-          <NavigationContainer>
-            <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="Splash" component={Splash} />
-              <Stack.Screen name="Login" component={Login} />
-              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-              <Stack.Screen name="Register" component={Register} />
-              <Stack.Screen name="MainTabs" component={TabNavigator} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </BottomSheetModalProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Splash" component={Splash} />
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+            <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

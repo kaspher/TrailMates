@@ -38,16 +38,15 @@ const Alert = ({ message, duration = 6000, onClose }) => {
       className="absolute top-10 left-4 right-4 z-50"
     >
       <View className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <View className="p-4">
+        <View className="p-6">
           <View className="flex-row justify-between items-center">
-            <Text className="text-gray-800 flex-1 mr-2">{message}</Text>
+            <Text className="text-gray-800 flex-1 mr-2 text-base">{message}</Text>
             <TouchableOpacity onPress={onClose}>
               <CloseButton width={15} height={15} fill="#386641" />
             </TouchableOpacity>
           </View>
         </View>
         
-        {/* Pasek postępu */}
         <View className="h-[4px] bg-gray-200 w-full">
           <Animated.View
             style={{

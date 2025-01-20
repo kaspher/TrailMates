@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Alert from '../utils/Alert';
 import LongLogo from "../../assets/longlogo.svg";
-import DropDownPicker from 'react-native-dropdown-picker'; // Import the dropdown picker
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -63,7 +63,13 @@ const RegisterScreen = ({ navigation }) => {
         <View className="items-center border-solid mb-8">
           <LongLogo width={250} height={50} />
         </View>
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+        {alertMessage && (
+          <Alert 
+            message={alertMessage} 
+            onClose={() => setAlertMessage(null)} 
+            isAuthScreen={true}
+          />
+        )}
         <View className="w-4/5 bg-white p-6 rounded-lg">
           <TextInput
             className="border border-gray-300 rounded-md p-3 mb-4 font-regular"

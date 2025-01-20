@@ -5,21 +5,22 @@ import Home from '../screens/Home';
 import Trails from '../screens/Trails';
 import Menu from '../screens/Menu';
 import UserProfile from '../screens/UserProfile';
+import Activities from '../screens/Activities';
+import RecordedTrails from '../screens/RecordedTrails';
 import HomeIcon from '../../assets/icons/house-solid.svg';
 import MapIcon from '../../assets/icons/map-solid.svg';
 import MenuIcon from '../../assets/icons/bars-solid.svg';
-import Activities from '../screens/Activities';
 
 const Tab = createBottomTabNavigator();
 const MenuStack = createNativeStackNavigator();
 
-// Stwórz osobny stack dla Menu i UserProfile
 const MenuStackScreen = () => {
   return (
     <MenuStack.Navigator screenOptions={{ headerShown: false }}>
       <MenuStack.Screen name="MenuMain" component={Menu} />
       <MenuStack.Screen name="UserProfile" component={UserProfile} />
       <MenuStack.Screen name="Activities" component={Activities} />
+      <MenuStack.Screen name="RecordedTrails" component={RecordedTrails} />
     </MenuStack.Navigator>
   );
 };
@@ -29,9 +30,6 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: 'white',
-        },
         tabBarIcon: ({ focused, color, size }) => {
           if (route.name === 'Home') {
             return <HomeIcon width={size} height={size} fill={color} />;

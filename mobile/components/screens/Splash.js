@@ -13,7 +13,7 @@ const Splash = ({ navigation }) => {
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
           console.log('Token znaleziony:', token);
-          // add some other validation
+          // moze dodac wiecej walidacji np. az sie zaladuja fonty
           navigation.replace('MainTabs');
         } else {
           console.log('Nie znaleziono tokenu, przekierowanie do Login.');
