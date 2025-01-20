@@ -118,8 +118,8 @@ const TrailDetails = ({
               <LocationPinIcon width={20} height={20} fill="#386641" />
               <View className="ml-2">
                 <Text className="font-medium">Start:</Text>
-                <Text className="text-gray-700">
-                  {`${startAddress.street}, ${startAddress.city}`}
+                <Text className="text-gray-600">
+                  {startAddress ? `${startAddress.street}, ${startAddress.city}` : 'Ładowanie...'}
                 </Text>
               </View>
             </View>
@@ -130,8 +130,8 @@ const TrailDetails = ({
               <FlagIcon width={20} height={20} fill="#386641" />
               <View className="ml-2">
                 <Text className="font-medium">Meta:</Text>
-                <Text className="text-gray-700">
-                  {`${endAddress.street}, ${endAddress.city}`}
+                <Text className="text-gray-600">
+                  {endAddress ? `${endAddress.street}, ${endAddress.city}` : 'Ładowanie...'}
                 </Text>
               </View>
             </View>

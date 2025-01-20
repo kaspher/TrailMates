@@ -10,7 +10,7 @@ const MapControls = ({
   mapStyle 
 }) => {
   return (
-    <View className="absolute top-20 right-5">
+    <View className="absolute top-32 right-1">
       <TouchableOpacity
         className="bg-white p-3 rounded-full shadow-md mb-3"
         onPress={onCenterPress}

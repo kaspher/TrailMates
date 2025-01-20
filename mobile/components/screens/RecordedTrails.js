@@ -100,10 +100,11 @@ const RecordedTrails = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
-      <GoBackArrow title="Nagrane Trasy" />
-      {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-      <View className="flex-1 pt-[56px]">
+    <View className="flex-1 bg-light">
+      <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1">
+        <GoBackArrow title="Nagrane Trasy" />
+        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+        <View className="flex-1">
           <ScrollView className="space-y-4">
             {trails.map((trail) => (
               <TouchableOpacity
@@ -159,7 +160,8 @@ const RecordedTrails = ({ navigation }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-      </View>
+        </View>
+      </SafeAreaView>
       <TrailShare 
         isVisible={isShareModalVisible}
         onClose={() => setIsShareModalVisible(false)}
@@ -170,7 +172,7 @@ const RecordedTrails = ({ navigation }) => {
         trailType={trailType}
         setTrailType={setTrailType}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

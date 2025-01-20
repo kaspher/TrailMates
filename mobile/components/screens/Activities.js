@@ -41,10 +41,11 @@ const Activities = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
-      <GoBackArrow title="Moje Aktywności" />
-      {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-      <View className="flex-1 pt-[56px]">
+    <View className="flex-1 bg-light">
+      <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1">
+        <GoBackArrow title="Moje Aktywności" />
+        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+        <View className="flex-1">
           <ScrollView className="space-y-4">
             {activities.map((activity) => (
               <TouchableOpacity
@@ -97,16 +98,16 @@ const Activities = ({ navigation }) => {
                             : `${activity.length.toFixed(2)} km`
                           )
                         : '0 km'
-                      }
+                    }
                     </Text>
                   </View>
                 </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
-        
-      </View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 

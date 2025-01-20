@@ -11,10 +11,10 @@ const MapBottomControls = ({
   onShowNearbyList 
 }) => {
   return (
-    <View className="bg-white h-16 border-t border-gray-200 relative z-30">
+    <View className="bg-white h-16 border-t border-gray-200 relative">
       <View className="h-full px-4 flex-row items-center justify-between">
         <TouchableOpacity
-          className="bg-primary/10 w-[125px] h-10 rounded-full flex items-center justify-center z-10"
+          className="bg-primary/10 w-[125px] h-10 rounded-full flex items-center justify-center"
           onPress={onHelpPress}
         >
           <Text className="text-primary font-medium text-base">
@@ -42,7 +42,7 @@ const MapBottomControls = ({
 
       <View className="absolute right-4 h-full flex items-center justify-center">
         <TouchableOpacity
-          className="bg-primary/10 w-[125px] h-10 rounded-full flex items-center justify-center z-10"
+          className="bg-primary/10 w-[125px] h-10 rounded-full flex items-center justify-center"
           onPress={onShowNearbyList}
         >
           <Text className="text-primary font-medium text-base">

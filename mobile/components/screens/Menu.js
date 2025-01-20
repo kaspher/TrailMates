@@ -54,7 +54,7 @@ const Menu = ({ navigation }) => {
 
   return (
     <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
-      <View className="flex-1 pt-2 px-4">
+      <View className="flex-1 pt-2 px-4 mt-6">
         <View className="w-full mb-6 flex-row items-center justify-between">
           <View className="bg-white p-4 w-full rounded-lg shadow-lg">
             <View className="flex-row items-center">

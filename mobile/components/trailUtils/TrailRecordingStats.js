@@ -1,75 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { calculateTotalDistance, formatDistance } from './CalculateDistance';
-import Animated, { 
-  useAnimatedStyle, 
-  withSpring, 
-  useSharedValue,
-  runOnJS
-} from 'react-native-reanimated';
+import { View, Text } from 'react-native';
+import { calculateTotalDistance } from './CalculateDistance';
 
 const TrailRecordingStats = ({ coordinates, startTime }) => {
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const translateY = useSharedValue(1000);
-
-  useEffect(() => {
-    translateY.value = withSpring(0, {
-      damping: 20,
-      stiffness: 100,
-      mass: 1,
-      velocity: 0.5
-    });
-  }, []);
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
+  const [distance, setDistance] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const elapsed = Math.floor((now - startTime) / 1000);
-      setElapsedTime(elapsed);
+      if (startTime) {
+        const now = new Date();
+        const diff = now - startTime;
+        const hours = Math.floor(diff / 3600000).toString().padStart(2, '0');
+        const minutes = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+        const seconds = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+        setElapsedTime(`${hours}:${minutes}:${seconds}`);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
   }, [startTime]);
 
-  const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }]
-  }));
+  useEffect(() => {
+    if (coordinates && coordinates.length > 0) {
+      const totalDistance = calculateTotalDistance(coordinates);
+      setDistance(totalDistance);
+    }
+  }, [coordinates]);
 
   return (
-    <Animated.View 
-      className="absolute bottom-16 left-0 right-0 bg-white rounded-t-3xl shadow-lg z-10"
-      style={[animatedStyle, { maxHeight: '80%' }]}
-    >
-      <View className="p-4 border-b border-gray-200">
-        <View className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
-      </View>
-
-      <View className="flex-1 p-4">
-        <View className="space-y-4">
-          <View className="flex-row justify-between items-center">
-            <Text className="text-gray-600">Czas nagrywania</Text>
-            <Text className="text-lg font-bold text-primary">{formatTime(elapsedTime)}</Text>
-          </View>
-
-          <View className="h-[1px] bg-gray-200" />
-
-          <View className="flex-row justify-between items-center">
-            <Text className="text-gray-600">Przebyty dystans</Text>
-            <Text className="text-lg font-bold text-primary">
-              {formatDistance(calculateTotalDistance(coordinates || []))}
-            </Text>
-          </View>
+    <View className="bg-white rounded-xl p-4 shadow-lg">
+      <View className="flex-row justify-between items-center">
+        <View>
+          <Text className="text-gray-500 text-sm">Czas</Text>
+          <Text className="text-xl font-bold">{elapsedTime}</Text>
+        </View>
+        <View>
+          <Text className="text-gray-500 text-sm">Dystans</Text>
+          <Text className="text-xl font-bold">
+            {distance < 1 
+              ? `${Math.round(distance * 1000)} m`
+              : `${distance.toFixed(2)} km`
+            }
+          </Text>
+        </View>
+        <View>
+          <Text className="text-gray-500 text-sm">Średnia prędkość</Text>
+          <Text className="text-xl font-bold">
+            {startTime && distance > 0
+              ? `${((distance * 3600) / ((new Date() - startTime) / 1000)).toFixed(1)} km/h`
+              : '0.0 km/h'
+            }
+          </Text>
         </View>
       </View>
-    </Animated.View>
+    </View>
   );
 };
 

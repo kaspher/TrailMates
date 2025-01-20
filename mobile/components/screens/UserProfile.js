@@ -100,10 +100,10 @@ const UserProfile = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
+    <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: 0 }}>
       <GoBackArrow title="Profil Użytkownika" />
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-      <View className="flex-1 pt-[56px]">
+      <View className="flex-1">
         <ScrollView className="flex-1">
           <View 
             className="bg-primary p-6 rounded-[30px] shadow-lg mt-4 mx-4" 

@@ -34,6 +34,7 @@ import TrailSave from '../trailUtils/TrailSave';
 import TrailRefresh from '../trailUtils/TrailRefresh';
 import TrailList from '../trailUtils/TrailList';
 import MapBottomControls from '../trailUtils/MapBottomControls';
+import TrailMapView from '../trailUtils/TrailMapView';
 
 const TRAIL_TYPES = {
   'Pieszy': 'Trekking',
@@ -292,32 +293,38 @@ export default function Trails({ route, navigation }) {
 
   const fetchTrailDetails = async (trailId) => {
     try {
+      hideNearbyList();
+      
       const response = await fetch(`http://10.0.2.2:5253/api/trails/${trailId}`);
+      if (!response.ok) {
+        throw new Error('Nie udało się pobrać szczegółów trasy');
+      }
       const data = await response.json();
+      
+      if (!data || !data.coordinates || data.coordinates.length === 0) {
+        throw new Error('Brak danych współrzędnych trasy');
+      }
+
       setSelectedTrail(data);
+      setIsBottomSheetVisible(true);
       setActiveTrailId(trailId);
 
-      const sortedCoordinates = data.coordinates.sort((a, b) => a.order - b.order);
-      const midIndex = Math.floor(sortedCoordinates.length / 2);
-      const midPoint = sortedCoordinates[midIndex];
+      const coordinates = data.coordinates.sort((a, b) => a.order - b.order);
+      const startPoint = coordinates[0];
+      const endPoint = coordinates[coordinates.length - 1];
+
+      const startAddr = await getAddressFromCoordinates(
+        startPoint.longitude, 
+        startPoint.latitude
+      );
       
-      mapCamera.current?.setCamera({
-        centerCoordinate: [midPoint.longitude, midPoint.latitude],
-        zoomLevel: 14,
-        animationDuration: 1000,
-      });
+      const endAddr = await getAddressFromCoordinates(
+        endPoint.longitude, 
+        endPoint.latitude
+      );
 
-      const startCoord = sortedCoordinates[0];
-      const endCoord = sortedCoordinates[sortedCoordinates.length - 1];
-
-      const start = await getAddressFromCoordinates(startCoord.longitude, startCoord.latitude);
-      const end = await getAddressFromCoordinates(endCoord.longitude, endCoord.latitude);
-
-      setStartAddress(start);
-      setEndAddress(end);
-      translateY.value = withSpring(0);
-      setIsBottomSheetVisible(true);
-      startPulseAnimation();
+      setStartAddress(startAddr);
+      setEndAddress(endAddr);
     } catch (error) {
       console.error('Błąd podczas pobierania szczegółów trasy:', error);
       setAlertMessage('Nie udało się pobrać szczegółów trasy');
@@ -441,130 +448,63 @@ export default function Trails({ route, navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1">
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      
+      <TrailMapView 
+        mapStyle={mapStyle}
+        location={location}
+        isTracking={isTracking}
+        coordinates={coordinates}
+        trails={trails}
+        activeTrailId={activeTrailId}
+        fetchTrailDetails={fetchTrailDetails}
+        mapCamera={mapCamera}
+      />
+
+      {alertMessage && (
+        <View style={{ position: 'absolute', width: '100%', top: 0, zIndex: 2 }}>
+          <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />
+        </View>
+      )}
+      
+      <View style={{ position: 'absolute', width: '100%', top: 0, zIndex: 1 }}>
         <TrailRefresh onRefresh={refreshTrails} />
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-        
-        <MapboxGL.MapView 
-          style={{ flex: 1 }}
-          styleURL={mapStyle === 'Streets' ? 
-            MapboxGL.StyleURL.Street : 
-            MapboxGL.StyleURL.Satellite
-          }
-          scaleBarEnabled={false}
-        >
-          <MapboxGL.Camera
-            ref={mapCamera}
-            zoomLevel={14}
-            centerCoordinate={[location.longitude, location.latitude]}
-            animationMode="flyTo"
-            animationDuration={2000}
-          />
-          
-          {!isTracking && trails && trails.length > 0 && trails
-            .filter(trail => trail.visibility === 'Public')
-            .map((trail) => {
-              const formattedCoordinates = trail.coordinates
-                .sort((a, b) => a.order - b.order)
-                .map(coord => [coord.longitude, coord.latitude]);
+      </View>
 
-              return (
-                <React.Fragment key={trail.id}>
-                  <MapboxGL.ShapeSource
-                    id={`source-${trail.id}`}
-                    shape={{
-                      type: 'Feature',
-                      properties: {
-                        name: trail.name,
-                        type: trail.type,
-                        owner: trail.ownerFullName
-                      },
-                      geometry: {
-                        type: 'LineString',
-                        coordinates: formattedCoordinates
-                      }
-                    }}
-                    onPress={() => {
-                      fetchTrailDetails(trail.id);
-                    }}
-                  >
-                    <MapboxGL.LineLayer
-                      id={`layer-${trail.id}`}
-                      style={{
-                        lineColor: trail.type === 'Cycling' ? '#F44336' : 
-                                  trail.type === 'Trekking' ? '#4CAF50' : 
-                                  '#2196F3',
-                        lineWidth: trail.id === activeTrailId ? 7 : 5,
-                        lineOpacity: trail.id === activeTrailId ? 1 : 0.5,
-                      }}
-                    />
-                    {trail.id === activeTrailId && (
-                      <MapboxGL.LineLayer
-                        id={`pulse-${trail.id}`}
-                        style={{
-                          lineColor: trail.type === 'Cycling' ? '#F44336' : 
-                                    trail.type === 'Trekking' ? '#4CAF50' : 
-                                    '#2196F3',
-                          lineWidth: 3,
-                          lineOpacity: 0.3,
-                          lineDasharray: [2, 2]
-                        }}
-                      />
-                    )}
-                  </MapboxGL.ShapeSource>
-                </React.Fragment>
-              );
-            })}
-
-          {isTracking && coordinates && coordinates.length > 1 && (
-            <MapboxGL.ShapeSource
-              id="recordingSource"
-              shape={{
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                  type: 'LineString',
-                  coordinates: coordinates.map(coord => [coord.longitude, coord.latitude])
-                }
-              }}
-            >
-              <MapboxGL.LineLayer
-                id="recordingLine"
-                style={{
-                  lineColor: '#4CAF50',
-                  lineWidth: 4,
-                  lineCap: 'round',
-                  lineJoin: 'round'
-                }}
-              />
-            </MapboxGL.ShapeSource>
-          )}
-
-          <MapboxGL.PointAnnotation
-            id="userLocation"
-            coordinate={[location.longitude, location.latitude]}
-          >
-            <View className="flex items-center justify-center w-8 h-8">
-              <View className="w-8 h-8 rounded-full bg-primary border-2 border-white" />
-            </View>
-          </MapboxGL.PointAnnotation>
-        </MapboxGL.MapView>
-
+      <View 
+        style={{ 
+          position: 'absolute', 
+          top: StatusBar.currentHeight + 20, 
+          right: 20, 
+          zIndex: 1 
+        }}
+      >
         <MapControls 
-          style={{ position: 'absolute', top: StatusBar.currentHeight + 20, right: 20 }}
           onCenterPress={centerMapOnMarker}
           onStylePress={toggleMapStyle}
           onNorthPress={resetMapOrientation}
           mapStyle={mapStyle}
         />
+      </View>
 
-        {isTracking && (
+      {isTracking && (
+        <View 
+          style={{ 
+            position: 'absolute', 
+            top: StatusBar.currentHeight + 20,
+            left: 20,
+            right: 20,
+            zIndex: 2
+          }}
+        >
           <TrailRecordingStats 
             coordinates={coordinates}
             startTime={recordingStartTime}
           />
-        )}
+        </View>
+      )}
 
+      <View style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 1 }} pointerEvents="box-none">
         <TrailList 
           nearbyListStyle={nearbyListStyle}
           hideNearbyList={hideNearbyList}
@@ -572,7 +512,9 @@ export default function Trails({ route, navigation }) {
           trails={trails}
           fetchTrailDetails={fetchTrailDetails}
         />
+      </View>
 
+      <View style={{ position: 'absolute', bottom: 0, width: '100%' }}>
         <MapBottomControls 
           isTracking={isTracking}
           onStartTracking={startTracking}
@@ -580,28 +522,27 @@ export default function Trails({ route, navigation }) {
           onHelpPress={() => setAlertMessage('Funkcja pomocy będzie dostępna wkrótce')}
           onShowNearbyList={showNearbyList}
         />
+      </View>
 
-
-        {isBottomSheetVisible && selectedTrail && (
-          <TrailDetails 
-            selectedTrail={selectedTrail}
-            startAddress={startAddress}
-            endAddress={endAddress}
-            onClose={() => {
-              setIsBottomSheetVisible(false);
-              setSelectedTrail(null);
-              setStartAddress(null);
-              setEndAddress(null);
-            }}
-            handleJoinTrail={handleJoinTrail}
-            onPublish={() => setAlertMessage('Funkcja publikowania będzie dostępna wkrótce')}
-            canJoinTrail={canJoinTrail}
-            formatDistance={formatDistance}
-            calculateTotalDistance={calculateTotalDistance}
-            userLocation={location}
-          />
-        )}
-      </SafeAreaView>
+      {isBottomSheetVisible && selectedTrail && (
+        <TrailDetails 
+          selectedTrail={selectedTrail}
+          startAddress={startAddress}
+          endAddress={endAddress}
+          onClose={() => {
+            setIsBottomSheetVisible(false);
+            setSelectedTrail(null);
+            setStartAddress(null);
+            setEndAddress(null);
+          }}
+          handleJoinTrail={handleJoinTrail}
+          onPublish={() => setAlertMessage('Funkcja publikowania będzie dostępna wkrótce')}
+          canJoinTrail={canJoinTrail}
+          formatDistance={formatDistance}
+          calculateTotalDistance={calculateTotalDistance}
+          userLocation={location}
+        />
+      )}
 
       <TrailSave 
         isVisible={isModalVisible}

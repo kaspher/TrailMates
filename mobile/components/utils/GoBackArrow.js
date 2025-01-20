@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, StatusBar } from 'react-native';
+import { TouchableOpacity, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ArrowIcon from '../../assets/icons/arrow-left-solid.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,21 +7,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const GoBackArrow = ({ title }) => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const statusBarHeight = StatusBar.currentHeight || 0;
 
   return (
-    <View className="absolute left-0 right-0 bg-white shadow-sm z-50">
-      <View 
-        className="absolute left-0 right-0 top-0 bg-white" 
-        style={{ height: statusBarHeight }} 
-      />
-      
+    <View 
+      className="bg-white shadow-sm z-50"
+      style={{ paddingTop: insets.top }}
+    >
       <View 
         className="flex-row items-center px-4"
-        style={{ 
-          height: 56,
-          marginTop: statusBarHeight
-        }}
+        style={{ height: 56 }}
       >
         <TouchableOpacity
           className="p-2 rounded-full"
