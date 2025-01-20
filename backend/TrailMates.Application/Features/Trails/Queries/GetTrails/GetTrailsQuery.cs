@@ -21,7 +21,7 @@ internal sealed class GetTrailsQueryHandler(
         CancellationToken cancellationToken
     )
     {
-        var trails = await repository.GetAll(query.Request, cancellationToken);
+        var trails = await repository.GetAllOwnerships(query.Request, cancellationToken);
         var trailsDtos = await trails.ToDto(userRepository, cancellationToken);
 
         return Result.Success<List<TrailDto>, Error>(trailsDtos);

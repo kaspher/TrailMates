@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Application.Features.Trails.Queries.GetTrails;
+using TrailMates.Application.Features.Trails.Queries.GetTrailsCompletions;
 using TrailMates.Application.Specifications.Trails;
 using TrailMates.Domain.Entities.Trails;
 using TrailMates.Domain.Errors;
@@ -22,24 +23,34 @@ public sealed class TrailRepository(CoreDbContext dbContext) : ITrailRepository
             : UnitResult.Failure(ErrorsTypes.NotFound($"Trail with id {trailId} was not found"));
     }
 
-    public async Task<List<Trail>> GetAll(
+    public async Task<List<Trail>> GetAllOwnerships(
         GetTrailsRequest request,
         CancellationToken cancellationToken = default
     )
     {
         var trails = await _trails.ToListAsync(cancellationToken);
 
-        var filteredTrails = trails.ApplyFilters(
-            request.UserId,
-            request.MinimumLatitude,
-            request.MaximumLatitude,
-            request.MinimumLongitude,
-            request.MaximumLongitude,
-            request.TrailTypes,
-            request.Visibility
-        );
+        return trails
+            .ApplyFilters(
+                request.UserId,
+                request.MinimumLatitude,
+                request.MaximumLatitude,
+                request.MinimumLongitude,
+                request.MaximumLongitude,
+                request.TrailTypes,
+                request.Visibility
+            )
+            .ToList();
+    }
 
-        return filteredTrails.ToList();
+    public async Task<List<TrailCompletion>> GetAllCompletions(
+        GetTrailsCompletionsRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var trails = await _trails.AsNoTracking().ToListAsync(cancellationToken);
+
+        return trails.SelectMany(t => t.TrailCompletions).ApplyFilters(request.UserId).ToList();
     }
 
     public async Task<Result<Trail, Error>> GetById(

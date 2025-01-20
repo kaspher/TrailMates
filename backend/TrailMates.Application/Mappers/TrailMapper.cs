@@ -1,6 +1,7 @@
 ﻿using TrailMates.Application.Abstractions.Repositories;
 using TrailMates.Application.DTO;
 using TrailMates.Domain.Entities.Trails;
+using static TrailMates.Application.Mappers.TrailCompletionMapper;
 
 namespace TrailMates.Application.Mappers;
 
@@ -13,34 +14,19 @@ public static class TrailMapper
     )
     {
         var ownerIds = trails.Select(trail => trail.OwnerId).Distinct().ToList();
-
-        var ownerResult = await userRepository.GetByIds(ownerIds, cancellationToken);
-
-        var ownerMap = ownerResult.Value.ToDictionary(
-            user => user.Id,
-            user => $"{user.FirstName} {user.LastName}"
-        );
-
-        var trailDtos = trails
-            .Select(trail =>
-            {
-                var ownerFullName = ownerMap.TryGetValue(trail.OwnerId, out var name)
-                    ? name
-                    : "Unknown Owner";
-
-                return new TrailDto(
-                    trail.Id,
-                    trail.Name,
-                    trail.OwnerId,
-                    ownerFullName,
-                    trail.Coordinates.Select(ToDto).ToList(),
-                    trail.Type,
-                    trail.Visibility
-                );
-            })
+        var completionUserIds = trails
+            .SelectMany(trail => trail.TrailCompletions.Select(tc => tc.UserId))
+            .Distinct()
             .ToList();
 
-        return trailDtos;
+        var ownerMap = await GetUserMap(userRepository, ownerIds, cancellationToken);
+        var completionUserMap = await GetUserMap(
+            userRepository,
+            completionUserIds,
+            cancellationToken
+        );
+
+        return trails.Select(trail => CreateTrailDto(trail, ownerMap, completionUserMap)).ToList();
     }
 
     public static async Task<TrailDto> ToDto(
@@ -49,23 +35,55 @@ public static class TrailMapper
         CancellationToken cancellationToken
     )
     {
-        var ownerResult = await userRepository.GetById(trail.OwnerId, cancellationToken);
+        var ownerMap = await GetUserMap(userRepository, [trail.OwnerId], cancellationToken);
+        var completionUserMap = await GetUserMap(
+            userRepository,
+            trail.TrailCompletions.Select(tc => tc.UserId).Distinct().ToList(),
+            cancellationToken
+        );
 
-        var ownerFullName = ownerResult.IsSuccess
-            ? $"{ownerResult.Value.FirstName} {ownerResult.Value.LastName}"
+        return CreateTrailDto(trail, ownerMap, completionUserMap);
+    }
+
+    private static async Task<Dictionary<Guid, string>> GetUserMap(
+        IUserRepository userRepository,
+        List<Guid> userIds,
+        CancellationToken cancellationToken
+    )
+    {
+        var userResult = await userRepository.GetByIds(userIds, cancellationToken);
+
+        return userResult.Value.ToDictionary(
+            user => user.Id,
+            user => $"{user.FirstName} {user.LastName}"
+        );
+    }
+
+    private static TrailDto CreateTrailDto(
+        Trail trail,
+        IDictionary<Guid, string> ownerMap,
+        IDictionary<Guid, string> completionUserMap
+    )
+    {
+        var ownerFullName = ownerMap.TryGetValue(trail.OwnerId, out var ownerName)
+            ? ownerName
             : "Unknown Owner";
 
-        var trailDto = new TrailDto(
+        var trailCompletionDtos = trail
+            .TrailCompletions.Select(tc => CreateTrailCompletionDto(tc, completionUserMap))
+            .ToList();
+
+        return new TrailDto(
             trail.Id,
             trail.Name,
             trail.OwnerId,
             ownerFullName,
             trail.Coordinates.Select(ToDto).ToList(),
+            trailCompletionDtos,
             trail.Type,
+            trail.Time,
             trail.Visibility
         );
-
-        return trailDto;
     }
 
     private static CoordinateDto ToDto(Coordinate coordinate) =>

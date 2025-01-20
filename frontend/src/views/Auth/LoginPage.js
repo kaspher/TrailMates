@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { InputField } from "../../components/UI/InputField";
 import { useAuth } from "../../hooks/useAuth";
 import { loginFormValidator } from "../../utils/validators";
+import loginImage from "../../assets/img/auth/login.svg";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ function LoginPage() {
     <div className="bg-gray-100 flex justify-center items-center h-screen">
       <div className="w-1/2 h-screen hidden lg:block">
         <img
-          src="https://placehold.co/800x/667fff/ffffff.png?text=Your+Image&font=Montserrat"
+          src={loginImage}
           alt="Placeholder"
           className="object-cover w-full h-full"
         />
