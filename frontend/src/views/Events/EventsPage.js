@@ -188,6 +188,8 @@ const EventsPage = () => {
             user={user}
             handleJoinEvent={handleJoinEvent}
             handleLeaveEvent={handleLeaveEvent}
+            fetchEventsData={fetchEventsData}
+            alertRef={alertRef}
           />
         )}
         <Pagination
