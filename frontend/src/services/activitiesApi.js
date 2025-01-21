@@ -141,3 +141,20 @@ export const removeLike = async (likeId) => {
     throw error;
   }
 };
+
+export const deleteComment = async (commentId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/activities/comments/${commentId}`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete comment');
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    throw error;
+  }
+};
