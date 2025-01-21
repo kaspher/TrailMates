@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import { FaComment, FaHeart } from "react-icons/fa";
+import { TrashIcon } from "../../assets/icons/trash";
 import CommonStyles from "./CommonStyles";
 import loadingGif from "../../assets/img/loading.gif";
 import {
@@ -10,6 +11,7 @@ import {
   addLike,
   addComment,
   removeLike,
+  deleteComment,
 } from "../../services/activitiesApi";
 import { getTrailById } from "../../services/trailsApi";
 import { getUserById } from "../../services/usersApi";
@@ -117,6 +119,20 @@ const BlogPage = () => {
       setShowCommentInput(false);
     } catch (error) {
       console.error("Error adding comment:", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId, postId) => {
+    try {
+      await deleteComment(commentId, postId);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => ({
+          ...post,
+          comments: post.comments.filter((comment) => comment.id !== commentId),
+        }))
+      );
+    } catch (error) {
+      console.error('Error deleting comment:', error);
     }
   };
 
@@ -435,7 +451,7 @@ const BlogPage = () => {
                           key={index}
                           className="mb-2 p-2 bg-gray-50 rounded"
                         >
-                          <div className="flex items-center mb-1">
+                          <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center">
                               <img
                                 src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${comment.userId}`}
@@ -453,10 +469,18 @@ const BlogPage = () => {
                               >
                                 {commentAuthors[comment.userId] || "Użytkownik"}
                               </span>
+                              <span className="text-sm text-gray-600">
+                                {formatDate(comment.createdAt, !!comment.id)}
+                              </span>
                             </div>
-                            <span className="text-sm text-gray-600">
-                              {formatDate(comment.createdAt, !!comment.id)}
-                            </span>
+                            {user?.id === comment.userId && (
+                              <button
+                                onClick={() => handleDeleteComment(comment.id, post.id)}
+                                className="text-red-500 hover:text-red-700 p-1"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                              </button>
+                            )}
                           </div>
                           <p>{comment.content}</p>
                         </div>
