@@ -7,21 +7,50 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    // "splash": {
+    //   "image": "./assets/splash-icon.png",
+    //   "resizeMode": "contain",
+    //   "backgroundColor": "#ffffff"
+    // },
+    "plugins": [
+      [
+        "expo-background-fetch",
+        {
+          "startOnBoot": true
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Pozwól aplikacji na dostęp do lokalizacji aby nagrywać trasy w tle.",
+          "locationAlwaysPermission": "Pozwól aplikacji na dostęp do lokalizacji aby nagrywać trasy w tle.",
+          "locationWhenInUsePermission": "Pozwól aplikacji na dostęp do lokalizacji aby nagrywać trasy."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "permissions": ["ACCESS_FINE_LOCATION"],
+      "permissions": [
+        "ACCESS_BACKGROUND_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "WAKE_LOCK",
+        "POST_NOTIFICATIONS"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.bezi19.mobile"
+      "package": "com.bezi19.mobile",
+      "foregroundService": {
+        "locationServiceType": "location",
+        "notificationTitle": "Nagrywanie trasy",
+        "notificationColor": "#386641"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

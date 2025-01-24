@@ -3,6 +3,7 @@ import { View, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LongLogo from '../../assets/longlogo.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL, endpoints } from '../../config';
 
 const Splash = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -37,6 +38,23 @@ const Splash = ({ navigation }) => {
 
     return () => clearTimeout(timer);
   }, [fadeAnim, navigation]);
+
+  const validateToken = async (token) => {
+    try {
+      const response = await fetch(endpoints.auth.validate, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      // ... reszta kodu ...
+    } catch (error) {
+      console.error('Błąd walidacji tokenu:', error);
+      return false;
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-secondary justify-center items-center">

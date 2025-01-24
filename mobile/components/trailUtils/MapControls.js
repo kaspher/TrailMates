@@ -6,8 +6,7 @@ import LayerIcon from '../../assets/icons/layer-group-solid.svg';
 const MapControls = ({ 
   onCenterPress, 
   onStylePress, 
-  onNorthPress,
-  mapStyle 
+  onNorthPress
 }) => {
   return (
     <View className="absolute top-32 right-1">

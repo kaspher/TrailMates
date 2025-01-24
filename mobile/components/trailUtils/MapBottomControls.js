@@ -12,19 +12,6 @@ const MapBottomControls = ({
 }) => {
   return (
     <View className="bg-white h-16 border-t border-gray-200 relative">
-      <View className="h-full px-4 flex-row items-center justify-between">
-        <TouchableOpacity
-          className="bg-primary/10 w-[125px] h-10 rounded-full flex items-center justify-center"
-          onPress={onHelpPress}
-        >
-          <Text className="text-primary font-medium text-base">
-            Pomoc
-          </Text>
-        </TouchableOpacity>
-
-        <View className="w-[100px]" />
-      </View>
-
       <View className="absolute inset-x-0 -top-14 flex items-center">
         <View className="w-[100px] h-[100px] rounded-full bg-white flex items-center justify-center">
           <TouchableOpacity
@@ -38,6 +25,19 @@ const MapBottomControls = ({
             )}
           </TouchableOpacity>
         </View>
+      </View>
+
+      <View className="h-full px-4 flex-row items-center justify-between">
+        <TouchableOpacity
+          className="bg-primary/10 w-[125px] h-10 rounded-full flex items-center justify-center"
+          onPress={onHelpPress}
+        >
+          <Text className="text-primary font-medium text-base">
+            Pomoc
+          </Text>
+        </TouchableOpacity>
+
+        <View className="w-[100px]" />
       </View>
 
       <View className="absolute right-4 h-full flex items-center justify-center">

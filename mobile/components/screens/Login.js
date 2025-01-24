@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LongLogo from "../../assets/longlogo.svg";
 import Alert from '../utils/Alert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { endpoints } from '../../config';
 
 const LoginScreen = ({ navigation }) => {
   const [alertMessage, setAlertMessage] = useState(null);
@@ -14,7 +15,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://10.0.2.2:5253/api/account/login", {
+      const response = await fetch(`${endpoints.auth.login.replace('auth', 'account')}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,9 +30,7 @@ const LoginScreen = ({ navigation }) => {
 
       if (response.ok) {
         console.log("Zalogowano pomyślnie:", data);
-
         await AsyncStorage.setItem('authToken', data);
-
         navigation.navigate('MainTabs');
       } else {
         setAlertMessage(data.message || 'Nie udało się zalogować. Spróbuj ponownie.');

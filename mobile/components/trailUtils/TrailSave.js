@@ -43,8 +43,7 @@ const TrailSave = ({
       className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg z-40"
       style={[animatedStyle, { maxHeight: '80%' }]}
     >
-      <View className="p-4 border-b border-gray-200">
-        <View className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
+      <View className="p-4 border-b border-gray-200">    
         <View className="flex-row justify-between items-center">
           <Text className="text-xl font-bold">Zapisz trasę</Text>
           <TouchableOpacity

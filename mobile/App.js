@@ -12,6 +12,7 @@ import TabNavigator from './components/trailUtils/TabNavigator';
 import ForgotPassword from './components/screens/ForgotPassword';
 import Splash from './components/screens/Splash';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Settings from './components/screens/Settings';
 
 const Stack = createNativeStackNavigator();
 
@@ -54,6 +55,7 @@ export default function App() {
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="Register" component={Register} />
+            <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="MainTabs" component={TabNavigator} />
           </Stack.Navigator>
         </NavigationContainer>

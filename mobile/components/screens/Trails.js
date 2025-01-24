@@ -1,40 +1,28 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, Image, Modal, TextInput, ScrollView, StatusBar } from 'react-native';
-import MapboxGL from '@rnmapbox/maps';
+import { View, PermissionsAndroid, Platform, Text, StatusBar } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from "jwt-decode";
 import Alert from '../utils/Alert';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import LocationIcon from '../../assets/icons/location-arrow-solid.svg';
-import { PUBLIC_MAPBOX_ACCESS_TOKEN } from '@env';
 import { getAddressFromCoordinates } from '../trailUtils/Geocoding';
+import { endpoints } from '../../config';
 
 import Animated, { 
   useAnimatedStyle, 
   withSpring, 
   useSharedValue 
 } from 'react-native-reanimated';
-import LayerIcon from '../../assets/icons/layer-group-solid.svg';
-import LocationPinIcon from '../../assets/icons/location-pin-solid.svg';
-import FlagIcon from '../../assets/icons/flag-checkered-solid.svg';
 import { Animated as RNAnimated } from 'react-native';
 import TrailDetails from '../trailUtils/TrailDetails';
 import { 
   calculateDistance, 
   calculateTotalDistance, 
   formatDistance, 
-  formatDistanceWithUnit 
 } from '../trailUtils/CalculateDistance';
-import TrailRecordingStats from '../trailUtils/TrailRecordingStats';
 import MapControls from '../trailUtils/MapControls';
-import PlayIcon from '../../assets/icons/circle-play-solid.svg';
-import PauseIcon from '../../assets/icons/circle-pause-solid.svg';
-import TrailSave from '../trailUtils/TrailSave';
 import TrailRefresh from '../trailUtils/TrailRefresh';
 import TrailList from '../trailUtils/TrailList';
 import MapBottomControls from '../trailUtils/MapBottomControls';
 import TrailMapView from '../trailUtils/TrailMapView';
+import TrailRecording from '../trailUtils/TrailRecording';
 
 const TRAIL_TYPES = {
   'Pieszy': 'Trekking',
@@ -46,13 +34,7 @@ export default function Trails({ route, navigation }) {
   const [location, setLocation] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
-  const [coordinates, setCoordinates] = useState([]);
-  const mapCamera = useRef(null);
-  let watchId = useRef(null);
   const [trails, setTrails] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [trailName, setTrailName] = useState('');
-  const [trailType, setTrailType] = useState('');
   const [selectedTrail, setSelectedTrail] = useState(null);
   const [isTrailDetailsModalVisible, setIsTrailDetailsModalVisible] = useState(false);
   const [startAddress, setStartAddress] = useState(null);
@@ -66,14 +48,13 @@ export default function Trails({ route, navigation }) {
   const [pulseAnim] = useState(new RNAnimated.Value(1));
   const [activeTrailId, setActiveTrailId] = useState(null);
   const [isTrailListModalVisible, setIsTrailListModalVisible] = useState(false);
-  const [recordingStartTime, setRecordingStartTime] = useState(null);
   const nearbyListTranslateY = useSharedValue(1000);
-
-  const bottomSheetStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
+  const [isFollowingUser, setIsFollowingUser] = useState(true);
+  const mapCamera = useRef(null);
+  let watchId = useRef(null);
+  const [coordinates, setCoordinates] = useState([]);
+  const recordingRef = useRef(null);
+  const [temporaryTrail, setTemporaryTrail] = useState(null);
 
   const nearbyListStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: nearbyListTranslateY.value }]
@@ -142,128 +123,10 @@ export default function Trails({ route, navigation }) {
     };
   }, []);
 
-  useEffect(() => {
-    if (isTracking && location) {
-      setCoordinates(prev => {
-        const lastCoord = prev[prev.length - 1];
-        if (lastCoord && 
-            lastCoord.latitude === location.latitude && 
-            lastCoord.longitude === location.longitude) {
-          return prev;
-        }
-
-        return [
-          ...prev,
-          {
-            order: prev.length + 1,
-            latitude: location.latitude,
-            longitude: location.longitude
-          }
-        ];
-      });
+  const handleMapInteraction = () => {
+    if (isFollowingUser) {
+      setIsFollowingUser(false);
     }
-  }, [isTracking, location]);
-
-  useEffect(() => {
-    if (isTracking) {
-      watchId.current = Geolocation.watchPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLocation({ latitude, longitude });
-        },
-        (error) => {
-          setAlertMessage(`Nie udało się pobrać lokalizacji: ${error.message}`);
-        },
-        { 
-          enableHighAccuracy: true, 
-          distanceFilter: 5,
-          interval: 3000, 
-          fastestInterval: 2000 
-        }
-      );
-    } else {
-      if (watchId.current !== null) {
-        Geolocation.clearWatch(watchId.current);
-        watchId.current = null;
-      }
-    }
-
-    return () => {
-      if (watchId.current !== null) {
-        Geolocation.clearWatch(watchId.current);
-      }
-    };
-  }, [isTracking]);
-
-  const startTracking = () => {
-    if (location) {
-    setIsTracking(true);
-      setRecordingStartTime(new Date().getTime());
-      setCoordinates([{
-        order: 1,
-        latitude: location.latitude,
-        longitude: location.longitude
-      }]);
-    } else {
-      setAlertMessage('Nie można rozpocząć nagrywania - brak lokalizacji');
-    }
-  };
-
-  const stopTracking = () => {
-    setIsTracking(false);
-    setIsModalVisible(true);
-  };
-
-  const saveTrail = async () => {
-    const token = await AsyncStorage.getItem('authToken');
-    const decoded = jwtDecode(token);
-
-    const formattedCoordinates = coordinates.map((coord, index) => ({
-      latitude: coord.latitude,
-      longitude: coord.longitude,
-      order: index + 1
-    }));
-  
-    const trailData = JSON.stringify({
-      ownerId: decoded.id,
-      name: trailName,
-      type: TRAIL_TYPES[trailType],
-      coordinates: formattedCoordinates,
-      visibility: "Private"
-    });
-
-    try {
-      const response = await fetch('http://10.0.2.2:5253/api/trails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: trailData
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Błąd podczas wysyłania danych:', errorData);
-        setAlertMessage('Nie udało się zapisać trasy. Spróbuj ponownie.');
-      } else {
-        setAlertMessage('Trasa została zapisana pomyślnie!');
-        setIsModalVisible(false);
-        setTrailName('');
-        setTrailType('');
-        setCoordinates([]);
-        fetchTrails();
-      }
-    } catch (error) {
-      console.error('Błąd połączenia:', error);
-      setAlertMessage('Wystąpił błąd podczas komunikacji z serwerem. Spróbuj ponownie.');
-    }
-  };
-  
-  const cancelTrail = () => {
-    setIsModalVisible(false);
-    setTrailName('');
-    setTrailType('');
-    setCoordinates([]);
   };
 
   const centerMapOnMarker = () => {
@@ -273,12 +136,13 @@ export default function Trails({ route, navigation }) {
         zoomLevel: 16,
         animationDuration: 1000,
       });
+      setIsFollowingUser(true);
     }
   };
 
   const fetchTrails = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:5253/api/trails');
+      const response = await fetch(endpoints.trails);
       const data = await response.json();
       setTrails(data);
     } catch (error) {
@@ -295,7 +159,7 @@ export default function Trails({ route, navigation }) {
     try {
       hideNearbyList();
       
-      const response = await fetch(`http://10.0.2.2:5253/api/trails/${trailId}`);
+      const response = await fetch(endpoints.trailDetails(trailId));
       if (!response.ok) {
         throw new Error('Nie udało się pobrać szczegółów trasy');
       }
@@ -308,6 +172,10 @@ export default function Trails({ route, navigation }) {
       setSelectedTrail(data);
       setIsBottomSheetVisible(true);
       setActiveTrailId(trailId);
+      
+      if (data.visibility === 'Private') {
+        setTemporaryTrail(data);
+      }
 
       const coordinates = data.coordinates.sort((a, b) => a.order - b.order);
       const startPoint = coordinates[0];
@@ -340,6 +208,7 @@ export default function Trails({ route, navigation }) {
     setSelectedTrail(null);
     setStartAddress(null);
     setEndAddress(null);
+    setTemporaryTrail(null);
   };
 
   const toggleMapStyle = () => {
@@ -362,22 +231,6 @@ export default function Trails({ route, navigation }) {
     }
   }, [route.params, trails]);
 
-  const startPulseAnimation = () => {
-    RNAnimated.loop(
-      RNAnimated.sequence([
-        RNAnimated.timing(pulseAnim, {
-          toValue: 1.5,
-          duration: 1000,
-          useNativeDriver: true
-        }),
-        RNAnimated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true
-        })
-      ])
-    ).start();
-  };
 
   const canJoinTrail = (trailStartPoint) => {
     if (!location || !trailStartPoint) return false;
@@ -429,12 +282,43 @@ export default function Trails({ route, navigation }) {
 
   const refreshTrails = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:5253/api/trails');
+      const response = await fetch(endpoints.trails);
       const data = await response.json();
       setTrails(data);
     } catch (error) {
       console.error('Błąd podczas odświeżania tras:', error);
       setAlertMessage('Nie udało się odświeżyć tras');
+    }
+  };
+
+  const handleCloseTrailDetails = () => {
+    setSelectedTrail(null);
+    setActiveTrailId(null);
+    setTemporaryTrail(null);
+  };
+
+  const handleTrailShare = async (trailId) => {
+    try {
+      const response = await fetch(endpoints.trailVisibility(trailId), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          visibility: 'Public'
+        })
+      });
+
+      if (response.ok) {
+        setAlertMessage('Trasa została udostępniona!');
+        fetchTrails(); // Odświeżamy listę tras
+        handleCloseTrailDetails();
+      } else {
+        setAlertMessage('Nie udało się udostępnić trasy');
+      }
+    } catch (error) {
+      console.error('Błąd podczas udostępniania trasy:', error);
+      setAlertMessage('Wystąpił błąd podczas udostępniania trasy');
     }
   };
 
@@ -459,6 +343,9 @@ export default function Trails({ route, navigation }) {
         activeTrailId={activeTrailId}
         fetchTrailDetails={fetchTrailDetails}
         mapCamera={mapCamera}
+        isFollowingUser={isFollowingUser}
+        onUserInteraction={handleMapInteraction}
+        temporaryTrail={temporaryTrail}
       />
 
       {alertMessage && (
@@ -487,23 +374,6 @@ export default function Trails({ route, navigation }) {
         />
       </View>
 
-      {isTracking && (
-        <View 
-          style={{ 
-            position: 'absolute', 
-            top: StatusBar.currentHeight + 20,
-            left: 20,
-            right: 20,
-            zIndex: 2
-          }}
-        >
-          <TrailRecordingStats 
-            coordinates={coordinates}
-            startTime={recordingStartTime}
-          />
-        </View>
-      )}
-
       <View style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 1 }} pointerEvents="box-none">
         <TrailList 
           nearbyListStyle={nearbyListStyle}
@@ -514,11 +384,22 @@ export default function Trails({ route, navigation }) {
         />
       </View>
 
+      <TrailRecording 
+        ref={recordingRef}
+        isTracking={isTracking}
+        setIsTracking={setIsTracking}
+        location={location}
+        setAlertMessage={setAlertMessage}
+        fetchTrails={fetchTrails}
+        coordinates={coordinates}
+        setCoordinates={setCoordinates}
+      />
+
       <View style={{ position: 'absolute', bottom: 0, width: '100%' }}>
         <MapBottomControls 
           isTracking={isTracking}
-          onStartTracking={startTracking}
-          onStopTracking={stopTracking}
+          onStartTracking={() => recordingRef.current?.startTracking()}
+          onStopTracking={() => recordingRef.current?.stopTracking()}
           onHelpPress={() => setAlertMessage('Funkcja pomocy będzie dostępna wkrótce')}
           onShowNearbyList={showNearbyList}
         />
@@ -529,31 +410,16 @@ export default function Trails({ route, navigation }) {
           selectedTrail={selectedTrail}
           startAddress={startAddress}
           endAddress={endAddress}
-          onClose={() => {
-            setIsBottomSheetVisible(false);
-            setSelectedTrail(null);
-            setStartAddress(null);
-            setEndAddress(null);
-          }}
+          onClose={handleCloseTrailDetails}
           handleJoinTrail={handleJoinTrail}
-          onPublish={() => setAlertMessage('Funkcja publikowania będzie dostępna wkrótce')}
           canJoinTrail={canJoinTrail}
           formatDistance={formatDistance}
           calculateTotalDistance={calculateTotalDistance}
           userLocation={location}
+          onTrailShare={handleTrailShare}
+          setAlertMessage={setAlertMessage}
         />
       )}
-
-      <TrailSave 
-        isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onSave={saveTrail}
-        onCancel={cancelTrail}
-        trailName={trailName}
-        setTrailName={setTrailName}
-        trailType={trailType}
-        setTrailType={setTrailType}
-      />
     </View>
   );
 }

@@ -6,6 +6,7 @@ import Animated, {
   useSharedValue,
   runOnJS
 } from 'react-native-reanimated';
+import { endpoints } from '../../config';
 
 const TrailShare = ({ 
   isVisible, 
@@ -15,7 +16,8 @@ const TrailShare = ({
   trailName,
   setTrailName,
   trailType,
-  setTrailType 
+  setTrailType,
+  setAlertMessage
 }) => {
   const translateY = useSharedValue(1000);
 
@@ -48,6 +50,32 @@ const TrailShare = ({
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }]
   }));
+
+  const handleShare = async () => {
+    try {
+      const response = await fetch(endpoints.trailVisibility(trail.id), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          visibility: 'Public',
+          name: trailName,
+          type: trailType
+        })
+      });
+
+      if (response.ok) {
+        onShare(trail.id);
+      } else {
+        console.error('Błąd podczas udostępniania trasy:', response.statusText);
+        setAlertMessage('Wystąpił błąd podczas udostępniania trasy');
+      }
+    } catch (error) {
+      console.error('Błąd podczas udostępniania trasy:', error);
+      setAlertMessage('Wystąpił błąd podczas udostępniania trasy');
+    }
+  };
 
   if (!isVisible) return null;
 
@@ -113,7 +141,7 @@ const TrailShare = ({
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => onShare(trail.id)}
+              onPress={handleShare}
               className="px-6 py-3 rounded-lg bg-primary"
             >
               <Text className="text-white font-medium">Udostępnij</Text>

@@ -4,12 +4,20 @@ import { jwtDecode } from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAvatarUrl } from '../utils/GetAvatarUrl';
 import MenuIcon from '../../assets/icons/bars-solid.svg';
+import TrophyIcon from '../../assets/icons/trophy-solid.svg';
+import MapIcon from '../../assets/icons/map-location-dot-solid.svg';
+import RouteIcon from '../../assets/icons/route-solid.svg';
+import { useNavigation } from '@react-navigation/native';
+import SettingsIcon from '../../assets/icons/gear-solid.svg';
+import { endpoints } from '../../config';
 
-const Menu = ({ navigation }) => {
+const Menu = () => {
+  const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [alertMessage, setAlertMessage] = useState('');
+  const [activeScreen, setActiveScreen] = useState('Menu');
   const [userStats, setUserStats] = useState({
     totalTrails: 0,
     totalDistance: 0,
@@ -28,7 +36,7 @@ const Menu = ({ navigation }) => {
         setImageError(false);
         setAvatarUrl(getAvatarUrl(currentUserId));
 
-        const response = await fetch(`http://10.0.2.2:5253/api/users/${currentUserId}`);
+        const response = await fetch(endpoints.users(currentUserId));
         if (response.ok) {
           const data = await response.json();
           setUserData(data);
@@ -42,20 +50,37 @@ const Menu = ({ navigation }) => {
   }, []);
 
   const menuItems = [
-    { id: 1, title: 'Moje aktywności', onPress: () => navigation.navigate('Activities') },
-    { id: 2, title: 'Osiągnięcia', onPress: () => alert('Drugi przycisk') },
-    { id: 3, title: 'Nagrane trasy', onPress: () => navigation.navigate('RecordedTrails') },
-    { id: 4, title: 'Ulubione', onPress: () => alert('Czwarty przycisk') },
-    { id: 5, title: 'Statystyki', onPress: () => alert('Piąty przycisk') },
-    { id: 6, title: 'Społeczność', onPress: () => alert('Szósty przycisk') },
-    { id: 7, title: 'Ustawienia', onPress: () => alert('Siódmy przycisk') },
-    { id: 8, title: 'O nas', onPress: () => alert('Ósmy przycisk') },
+    {
+      title: 'Nagrane trasy',
+      screen: 'RecordedTrails',
+      icon: () => <MapIcon width={24} height={24} fill="#386641" />,
+    },
+    {
+      title: 'Aktywności',
+      screen: 'Activities',
+      icon: () => <RouteIcon width={24} height={24} fill="#386641" />,
+    },
+    {
+      title: 'Osiągnięcia',
+      screen: 'Achievements',
+      icon: () => <TrophyIcon width={24} height={24} fill="#386641" />,
+    },
+    {
+      title: 'Ustawienia',
+      screen: 'Settings',
+      icon: () => <SettingsIcon width={24} height={24} fill="#386641" />,
+    },
   ];
+
+  const handleNavigation = (screen) => {
+    setActiveScreen(screen);
+    navigation.navigate(screen);
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
-      <View className="flex-1 pt-2 px-4 mt-6">
-        <View className="w-full mb-6 flex-row items-center justify-between">
+      <View className="flex-1 px-4 mt-6">
+        <View className="w-auto p-2 mb-6 flex-row items-center justify-between">
           <View className="bg-white p-4 w-full rounded-lg shadow-lg">
             <View className="flex-row items-center">
               <TouchableOpacity
@@ -83,40 +108,34 @@ const Menu = ({ navigation }) => {
             <View className="flex-row justify-between mt-6 px-2">
               <View className="items-center flex-1">
                 <Text className="text-2xl font-bold text-primary">{userStats.totalTrails}</Text>
-                <Text className="text-sm text-gray-600">Tras</Text>
+                <Text className="text-sm text-gray-600">ukończonych tras</Text>
               </View>
               
               <View className="h-12 w-[1px] bg-gray-200" />
               
               <View className="items-center flex-1">
                 <Text className="text-2xl font-bold text-primary">{userStats.totalDistance}</Text>
-                <Text className="text-sm text-gray-600">km</Text>
+                <Text className="text-sm text-gray-600">dystans pokonany</Text>
               </View>
               
-              <View className="h-12 w-[1px] bg-gray-200" />
-              
-              <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-primary">{userStats.favorites}</Text>
-                <Text className="text-sm text-gray-600">Ulubionych</Text>
-              </View>
             </View>
           </View>
         </View>
 
         <View className="w-full mb-4">
-          <Text className="text-2xl font-bold text-dark">Menu</Text>
+          <Text className="text-center text-2xl font-bold text-dark">Menu</Text>
         </View>
 
         <View className="w-full flex-1 px-2">
           <View className="flex-row flex-wrap justify-between">
             {menuItems.map((item) => (
               <TouchableOpacity
-                key={item.id}
+                key={item.screen}
+                onPress={() => navigation.navigate(item.screen)}
                 className="bg-white w-[48%] h-24 rounded-xl mb-4 p-4 justify-center items-center shadow-md"
-                onPress={item.onPress}
               >
-                <MenuIcon width={24} height={24} fill="#386641" className="mb-2" />
-                <Text className="text-primary text-center font-medium">
+                {item.icon()}
+                <Text className="text-primary text-center font-medium mt-2">
                   {item.title}
                 </Text>
               </TouchableOpacity>

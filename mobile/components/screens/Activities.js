@@ -6,6 +6,8 @@ import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import GoBackArrow from '../utils/GoBackArrow';
 import ShareIcon from '../../assets/icons/share-from-square-solid.svg';
+import { calculateTotalDistance, formatDistance } from '../trailUtils/CalculateDistance';
+import { endpoints } from '../../config';
 
 const Activities = ({ navigation }) => {
   const [activities, setActivities] = useState([]);
@@ -17,7 +19,7 @@ const Activities = ({ navigation }) => {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
 
-      const response = await fetch(`http://10.0.2.2:5253/api/trails?UserId=${userId}`);
+      const response = await fetch(`${endpoints.trails}?UserId=${userId}`);
       if (!response.ok) {
         throw new Error('Nie udało się pobrać aktywności');
       }
@@ -84,21 +86,9 @@ const Activities = ({ navigation }) => {
 
                 <View className="space-y-2">
                   <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Status:</Text>
-                    <Text className={activity.visibility === 'Private' ? 'text-gray-600' : 'text-primary'}>
-                      {activity.visibility === 'Private' ? 'Prywatna' : 'Publiczna'}
-                    </Text>
-                  </View>
-                  <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Długość trasy:</Text>
+                    <Text className="text-gray-600">Długość:</Text>
                     <Text>
-                      {activity.length != null 
-                        ? (activity.length < 1 
-                            ? `${Math.round(activity.length * 1000)} m`
-                            : `${activity.length.toFixed(2)} km`
-                          )
-                        : '0 km'
-                    }
+                      {formatDistance(calculateTotalDistance(activity.coordinates))}
                     </Text>
                   </View>
                 </View>

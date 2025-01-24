@@ -6,6 +6,7 @@ import Alert from '../utils/Alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import GoBackArrow from '../utils/GoBackArrow';
 import { getAvatarUrl } from '../utils/GetAvatarUrl';
+import { endpoints } from '../../config';
 
 const UserProfile = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
@@ -35,20 +36,19 @@ const UserProfile = ({ navigation }) => {
       setImageError(false);
       setAvatarUrl(getAvatarUrl(currentUserId));
 
-      const response = await fetch(`http://10.0.2.2:5253/api/users/${currentUserId}`);
-      if (!response.ok) {
-        throw new Error('Nie udało się pobrać danych użytkownika');
+      const response = await fetch(endpoints.users(currentUserId));
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+        setFormData({
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          email: data.email || '',
+          gender: data.gender || '',
+          country: data.country || '',
+          city: data.city || ''
+        });
       }
-      const data = await response.json();
-      setUserData(data);
-      setFormData({
-        firstName: data.firstName || '',
-        lastName: data.lastName || '',
-        email: data.email || '',
-        gender: data.gender || '',
-        country: data.country || '',
-        city: data.city || ''
-      });
     } catch (error) {
       console.error('Błąd podczas pobierania danych użytkownika:', error);
       setAlertMessage('Nie udało się pobrać danych użytkownika');
@@ -65,14 +65,14 @@ const UserProfile = ({ navigation }) => {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
 
-      const response = await fetch(`http://10.0.2.2:5253/api/users/${userId}/update-profile`, {
+      const response = await fetch(endpoints.updateUser(userId), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
-
+      console.log(response);
       if (response.ok) {
         setUserData(formData);
         setAlertMessage('Dane zostały zaktualizowane');
@@ -99,6 +99,39 @@ const UserProfile = ({ navigation }) => {
     }
   };
 
+  const handleAvatarUpload = async (imageUri) => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const currentUserId = decoded.id;
+
+      const formData = new FormData();
+      formData.append('avatar', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'avatar.jpg',
+      });
+
+      const response = await fetch(`${endpoints.users(currentUserId)}/avatar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        setAvatarUrl(imageUri);
+        setAlertMessage('Avatar został zaktualizowany');
+      } else {
+        setAlertMessage('Nie udało się zaktualizować avatar');
+      }
+    } catch (error) {
+      console.error('Błąd podczas przesyłania avatara:', error);
+      setAlertMessage('Wystąpił błąd podczas przesyłania avatar');
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: 0 }}>
       <GoBackArrow title="Profil Użytkownika" />
@@ -118,9 +151,6 @@ const UserProfile = ({ navigation }) => {
               />
               <Text className="text-white text-2xl font-bold mt-4">
                 {userData ? `${userData.firstName} ${userData.lastName}` : 'Ładowanie...'}
-              </Text>
-              <Text className="text-white text-base mt-1">
-                {userData?.email || 'Ładowanie...'}
               </Text>
             </View>
           </View>
