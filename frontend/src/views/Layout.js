@@ -17,7 +17,7 @@ const Layout = () => {
 
   const location = useLocation();
 
-  const noPaddingRoutes = ["/trails", "/"];
+  const noPaddingRoutes = ["/", "/login", "/register", "/trails"];
   const shouldResetPadding = noPaddingRoutes.includes(location.pathname);
 
   const toggleDropdown = () => {

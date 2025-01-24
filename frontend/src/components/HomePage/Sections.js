@@ -1,21 +1,23 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { FaRunning, FaHiking, FaBiking } from 'react-icons/fa';
-import logoUrl from "../../assets/img/logo/longlogo.svg";
-import { styles } from '../../views/Home/HomePageStyles';
+import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { FaRunning, FaHiking, FaBiking } from "react-icons/fa";
+import logoUrl from "../../assets/img/logo/trailmates_homelogo.svg";
 
 export const HeroSection = () => {
   return (
-    <section id="hero" className={styles.heroSection}>
-      <img 
-        src={logoUrl} 
-        alt="TrailMates Logo" 
-        className={styles.heroLogo}
+    <section
+      id="hero"
+      className="h-screen flex flex-col justify-center items-center bg-gradient-to-b from-custom-green to-primary text-hover-text"
+    >
+      <img
+        src={logoUrl}
+        alt="TrailMates Logo"
+        className="h-24 mb-8 filter brightness-0 invert opacity-0 animate-[fade-in-down_1s_ease-out_forwards]"
       />
-      <p className={styles.heroText}>
+      <p className="text-2xl mb-8 max-w-2xl text-center px-4 opacity-0 animate-[fade-in-down_1s_ease-out_500ms_forwards]">
         Znajdź towarzyszy do wspólnych przygód na szlaku
       </p>
-      <div className={styles.heroIcons}>
+      <div className="flex gap-16 mt-10">
         <div className="opacity-0 animate-[fade-in-down_1s_ease-out_800ms_forwards]">
           <FaRunning className="text-5xl animate-bounce" />
         </div>
@@ -32,35 +34,37 @@ export const HeroSection = () => {
 
 export const ContentSection = ({ section, index, backgroundImage }) => {
   return (
-    <section 
-      id={section.title.toLowerCase()}
-      className={`min-h-screen flex items-center ${section.bgColor}`}
+    <section
+      id={section.key.toLowerCase()}
+      className="min-h-screen flex items-center"
       style={{
-        backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url(${backgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
+        backgroundColor: backgroundImage,
       }}
     >
-      <div className={styles.sectionContainer}>
-        <div className={`md:flex items-center ${index % 2 === 1 ? 'flex-row-reverse' : ''}`}>
-          <div className={styles.sectionContent}>
-            <div className="mb-8">
-              {section.icon}
-            </div>
-            <h2 className={styles.sectionTitle}>{section.title}</h2>
-            <p className={styles.sectionDescription}>{section.description}</p>
-            <Link 
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div
+          className={`flex items-center ${
+            index % 2 === 1 ? "flex-row-reverse" : ""
+          }`}
+        >
+          <div className={`w-1/2 text-center ${section.textColor}`}>
+            <h2 className={`text-4xl font-bold mb-6`}>{section.title}</h2>
+            <p className={`text-xl ${section.textColor}/80 mb-8`}>
+              {section.description}
+            </p>
+            <Link
               to={section.path}
-              className={styles.sectionButton}
+              className="inline-block bg-primary text-hover-text px-8 py-3 rounded-full text-lg hover:bg-hover-background transition-colors duration-300"
             >
               {section.buttonText}
             </Link>
           </div>
-          <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center">
-            <div className={styles.sectionIcon}>
-              {section.icon}
-            </div>
+          <div className="w-1/2 mt-10 mt-0 flex justify-center">
+            <img
+              src={require(`../../assets/img/home/${section.image}`)}
+              alt="section img"
+              className={`object-contain rounded-xl ${section.imageHeight}`}
+            />
           </div>
         </div>
       </div>
@@ -72,25 +76,30 @@ export const CtaSection = () => {
   const { user } = useAuth();
 
   return (
-    <section id="cta" className={styles.ctaSection}>
-      <div className={styles.ctaContainer}>
-        <div className={styles.ctaBox}>
+    <section
+      id="cta"
+      className="min-h-screen flex items-center bg-gradient-to-b from-custom-green to-primary text-hover-text"
+    >
+      <div className="container mx-auto px-6 max-w-4xl">
+        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-12 border-2 border-white/20 shadow-xl">
           <div className="text-center">
-            <h2 className="text-4xl font-bold mb-6">Dołącz do społeczności TrailMates</h2>
+            <h2 className="text-4xl font-bold mb-6">
+              Dołącz do społeczności TrailMates
+            </h2>
             <p className="text-xl mb-8 opacity-90">
               Poznaj ludzi dzielących Twoją pasję do aktywnego spędzania czasu
             </p>
             {user ? (
-              <Link 
+              <Link
                 to="/events"
-                className={styles.ctaButton}
+                className="inline-block bg-white text-primary px-8 py-3 rounded-full text-lg font-semibold hover:bg-background transition-colors duration-300 hover:shadow-lg"
               >
                 Zobacz wydarzenia
               </Link>
             ) : (
-              <Link 
+              <Link
                 to="/register"
-                className={styles.ctaButton}
+                className="inline-block bg-white text-primary px-8 py-3 rounded-full text-lg font-semibold hover:bg-background transition-colors duration-300 hover:shadow-lg"
               >
                 Dołącz teraz
               </Link>
@@ -100,4 +109,4 @@ export const CtaSection = () => {
       </div>
     </section>
   );
-}; 
+};

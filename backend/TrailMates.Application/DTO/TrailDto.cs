@@ -6,6 +6,8 @@ public readonly record struct TrailDto(
     Guid OwnerId,
     string OwnerFullName,
     List<CoordinateDto> Coordinates,
+    List<TrailCompletionDto> TrailCompletions,
     string Type,
+    TimeSpan Time,
     string Visibility
 );

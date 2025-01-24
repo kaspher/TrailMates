@@ -2,30 +2,29 @@
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TrailMates.Application.Abstractions;
 using TrailMates.Application.Common;
 using TrailMates.Domain.Errors;
 using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace TrailMates.Application.Features.Trails.Commands.UpdateTrailVisibility;
+namespace TrailMates.Application.Features.Trails.Queries.GetTrailsCompletions;
 
-internal sealed class UpdateTrailVisibilityEndpoint : IEndpoint
+internal sealed class GetTrailsCompletionsEndpoint : IEndpoint
 {
     public static void MapEndpoint(IEndpointRouteBuilder endpoints) =>
         endpoints
-            .MapGroup("/api/trails")
-            .MapPut("/{trailId}/visibility", HandlePut)
-            .WithName("update-trail-visibility")
+            .MapGroup("/api/trails/completions")
+            .MapGet("", HandleGet)
+            .WithName("get-trails-completions")
             .WithTags(Constants.TrailsTag);
 
-    private static Task<IResult> HandlePut(
-        [FromRoute] Guid trailId,
+    private static Task<IResult> HandleGet(
+        [AsParameters] GetTrailsCompletionsRequest request,
         IMediator dispatcher,
         CancellationToken cancellationToken
     ) =>
         dispatcher
-            .Send(new UpdateTrailVisibilityCommand(trailId), cancellationToken)
-            .Match(Results.NoContent, error => error.ToErrorProblemResult());
+            .Send(request.ToQuery(), cancellationToken)
+            .Match(Results.Ok, error => error.ToErrorProblemResult());
 }

@@ -14,7 +14,7 @@ using TrailMates.Infrastructure.Common.Persistence;
 namespace TrailMates.Infrastructure.Migrations.Core
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250103201143_Initial")]
+    [Migration("20250118184006_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -173,6 +173,13 @@ namespace TrailMates.Infrastructure.Migrations.Core
 
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
+
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("interval");
+
+                    b.Property<string>("TrailCompletions")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("Type")
                         .IsRequired()

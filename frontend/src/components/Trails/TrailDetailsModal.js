@@ -102,11 +102,11 @@ const TrailDetailsModal = ({ trail, onClose }) => {
       </button>
 
       <div className="h-full overflow-y-auto p-6 custom-scrollbar">
-        <h2 className="text-2xl font-bold text-secondary mb-4">{trail.name}</h2>
+        <h2 className="text-2xl font-bold text-dark mb-4">{trail.name}</h2>
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-secondary mb-2">
+            <h3 className="text-lg font-semibold text-dark mb-2">
               Szczegóły trasy
             </h3>
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -146,7 +146,7 @@ const TrailDetailsModal = ({ trail, onClose }) => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-secondary mb-2">Autor</h3>
+            <h3 className="text-lg font-semibold text-dark mb-2">Autor</h3>
             <div className="flex items-center space-x-3">
               <img
                 src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${trail.ownerId}`}
@@ -158,7 +158,7 @@ const TrailDetailsModal = ({ trail, onClose }) => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-secondary mb-4">
+            <h3 className="text-lg font-semibold text-dark mb-4">
               Nadchodzące wydarzenia
             </h3>
             {events.length === 0 ? (
@@ -173,9 +173,7 @@ const TrailDetailsModal = ({ trail, onClose }) => {
                     className="border rounded-lg p-4 bg-gray-50"
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-secondary">
-                        {event.name}
-                      </h4>
+                      <h4 className="font-medium text-dark">{event.name}</h4>
                       <div
                         className={`px-2 py-1 rounded text-white text-xs font-medium ${
                           eventStatusColors[event.status]
