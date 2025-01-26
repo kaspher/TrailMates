@@ -5,9 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import GoBackArrow from '../utils/GoBackArrow';
-import { calculateTotalDistance, formatDistance } from '../trailUtils/CalculateDistance';
+import { calculateTotalDistance, formatDistance } from '../utils/trails/CalculateDistance';
 import ShareIcon from '../../assets/icons/share-from-square-solid.svg';
-import TrailShare from '../trailUtils/TrailShare';
+import TrailShare from '../utils/trails/TrailShare';
 import { endpoints } from '../../config';
 
 const TRAIL_TYPES = {

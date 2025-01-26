@@ -5,8 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import GoBackArrow from '../utils/GoBackArrow';
-import ShareIcon from '../../assets/icons/share-from-square-solid.svg';
-import { calculateTotalDistance, formatDistance } from '../trailUtils/CalculateDistance';
+import { calculateTotalDistance, formatDistance } from '../utils/trails/CalculateDistance';
 import { endpoints } from '../../config';
 
 const Activities = ({ navigation }) => {
@@ -19,12 +18,47 @@ const Activities = ({ navigation }) => {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
 
-      const response = await fetch(`${endpoints.trails}?UserId=${userId}`);
-      if (!response.ok) {
-        throw new Error('Nie udało się pobrać aktywności');
+      // Pobierz trasy utworzone przez użytkownika
+      const createdTrailsResponse = await fetch(endpoints.userTrails(userId));
+      if (!createdTrailsResponse.ok) {
+        throw new Error('Nie udało się pobrać utworzonych tras');
       }
-      const data = await response.json();
-      setActivities(data);
+      const createdTrails = await createdTrailsResponse.json();
+
+      // Pobierz ukończone trasy
+      const completionsResponse = await fetch(endpoints.userCompletions(userId));
+      if (!completionsResponse.ok) {
+        throw new Error('Nie udało się pobrać ukończonych tras');
+      }
+      const completions = await completionsResponse.json();
+
+      // Pobierz szczegóły ukończonych tras
+      const completedTrailsPromises = completions.map(async (completion) => {
+        const trailResponse = await fetch(endpoints.trailDetails(completion.trailId));
+        if (!trailResponse.ok) {
+          throw new Error(`Nie udało się pobrać szczegółów trasy ${completion.trailId}`);
+        }
+        const trailData = await trailResponse.json();
+        return {
+          ...trailData,
+          completionTime: completion.time,
+          completionId: completion.id,
+          type: 'completed'
+        };
+      });
+
+      const completedTrails = await Promise.all(completedTrailsPromises);
+
+      // Połącz obie listy tras i posortuj po dacie (najnowsze pierwsze)
+      const allActivities = [
+        ...createdTrails.map(trail => ({
+          ...trail,
+          type: 'created'
+        })),
+        ...completedTrails
+      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      console.log('allActivities:', allActivities);
+      setActivities(allActivities);
     } catch (error) {
       console.error('Błąd podczas pobierania aktywności:', error);
       setAlertMessage('Nie udało się pobrać aktywności');
@@ -49,22 +83,21 @@ const Activities = ({ navigation }) => {
         {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
         <View className="flex-1">
           <ScrollView className="space-y-4">
-            {activities.map((activity) => (
+            {activities.map((activity, index) => (
               <TouchableOpacity
-                key={activity.id}
+                key={index + 1}
                 className="bg-white p-4 rounded-xl shadow-md"
                 onPress={() => handleTrailPress(activity)}
               >
                 <View className="flex-row justify-between items-center mb-2">
                   <Text className="text-lg font-bold text-primary">{activity.name}</Text>
-                  <View className="flex-row items-center">
+                  <View className="flex-row items-center space-x-2">
                     {activity.visibility === 'Private' && (
-                      <TouchableOpacity
-                        onPress={() => setAlertMessage('Funkcja publikowania będzie dostępna wkrótce')}
-                        className="bg-primary/10 p-2 rounded-full mr-2"
-                      >
-                        <ShareIcon width={20} height={20} fill="#386641" />
-                      </TouchableOpacity>
+                      <View className="bg-red-100 px-3 py-1 rounded-full">
+                        <Text className="text-red-700 text-sm">
+                          Prywatna
+                        </Text>
+                      </View>
                     )}
                     <View className={`px-3 py-1 rounded-full ${
                       activity.type === 'Cycling' ? 'bg-red-100' :
@@ -91,6 +124,12 @@ const Activities = ({ navigation }) => {
                       {formatDistance(calculateTotalDistance(activity.coordinates))}
                     </Text>
                   </View>
+                  {activity.type === 'completed' && (
+                    <View className="flex-row justify-between">
+                      <Text className="text-gray-600">Czas ukończenia:</Text>
+                      <Text>{activity.completionTime}</Text>
+                    </View>
+                  )}
                 </View>
               </TouchableOpacity>
             ))}

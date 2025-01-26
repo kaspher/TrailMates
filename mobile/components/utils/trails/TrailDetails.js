@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import LocationPinIcon from '../../assets/icons/location-pin-solid.svg';
-import FlagIcon from '../../assets/icons/flag-checkered-solid.svg';
-import ShareIcon from '../../assets/icons/share-from-square-solid.svg';
+import LocationPinIcon from '../../../assets/icons/location-pin-solid.svg';
+import FlagIcon from '../../../assets/icons/flag-checkered-solid.svg';
+import ShareIcon from '../../../assets/icons/share-from-square-solid.svg';
 import { calculateDistance } from './CalculateDistance';
 import Animated, { 
   useAnimatedStyle, 
@@ -10,22 +10,23 @@ import Animated, {
   useSharedValue,
   runOnJS
 } from 'react-native-reanimated';
-import { endpoints } from '../../config';
+import { endpoints } from '../../../config';
 import TrailShare from './TrailShare';
+import TrailParticipate from './TrailParticipate';
 
 const TrailDetails = ({ 
   selectedTrail, 
   startAddress,
   endAddress,
   onClose,
-  handleJoinTrail,
   onPublish,
   canJoinTrail,
   formatDistance,
   calculateTotalDistance,
   userLocation,
   onTrailShare,
-  setAlertMessage
+  setAlertMessage,
+  setActiveParticipationTrail
 }) => {
   const translateY = useSharedValue(1000);
   const [owner, setOwner] = useState(null);
@@ -99,6 +100,16 @@ const TrailDetails = ({
       'Biegowy'
     );
     setIsShareModalVisible(true);
+  };
+
+  const handleJoinTrail = () => {
+    const startPoint = selectedTrail.coordinates.sort((a, b) => a.order - b.order)[0];
+    if (canJoinTrail(startPoint)) {
+      setActiveParticipationTrail(selectedTrail);
+      handleClose();
+    } else {
+      setAlertMessage('Jesteś za daleko by dołączyć');
+    }
   };
 
   return (

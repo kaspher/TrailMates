@@ -1,14 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import PlayIcon from '../../assets/icons/circle-play-solid.svg';
-import PauseIcon from '../../assets/icons/circle-pause-solid.svg';
+import PlayIcon from '../../../assets/icons/circle-play-solid.svg';
+import StopIcon from '../../../assets/icons/circle-pause-solid.svg';
 
 const MapBottomControls = ({ 
   isTracking, 
   onStartTracking, 
   onStopTracking, 
   onHelpPress, 
-  onShowNearbyList 
+  onShowNearbyList,
+  isParticipating,
+  onStopParticipating
 }) => {
   return (
     <View className="bg-white h-16 border-t border-gray-200 relative">
@@ -16,10 +18,10 @@ const MapBottomControls = ({
         <View className="w-[100px] h-[100px] rounded-full bg-white flex items-center justify-center">
           <TouchableOpacity
             className="bg-primary w-24 h-24 rounded-full flex items-center justify-center"
-            onPress={isTracking ? onStopTracking : onStartTracking}
+            onPress={isTracking ? onStopTracking : isParticipating ? onStopParticipating : onStartTracking}
           >
-            {isTracking ? (
-              <PauseIcon width={40} height={40} fill="#ffffff" />
+            {isTracking || isParticipating ? (
+              <StopIcon width={40} height={40} fill="#ffffff" />
             ) : (
               <PlayIcon width={40} height={40} fill="#ffffff" />
             )}

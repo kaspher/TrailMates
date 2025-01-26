@@ -39,23 +39,6 @@ const Splash = ({ navigation }) => {
     return () => clearTimeout(timer);
   }, [fadeAnim, navigation]);
 
-  const validateToken = async (token) => {
-    try {
-      const response = await fetch(endpoints.auth.validate, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      // ... reszta kodu ...
-    } catch (error) {
-      console.error('Błąd walidacji tokenu:', error);
-      return false;
-    }
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-secondary justify-center items-center">
       <Animated.View style={{ opacity: fadeAnim }}>

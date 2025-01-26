@@ -7,7 +7,7 @@ import * as TaskManager from 'expo-task-manager';
 import { calculateTotalDistance, formatDistance } from './CalculateDistance';
 import TrailRecordingStats from './TrailRecordingStats';
 import TrailSave from './TrailSave';
-import { endpoints } from '../../config';
+import { endpoints } from '../../../config';
 
 const TRAIL_TYPES = {
   'Pieszy': 'Trekking',
@@ -192,10 +192,18 @@ const TrailRecording = forwardRef(({
       order: index + 1
     }));
 
+    const totalMilliseconds = Date.now() - recordingStartTime;
+    const hours = Math.floor(totalMilliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((totalMilliseconds % (1000 * 60)) / 1000);
+    
+    const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
     console.log('Zapisywana trasa:', {
       name: trailName,
       type: TRAIL_TYPES[trailType],
       pointsCount: formattedCoordinates.length,
+      time: formattedTime,
       points: formattedCoordinates.map(coord => ({
         order: coord.order,
         latitude: coord.latitude.toFixed(6),
@@ -208,7 +216,8 @@ const TrailRecording = forwardRef(({
       name: trailName,
       type: TRAIL_TYPES[trailType],
       coordinates: formattedCoordinates,
-      visibility: "Private"
+      visibility: "Private",
+      time: formattedTime
     });
 
     try {

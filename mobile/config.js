@@ -13,5 +13,14 @@ export const endpoints = {
     register: `${API_URL}/api/account/register`,
     validate: `${API_URL}/api/account/validate`,
     resetPassword: `${API_URL}/api/account/reset-password`
-  }
+  },
+  trailCompletion: (trailId) => `${API_URL}/api/trails/${trailId}`,
+  userTrails: (userId) => `${API_URL}/api/trails?UserId=${userId}`,
+  userCompletions: (userId) => `${API_URL}/api/trails/completions?UserId=${userId}`,
+  updateProfilePicture: (userId) => `${API_URL}/api/users/${userId}/update-profile-picture`,
+  activities: `${API_URL}/api/activities`,
+  activityLikes: (activityId) => `${API_URL}/api/activities/${activityId}/likes`,
+  activityComments: (activityId) => `${API_URL}/api/activities/${activityId}/comments`,
+  deleteLike: (likeId) => `${API_URL}/api/activities/likes/${likeId}`,
+  deleteComment: (commentId) => `${API_URL}/api/activities/comments/${commentId}`,
 }; 

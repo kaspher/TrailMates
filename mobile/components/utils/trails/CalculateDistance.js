@@ -37,9 +37,31 @@ const formatDistanceWithUnit = (distance) => {
   return `${distance.toFixed(1)}km`;
 };
 
+const calculateBounds = (coordinates) => {
+  if (!coordinates || coordinates.length === 0) return null;
+
+  return coordinates.reduce(
+    (acc, coord) => ({
+      ne: [
+        Math.max(acc.ne[0], coord[0]),
+        Math.max(acc.ne[1], coord[1])
+      ],
+      sw: [
+        Math.min(acc.sw[0], coord[0]),
+        Math.min(acc.sw[1], coord[1])
+      ]
+    }),
+    {
+      ne: [coordinates[0][0], coordinates[0][1]],
+      sw: [coordinates[0][0], coordinates[0][1]]
+    }
+  );
+};
+
 export {
   calculateDistance,
   calculateTotalDistance,
   formatDistance,
-  formatDistanceWithUnit
+  formatDistanceWithUnit,
+  calculateBounds
 }; 

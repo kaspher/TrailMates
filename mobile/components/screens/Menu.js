@@ -7,9 +7,10 @@ import MenuIcon from '../../assets/icons/bars-solid.svg';
 import TrophyIcon from '../../assets/icons/trophy-solid.svg';
 import MapIcon from '../../assets/icons/map-location-dot-solid.svg';
 import RouteIcon from '../../assets/icons/route-solid.svg';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import SettingsIcon from '../../assets/icons/gear-solid.svg';
 import { endpoints } from '../../config';
+import { calculateTotalDistance } from '../utils/trails/CalculateDistance';
 
 const Menu = () => {
   const navigation = useNavigation();
@@ -24,29 +25,74 @@ const Menu = () => {
     favorites: 0
   });
   const [imageError, setImageError] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const currentUserId = decoded.id;
+      setUserId(currentUserId);
+      
+      setImageError(false);
+      setAvatarUrl(getAvatarUrl(currentUserId));
+
+      const response = await fetch(endpoints.users(currentUserId));
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Błąd podczas pobierania danych użytkownika:', error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserData();
+      setRefreshKey(prev => prev + 1);
+    }, [])
+  );
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserStats = async () => {
       try {
         const token = await AsyncStorage.getItem('authToken');
         const decoded = jwtDecode(token);
-        const currentUserId = decoded.id;
-        setUserId(currentUserId);
-        
-        setImageError(false);
-        setAvatarUrl(getAvatarUrl(currentUserId));
+        const userId = decoded.id;
 
-        const response = await fetch(endpoints.users(currentUserId));
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
+        const createdTrailsResponse = await fetch(endpoints.userTrails(userId));
+        const createdTrails = await createdTrailsResponse.json();
+
+        const completedTrailsResponse = await fetch(endpoints.userCompletions(userId));
+        const completedTrails = await completedTrailsResponse.json();
+
+        let totalDistance = 0;
+
+        for (const trail of createdTrails) {
+          totalDistance += calculateTotalDistance(trail.coordinates);
         }
+
+        for (const completion of completedTrails) {
+          const trailResponse = await fetch(endpoints.trailDetails(completion.trailId));
+          const trailData = await trailResponse.json();
+          totalDistance += calculateTotalDistance(trailData.coordinates);
+        }
+
+        const formattedDistance = (totalDistance).toFixed(2);
+
+        setUserStats(prev => ({
+          ...prev,
+          totalTrails: createdTrails.length + completedTrails.length,
+          totalDistance: formattedDistance
+        }));
+
       } catch (error) {
-        console.error('Błąd podczas pobierania danych użytkownika:', error);
+        console.error('Błąd podczas pobierania statystyk:', error);
       }
     };
 
-    fetchUserData();
+    fetchUserStats();
   }, []);
 
   const menuItems = [
@@ -89,10 +135,10 @@ const Menu = () => {
               >
                 <Image
                   source={{
-                    uri: userId ? getAvatarUrl(userId) : null
+                    uri: userId ? `${getAvatarUrl(userId)}?${refreshKey}` : null
                   }}
-                  className="w-full h-full rounded-full"
-                  onError={() => console.log('Error loading avatar')}
+                  className="w-24 h-24 rounded-full border-4 border-white mb-4"
+                  onError={() => setImageError(true)}
                 />
               </TouchableOpacity>
               <View className="flex-1 ml-4">
@@ -107,17 +153,20 @@ const Menu = () => {
 
             <View className="flex-row justify-between mt-6 px-2">
               <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-primary">{userStats.totalTrails}</Text>
+                <Text className="text-2xl font-bold text-primary">
+                  {userStats.totalTrails}
+                </Text>
                 <Text className="text-sm text-gray-600">ukończonych tras</Text>
               </View>
               
               <View className="h-12 w-[1px] bg-gray-200" />
               
               <View className="items-center flex-1">
-                <Text className="text-2xl font-bold text-primary">{userStats.totalDistance}</Text>
+                <Text className="text-2xl font-bold text-primary">
+                  {userStats.totalDistance} km
+                </Text>
                 <Text className="text-sm text-gray-600">dystans pokonany</Text>
               </View>
-              
             </View>
           </View>
         </View>

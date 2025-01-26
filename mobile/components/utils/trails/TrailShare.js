@@ -6,7 +6,7 @@ import Animated, {
   useSharedValue,
   runOnJS
 } from 'react-native-reanimated';
-import { endpoints } from '../../config';
+import { endpoints } from '../../../config';
 
 const TrailShare = ({ 
   isVisible, 
