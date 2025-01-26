@@ -1,39 +1,30 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, PermissionsAndroid, Platform, TouchableOpacity, Text, Image, Modal, TextInput, ScrollView, StatusBar } from 'react-native';
-import MapboxGL from '@rnmapbox/maps';
+import { View, PermissionsAndroid, Platform, Text, StatusBar, Linking } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from "jwt-decode";
 import Alert from '../utils/Alert';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import LocationIcon from '../../assets/icons/location-arrow-solid.svg';
-import { PUBLIC_MAPBOX_ACCESS_TOKEN } from '@env';
-import { getAddressFromCoordinates } from '../trailUtils/Geocoding';
+import { getAddressFromCoordinates } from '../utils/trails/Geocoding';
+import { endpoints } from '../../config';
 
 import Animated, { 
   useAnimatedStyle, 
   withSpring, 
   useSharedValue 
 } from 'react-native-reanimated';
-import LayerIcon from '../../assets/icons/layer-group-solid.svg';
-import LocationPinIcon from '../../assets/icons/location-pin-solid.svg';
-import FlagIcon from '../../assets/icons/flag-checkered-solid.svg';
 import { Animated as RNAnimated } from 'react-native';
-import TrailDetails from '../trailUtils/TrailDetails';
+import TrailDetails from '../utils/trails/TrailDetails';
 import { 
   calculateDistance, 
   calculateTotalDistance, 
-  formatDistance, 
-  formatDistanceWithUnit 
-} from '../trailUtils/CalculateDistance';
-import TrailRecordingStats from '../trailUtils/TrailRecordingStats';
-import MapControls from '../trailUtils/MapControls';
-import PlayIcon from '../../assets/icons/circle-play-solid.svg';
-import PauseIcon from '../../assets/icons/circle-pause-solid.svg';
-import TrailSave from '../trailUtils/TrailSave';
-import TrailRefresh from '../trailUtils/TrailRefresh';
-import TrailList from '../trailUtils/TrailList';
-import MapBottomControls from '../trailUtils/MapBottomControls';
+  formatDistance,
+  calculateBounds
+} from '../utils/trails/CalculateDistance';
+import MapControls from '../utils/trails/MapControls';
+import TrailRefresh from '../utils/trails/TrailRefresh';
+import TrailList from '../utils/trails/TrailList';
+import MapBottomControls from '../utils/trails/MapBottomControls';
+import TrailMapView from '../utils/trails/TrailMapView';
+import TrailRecording from '../utils/trails/TrailRecording';
+import TrailParticipate from '../utils/trails/TrailParticipate';
 
 const TRAIL_TYPES = {
   'Pieszy': 'Trekking',
@@ -45,34 +36,27 @@ export default function Trails({ route, navigation }) {
   const [location, setLocation] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
-  const [coordinates, setCoordinates] = useState([]);
-  const mapCamera = useRef(null);
-  let watchId = useRef(null);
   const [trails, setTrails] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [trailName, setTrailName] = useState('');
-  const [trailType, setTrailType] = useState('');
   const [selectedTrail, setSelectedTrail] = useState(null);
   const [isTrailDetailsModalVisible, setIsTrailDetailsModalVisible] = useState(false);
   const [startAddress, setStartAddress] = useState(null);
   const [endAddress, setEndAddress] = useState(null);
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
-  const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ['40%', '60%', '85%'], []);
   const translateY = useSharedValue(1000);
   const [mapStyle, setMapStyle] = useState('Streets');
   const [isLocationReady, setIsLocationReady] = useState(false);
   const [pulseAnim] = useState(new RNAnimated.Value(1));
   const [activeTrailId, setActiveTrailId] = useState(null);
-  const [isTrailListModalVisible, setIsTrailListModalVisible] = useState(false);
-  const [recordingStartTime, setRecordingStartTime] = useState(null);
   const nearbyListTranslateY = useSharedValue(1000);
-
-  const bottomSheetStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
+  const [isFollowingUser, setIsFollowingUser] = useState(false);
+  const mapCamera = useRef(null);
+  let watchId = useRef(null);
+  const [coordinates, setCoordinates] = useState([]);
+  const recordingRef = useRef(null);
+  const [temporaryTrail, setTemporaryTrail] = useState(null);
+  const [isParticipating, setIsParticipating] = useState(false);
+  const [activeParticipationTrail, setActiveParticipationTrail] = useState(null);
+  const [is3DMode, setIs3DMode] = useState(false);
 
   const nearbyListStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: nearbyListTranslateY.value }]
@@ -93,176 +77,101 @@ export default function Trails({ route, navigation }) {
     }
   };
   
-  useEffect(() => {
-    const requestLocationPermission = async () => {
-      try {
-        if (Platform.OS === 'android') {
-          await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-          );
-        }
+  const initializeLocation = async () => {
+    try {
+      Geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude });
+          setIsLocationReady(true);
+        },
+        (error) => {
+          console.error('Błąd lokalizacji:', error);
+          setAlertMessage('Włącz lokalizację, aby korzystać z aplikacji');
+        },
+        { enableHighAccuracy: true }
+      );
 
-        Geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setLocation({ latitude, longitude });
-            setIsLocationReady(true);
-          },
-          (error) => {
-            console.error('Błąd lokalizacji:', error);
-            setAlertMessage('Włącz lokalizację, aby korzystać z aplikacji');
-          },
-          { enableHighAccuracy: true }
-        );
-
-        watchId.current = Geolocation.watchPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setLocation({ latitude, longitude });
-          },
-          (error) => {
-            console.error('Błąd lokalizacji:', error);
-            setAlertMessage('Włącz lokalizację, aby korzystać z aplikacji');
-          },
-          { enableHighAccuracy: true, distanceFilter: 1, interval: 5000, fastestInterval: 2000 }
-        );
-      } catch (err) {
-        console.warn(err);
-        setAlertMessage('Włącz lokalizację, aby korzystać z aplikacji');
-      }
-    };
-
-    requestLocationPermission();
-
-    return () => {
-      if (watchId.current !== null) {
-        Geolocation.clearWatch(watchId.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isTracking && location) {
-      setCoordinates(prev => {
-        const lastCoord = prev[prev.length - 1];
-        if (lastCoord && 
-            lastCoord.latitude === location.latitude && 
-            lastCoord.longitude === location.longitude) {
-          return prev;
-        }
-
-        return [
-          ...prev,
-          {
-            order: prev.length + 1,
-            latitude: location.latitude,
-            longitude: location.longitude
-          }
-        ];
-      });
-    }
-  }, [isTracking, location]);
-
-  useEffect(() => {
-    if (isTracking) {
       watchId.current = Geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setLocation({ latitude, longitude });
         },
         (error) => {
-          setAlertMessage(`Nie udało się pobrać lokalizacji: ${error.message}`);
+          console.error('Błąd lokalizacji:', error);
+          setAlertMessage('Włącz lokalizację, aby korzystać z aplikacji');
         },
         { 
           enableHighAccuracy: true, 
-          distanceFilter: 5,
-          interval: 3000, 
+          distanceFilter: 1, 
+          interval: 5000, 
           fastestInterval: 2000 
         }
       );
-    } else {
-      if (watchId.current !== null) {
-        Geolocation.clearWatch(watchId.current);
-        watchId.current = null;
-      }
+    } catch (err) {
+      console.warn(err);
+      setAlertMessage('Włącz lokalizację, aby korzystać z aplikacji');
     }
+  };
+
+  // Sprawdzanie uprawnień i inicjalizacja lokalizacji
+  useEffect(() => {
+    const checkPermissionAndInitialize = async () => {
+      if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.check(
+            PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION
+          );
+          
+          if (!granted) {
+            const backgroundGranted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+              {
+                title: "Dostęp do lokalizacji",
+                message: "Aplikacja potrzebuje uprawnień do korzystania z lokalizacji urządzenia na najwyższym poziomie",
+                buttonPositive: "Przejdź do ustawień",
+              }
+            );
+
+            if (backgroundGranted !== PermissionsAndroid.RESULTS.GRANTED) {
+              Linking.openSettings();
+              return;
+            }
+          }
+          
+          await initializeLocation();
+        } catch (error) {
+          console.error('Błąd podczas sprawdzania uprawnień:', error);
+          setAlertMessage('Wystąpił błąd podczas sprawdzania uprawnień');
+        }
+      } else {
+        await initializeLocation();
+      }
+    };
+
+    checkPermissionAndInitialize();
+
+    // Nasłuchiwanie na powrót do aplikacji
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkPermissionAndInitialize();
+    });
 
     return () => {
       if (watchId.current !== null) {
         Geolocation.clearWatch(watchId.current);
       }
+      unsubscribe();
     };
-  }, [isTracking]);
+  }, [navigation]);
 
-  const startTracking = () => {
-    if (location) {
-    setIsTracking(true);
-      setRecordingStartTime(new Date().getTime());
-      setCoordinates([{
-        order: 1,
-        latitude: location.latitude,
-        longitude: location.longitude
-      }]);
-    } else {
-      setAlertMessage('Nie można rozpocząć nagrywania - brak lokalizacji');
+  const handleLocationPress = () => {
+    setIsFollowingUser(prev => !prev);
+  };
+
+  const handleUserInteraction = () => {
+    if (isFollowingUser) {
+      setIsFollowingUser(false);
     }
-  };
-
-  const stopTracking = () => {
-    setIsTracking(false);
-    setIsModalVisible(true);
-  };
-
-  const saveTrail = async () => {
-    const token = await AsyncStorage.getItem('authToken');
-    const decoded = jwtDecode(token);
-
-    const formattedCoordinates = coordinates.map((coord, index) => ({
-      latitude: coord.latitude,
-      longitude: coord.longitude,
-      order: index + 1
-    }));
-  
-    const trailData = JSON.stringify({
-      ownerId: decoded.id,
-      name: trailName,
-      type: TRAIL_TYPES[trailType],
-      coordinates: formattedCoordinates,
-      visibility: "Private"
-    });
-
-    try {
-      const response = await fetch('http://10.0.2.2:5253/api/trails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: trailData
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Błąd podczas wysyłania danych:', errorData);
-        setAlertMessage('Nie udało się zapisać trasy. Spróbuj ponownie.');
-      } else {
-        setAlertMessage('Trasa została zapisana pomyślnie!');
-        setIsModalVisible(false);
-        setTrailName('');
-        setTrailType('');
-        setCoordinates([]);
-        fetchTrails();
-      }
-    } catch (error) {
-      console.error('Błąd połączenia:', error);
-      setAlertMessage('Wystąpił błąd podczas komunikacji z serwerem. Spróbuj ponownie.');
-    }
-  };
-  
-  const cancelTrail = () => {
-    setIsModalVisible(false);
-    setTrailName('');
-    setTrailType('');
-    setCoordinates([]);
   };
 
   const centerMapOnMarker = () => {
@@ -272,12 +181,13 @@ export default function Trails({ route, navigation }) {
         zoomLevel: 16,
         animationDuration: 1000,
       });
+      setIsFollowingUser(true);
     }
   };
 
   const fetchTrails = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:5253/api/trails');
+      const response = await fetch(endpoints.trails);
       const data = await response.json();
       setTrails(data);
     } catch (error) {
@@ -292,32 +202,50 @@ export default function Trails({ route, navigation }) {
 
   const fetchTrailDetails = async (trailId) => {
     try {
-      const response = await fetch(`http://10.0.2.2:5253/api/trails/${trailId}`);
-      const data = await response.json();
-      setSelectedTrail(data);
-      setActiveTrailId(trailId);
+      // Wyłączamy śledzenie użytkownika przy każdym wyborze trasy
+      setIsFollowingUser(false);
 
-      const sortedCoordinates = data.coordinates.sort((a, b) => a.order - b.order);
-      const midIndex = Math.floor(sortedCoordinates.length / 2);
-      const midPoint = sortedCoordinates[midIndex];
-      
-      mapCamera.current?.setCamera({
-        centerCoordinate: [midPoint.longitude, midPoint.latitude],
-        zoomLevel: 14,
-        animationDuration: 1000,
-      });
+      const response = await fetch(endpoints.trailDetails(trailId));
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedTrail(data);
+        setActiveTrailId(data.id);
+        setTemporaryTrail(data);
+        setIsTrailDetailsModalVisible(true);
 
-      const startCoord = sortedCoordinates[0];
-      const endCoord = sortedCoordinates[sortedCoordinates.length - 1];
+        // Pobierz adresy dla punktów startowego i końcowego
+        const sortedCoordinates = data.coordinates.sort((a, b) => a.order - b.order);
+        const startPoint = sortedCoordinates[0];
+        const endPoint = sortedCoordinates[sortedCoordinates.length - 1];
 
-      const start = await getAddressFromCoordinates(startCoord.longitude, startCoord.latitude);
-      const end = await getAddressFromCoordinates(endCoord.longitude, endCoord.latitude);
+        const startAddressData = await getAddressFromCoordinates(
+          startPoint.latitude,
+          startPoint.longitude
+        );
+        setStartAddress(startAddressData);
 
-      setStartAddress(start);
-      setEndAddress(end);
-      translateY.value = withSpring(0);
-      setIsBottomSheetVisible(true);
-      startPulseAnimation();
+        const endAddressData = await getAddressFromCoordinates(
+          endPoint.latitude,
+          endPoint.longitude
+        );
+        setEndAddress(endAddressData);
+
+        // Wycentruj mapę na trasie
+        if (mapCamera.current) {
+          const bounds = calculateBounds(
+            data.coordinates.map(coord => [coord.longitude, coord.latitude])
+          );
+          
+          if (bounds) {
+            mapCamera.current.fitBounds(
+              bounds.ne,
+              bounds.sw,
+              50,
+              1000
+            );
+          }
+        }
+      }
     } catch (error) {
       console.error('Błąd podczas pobierania szczegółów trasy:', error);
       setAlertMessage('Nie udało się pobrać szczegółów trasy');
@@ -333,6 +261,7 @@ export default function Trails({ route, navigation }) {
     setSelectedTrail(null);
     setStartAddress(null);
     setEndAddress(null);
+    setTemporaryTrail(null);
   };
 
   const toggleMapStyle = () => {
@@ -355,22 +284,6 @@ export default function Trails({ route, navigation }) {
     }
   }, [route.params, trails]);
 
-  const startPulseAnimation = () => {
-    RNAnimated.loop(
-      RNAnimated.sequence([
-        RNAnimated.timing(pulseAnim, {
-          toValue: 1.5,
-          duration: 1000,
-          useNativeDriver: true
-        }),
-        RNAnimated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true
-        })
-      ])
-    ).start();
-  };
 
   const canJoinTrail = (trailStartPoint) => {
     if (!location || !trailStartPoint) return false;
@@ -422,13 +335,69 @@ export default function Trails({ route, navigation }) {
 
   const refreshTrails = async () => {
     try {
-      const response = await fetch('http://10.0.2.2:5253/api/trails');
+      const response = await fetch(endpoints.trails);
       const data = await response.json();
       setTrails(data);
     } catch (error) {
       console.error('Błąd podczas odświeżania tras:', error);
       setAlertMessage('Nie udało się odświeżyć tras');
     }
+  };
+
+  const handleCloseTrailDetails = () => {
+    setSelectedTrail(null);
+    setActiveTrailId(null);
+    setTemporaryTrail(null);
+  };
+
+  const handleTrailShare = async (trailId) => {
+    try {
+      const response = await fetch(endpoints.trailVisibility(trailId), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          visibility: 'Public'
+        })
+      });
+
+      if (response.ok) {
+        setAlertMessage('Trasa została udostępniona!');
+        fetchTrails(); // Odświeżamy listę tras
+        handleCloseTrailDetails();
+      } else {
+        setAlertMessage('Nie udało się udostępnić trasy');
+      }
+    } catch (error) {
+      console.error('Błąd podczas udostępniania trasy:', error);
+      setAlertMessage('Wystąpił błąd podczas udostępniania trasy');
+    }
+  };
+
+  const handleStartTracking = () => {
+    recordingRef.current?.startTracking();
+    setIsFollowingUser(true);
+    setIs3DMode(true);
+  };
+
+  const handleStartParticipation = (trail) => {
+    setIsParticipating(true);
+    setActiveParticipationTrail(trail);
+    setIsFollowingUser(true);
+    setIs3DMode(true);
+    setIsTrailDetailsModalVisible(false);
+  };
+
+  const handleEndParticipation = () => {
+    setIsParticipating(false);
+    setActiveParticipationTrail(null);
+    setIs3DMode(false);
+  };
+
+  const handleStopTracking = () => {
+    recordingRef.current?.stopTracking();
+    setIs3DMode(false);
   };
 
   if (!location || !isLocationReady) {
@@ -441,130 +410,52 @@ export default function Trails({ route, navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1">
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      
+      <TrailMapView 
+        mapStyle={mapStyle}
+        location={location}
+        isTracking={isTracking}
+        coordinates={coordinates}
+        trails={trails}
+        activeTrailId={activeTrailId}
+        fetchTrailDetails={fetchTrailDetails}
+        mapCamera={mapCamera}
+        onUserInteraction={handleUserInteraction}
+        temporaryTrail={temporaryTrail}
+        activeParticipationTrail={activeParticipationTrail}
+        isFollowingUser={isFollowingUser}
+        is3DMode={is3DMode}
+        setIsFollowingUser={setIsFollowingUser}
+      />
+
+      {alertMessage && (
+        <View style={{ position: 'absolute', width: '100%', top: 0, zIndex: 2 }}>
+          <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />
+        </View>
+      )}
+      
+      <View style={{ position: 'absolute', width: '100%', top: 0, zIndex: 1 }}>
         <TrailRefresh onRefresh={refreshTrails} />
-        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-        
-        <MapboxGL.MapView 
-          style={{ flex: 1 }}
-          styleURL={mapStyle === 'Streets' ? 
-            MapboxGL.StyleURL.Street : 
-            MapboxGL.StyleURL.Satellite
-          }
-          scaleBarEnabled={false}
-        >
-          <MapboxGL.Camera
-            ref={mapCamera}
-            zoomLevel={14}
-            centerCoordinate={[location.longitude, location.latitude]}
-            animationMode="flyTo"
-            animationDuration={2000}
-          />
-          
-          {!isTracking && trails && trails.length > 0 && trails
-            .filter(trail => trail.visibility === 'Public')
-            .map((trail) => {
-              const formattedCoordinates = trail.coordinates
-                .sort((a, b) => a.order - b.order)
-                .map(coord => [coord.longitude, coord.latitude]);
+      </View>
 
-              return (
-                <React.Fragment key={trail.id}>
-                  <MapboxGL.ShapeSource
-                    id={`source-${trail.id}`}
-                    shape={{
-                      type: 'Feature',
-                      properties: {
-                        name: trail.name,
-                        type: trail.type,
-                        owner: trail.ownerFullName
-                      },
-                      geometry: {
-                        type: 'LineString',
-                        coordinates: formattedCoordinates
-                      }
-                    }}
-                    onPress={() => {
-                      fetchTrailDetails(trail.id);
-                    }}
-                  >
-                    <MapboxGL.LineLayer
-                      id={`layer-${trail.id}`}
-                      style={{
-                        lineColor: trail.type === 'Cycling' ? '#F44336' : 
-                                  trail.type === 'Trekking' ? '#4CAF50' : 
-                                  '#2196F3',
-                        lineWidth: trail.id === activeTrailId ? 7 : 5,
-                        lineOpacity: trail.id === activeTrailId ? 1 : 0.5,
-                      }}
-                    />
-                    {trail.id === activeTrailId && (
-                      <MapboxGL.LineLayer
-                        id={`pulse-${trail.id}`}
-                        style={{
-                          lineColor: trail.type === 'Cycling' ? '#F44336' : 
-                                    trail.type === 'Trekking' ? '#4CAF50' : 
-                                    '#2196F3',
-                          lineWidth: 3,
-                          lineOpacity: 0.3,
-                          lineDasharray: [2, 2]
-                        }}
-                      />
-                    )}
-                  </MapboxGL.ShapeSource>
-                </React.Fragment>
-              );
-            })}
-
-          {isTracking && coordinates && coordinates.length > 1 && (
-            <MapboxGL.ShapeSource
-              id="recordingSource"
-              shape={{
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                  type: 'LineString',
-                  coordinates: coordinates.map(coord => [coord.longitude, coord.latitude])
-                }
-              }}
-            >
-              <MapboxGL.LineLayer
-                id="recordingLine"
-                style={{
-                  lineColor: '#4CAF50',
-                  lineWidth: 4,
-                  lineCap: 'round',
-                  lineJoin: 'round'
-                }}
-              />
-            </MapboxGL.ShapeSource>
-          )}
-
-          <MapboxGL.PointAnnotation
-            id="userLocation"
-            coordinate={[location.longitude, location.latitude]}
-          >
-            <View className="flex items-center justify-center w-8 h-8">
-              <View className="w-8 h-8 rounded-full bg-primary border-2 border-white" />
-            </View>
-          </MapboxGL.PointAnnotation>
-        </MapboxGL.MapView>
-
+      <View 
+        style={{ 
+          position: 'absolute', 
+          top: StatusBar.currentHeight + 20, 
+          right: 20, 
+          zIndex: 1 
+        }}
+      >
         <MapControls 
-          style={{ position: 'absolute', top: StatusBar.currentHeight + 20, right: 20 }}
-          onCenterPress={centerMapOnMarker}
-          onStylePress={toggleMapStyle}
-          onNorthPress={resetMapOrientation}
-          mapStyle={mapStyle}
+          onLocationPress={handleLocationPress}
+          onLayerPress={toggleMapStyle}
+          isFollowingUser={isFollowingUser}
+          is3DMode={is3DMode}
         />
+      </View>
 
-        {isTracking && (
-          <TrailRecordingStats 
-            coordinates={coordinates}
-            startTime={recordingStartTime}
-          />
-        )}
-
+      <View style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 1 }} pointerEvents="box-none">
         <TrailList 
           nearbyListStyle={nearbyListStyle}
           hideNearbyList={hideNearbyList}
@@ -572,47 +463,56 @@ export default function Trails({ route, navigation }) {
           trails={trails}
           fetchTrailDetails={fetchTrailDetails}
         />
+      </View>
 
+      <TrailRecording 
+        ref={recordingRef}
+        isTracking={isTracking}
+        setIsTracking={setIsTracking}
+        location={location}
+        setAlertMessage={setAlertMessage}
+        fetchTrails={fetchTrails}
+        coordinates={coordinates}
+        setCoordinates={setCoordinates}
+      />
+
+      <View style={{ position: 'absolute', bottom: 0, width: '100%' }}>
         <MapBottomControls 
           isTracking={isTracking}
-          onStartTracking={startTracking}
-          onStopTracking={stopTracking}
+          onStartTracking={handleStartTracking}
+          onStopTracking={handleStopTracking}
           onHelpPress={() => setAlertMessage('Funkcja pomocy będzie dostępna wkrótce')}
           onShowNearbyList={showNearbyList}
+          isParticipating={isParticipating}
+          onStopParticipating={handleEndParticipation}
         />
+      </View>
 
+      {isTrailDetailsModalVisible && selectedTrail && (
+        <TrailDetails 
+          selectedTrail={selectedTrail}
+          startAddress={startAddress}
+          endAddress={endAddress}
+          onClose={handleCloseTrailDetails}
+          canJoinTrail={canJoinTrail}
+          formatDistance={formatDistance}
+          calculateTotalDistance={calculateTotalDistance}
+          userLocation={location}
+          onTrailShare={handleTrailShare}
+          setAlertMessage={setAlertMessage}
+          setActiveParticipationTrail={handleStartParticipation}
+        />
+      )}
 
-        {isBottomSheetVisible && selectedTrail && (
-          <TrailDetails 
-            selectedTrail={selectedTrail}
-            startAddress={startAddress}
-            endAddress={endAddress}
-            onClose={() => {
-              setIsBottomSheetVisible(false);
-              setSelectedTrail(null);
-              setStartAddress(null);
-              setEndAddress(null);
-            }}
-            handleJoinTrail={handleJoinTrail}
-            onPublish={() => setAlertMessage('Funkcja publikowania będzie dostępna wkrótce')}
-            canJoinTrail={canJoinTrail}
-            formatDistance={formatDistance}
-            calculateTotalDistance={calculateTotalDistance}
-            userLocation={location}
-          />
-        )}
-      </SafeAreaView>
-
-      <TrailSave 
-        isVisible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onSave={saveTrail}
-        onCancel={cancelTrail}
-        trailName={trailName}
-        setTrailName={setTrailName}
-        trailType={trailType}
-        setTrailType={setTrailType}
-      />
+      {isParticipating && activeParticipationTrail && (
+        <TrailParticipate 
+          selectedTrail={activeParticipationTrail}
+          userLocation={location}
+          setAlertMessage={setAlertMessage}
+          onClose={handleEndParticipation}
+          setActiveParticipationTrail={setActiveParticipationTrail}
+        />
+      )}
     </View>
   );
 }

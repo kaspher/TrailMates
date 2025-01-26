@@ -1,12 +1,12 @@
 import { PUBLIC_MAPBOX_ACCESS_TOKEN } from '@env';
 
-const getAddressFromCoordinates = async (longitude, latitude) => {
+export const getAddressFromCoordinates = async (longitude, latitude) => {
   try {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${PUBLIC_MAPBOX_ACCESS_TOKEN}&language=pl`;
     
     const response = await fetch(url);
     const data = await response.json();
-
+    
     if (data.features && data.features.length > 0) {
       let street = null;
       let city = null;
@@ -47,11 +47,10 @@ const getAddressFromCoordinates = async (longitude, latitude) => {
       city: 'Nieznane miasto'
     };
   } catch (error) {
+    console.error('Błąd podczas pobierania adresu:', error);
     return {
       street: 'Nieznana ulica',
       city: 'Nieznane miasto'
     };
   }
-};
-
-export { getAddressFromCoordinates }; 
+}; 

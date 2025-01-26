@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import GoBackArrow from '../utils/GoBackArrow';
-import { calculateTotalDistance, formatDistance } from '../trailUtils/CalculateDistance';
+import { calculateTotalDistance, formatDistance } from '../utils/trails/CalculateDistance';
 import ShareIcon from '../../assets/icons/share-from-square-solid.svg';
-import TrailShare from '../trailUtils/TrailShare';
+import TrailShare from '../utils/trails/TrailShare';
+import { endpoints } from '../../config';
 
 const TRAIL_TYPES = {
   'Pieszy': 'Trekking',
@@ -23,13 +24,13 @@ const RecordedTrails = ({ navigation }) => {
   const [trailName, setTrailName] = useState('');
   const [trailType, setTrailType] = useState('');
 
-  const fetchTrails = async () => {
+  const fetchRecordedTrails = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       const decoded = jwtDecode(token);
       const userId = decoded.id;
 
-      const response = await fetch(`http://10.0.2.2:5253/api/trails?UserId=${userId}`);
+      const response = await fetch(`${endpoints.trails}?UserId=${userId}&Visibility=Private`);
       if (!response.ok) {
         throw new Error('Nie udało się pobrać tras');
       }
@@ -42,28 +43,20 @@ const RecordedTrails = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchTrails();
+    fetchRecordedTrails();
   }, []);
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pl-PL', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   const handleTrailPress = (trail) => {
     navigation.navigate('Trails', { 
       selectedTrailId: trail.id,
-      shouldShowDetails: true 
+      shouldShowDetails: true,
+      shouldFitBounds: true
     });
   };
 
   const handleShare = async (trailId) => {
     try {
-      const response = await fetch(`http://10.0.2.2:5253/api/trails/${trailId}/visibility`, {
+      const response = await fetch(`${endpoints.trailDetails(trailId)}/visibility`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +74,7 @@ const RecordedTrails = ({ navigation }) => {
 
       setAlertMessage('Trasa została udostępniona!');
       setIsShareModalVisible(false);
-      fetchTrails();
+      fetchRecordedTrails();
     } catch (error) {
       console.error('Błąd podczas udostępniania trasy:', error);
       setAlertMessage('Nie udało się udostępnić trasy');
@@ -100,10 +93,11 @@ const RecordedTrails = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
-      <GoBackArrow title="Nagrane Trasy" />
-      {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-      <View className="flex-1 pt-[56px]">
+    <View className="flex-1 bg-light">
+      <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1">
+        <GoBackArrow title="Nagrane Trasy" />
+        {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
+        <View className="flex-1">
           <ScrollView className="space-y-4">
             {trails.map((trail) => (
               <TouchableOpacity
@@ -148,10 +142,6 @@ const RecordedTrails = ({ navigation }) => {
                     </Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Data utworzenia:</Text>
-                    <Text>{formatDate(trail.createdAt)}</Text>
-                  </View>
-                  <View className="flex-row justify-between">
                     <Text className="text-gray-600">Długość trasy:</Text>
                     <Text>{formatDistance(calculateTotalDistance(trail.coordinates))}</Text>
                   </View>
@@ -159,7 +149,8 @@ const RecordedTrails = ({ navigation }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
-      </View>
+        </View>
+      </SafeAreaView>
       <TrailShare 
         isVisible={isShareModalVisible}
         onClose={() => setIsShareModalVisible(false)}
@@ -169,8 +160,9 @@ const RecordedTrails = ({ navigation }) => {
         setTrailName={setTrailName}
         trailType={trailType}
         setTrailType={setTrailType}
+        setAlertMessage={setAlertMessage}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 

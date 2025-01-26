@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { calculateDistance, calculateTotalDistance, formatDistance, formatDistanceWithUnit } from './CalculateDistance';
 
@@ -10,13 +10,19 @@ const TrailList = ({
   trails, 
   fetchTrailDetails 
 }) => {
+  const styles = StyleSheet.create({
+    container: {
+      maxHeight: '80%',
+      height: '80%',
+    },
+  });
+
   return (
     <Animated.View 
       className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-lg z-40"
-      style={[nearbyListStyle, { maxHeight: '80%' }]}
+      style={[nearbyListStyle, styles.container]}
     >
       <View className="p-4 border-b border-gray-200">
-        <View className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2" />
         <View className="flex-row justify-between items-center">
           <Text className="text-xl font-bold">Trasy w pobliżu</Text>
           <TouchableOpacity

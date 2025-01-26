@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Alert from '../utils/Alert';
 import LongLogo from "../../assets/longlogo.svg";
 import DropDownPicker from 'react-native-dropdown-picker';
+import { endpoints } from '../../config';
 
 const RegisterScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -29,18 +30,17 @@ const RegisterScreen = ({ navigation }) => {
     console.log('Wysyłane dane:', formData);
 
     try {
-      const response = await fetch('http://10.0.2.2:5253/api/account/register', {
+      const response = await fetch(endpoints.auth.register, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
-          gender: gender,
-        }), 
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
       });
 
       console.log('Odpowiedź serwera:', response);
@@ -53,8 +53,8 @@ const RegisterScreen = ({ navigation }) => {
         setAlertMessage('Wprowadź poprawne dane')
       }
     } catch (error) {
-      console.log('Błąd podczas rejestracji:', error);
-      setAlertMessage('Błąd podczas rejestracji.');
+      console.error('Błąd rejestracji:', error);
+      setAlertMessage('Wystąpił błąd podczas rejestracji');
     }
   };
   return (

@@ -3,6 +3,7 @@ import { View, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LongLogo from '../../assets/longlogo.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL, endpoints } from '../../config';
 
 const Splash = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
