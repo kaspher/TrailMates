@@ -120,7 +120,9 @@ const EventsPage = () => {
 
   return (
     <div
-      className={`min-h-screen p-4 overflow-x-hidden ${isMobileView ? "relative" : "flex gap-6"}`}
+      className={`min-h-screen p-4 overflow-x-hidden ${
+        isMobileView ? "relative" : "flex gap-6"
+      }`}
     >
       {isMobileView && (
         <>
@@ -157,7 +159,9 @@ const EventsPage = () => {
       <main className={`${isMobileView ? "w-full" : "flex-1"}`}>
         <header className="pt-5">
           <h1
-            className={`${isMobileView ? "text-2xl text-center" : "text-3xl"} font-bold`}
+            className={`${
+              isMobileView ? "text-2xl text-center" : "text-3xl"
+            } font-bold`}
           >
             Wydarzenia
           </h1>
@@ -166,7 +170,9 @@ const EventsPage = () => {
           </p>
         </header>
         <div
-          className={`flex ${isMobileView ? "justify-center" : "justify-end"} my-4`}
+          className={`flex ${
+            isMobileView ? "justify-center" : "justify-end"
+          } my-4`}
         >
           <select
             className="w-48 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -31,7 +31,9 @@ internal sealed class AddActivityEndpoint : IEndpoint
                         form["description"]!,
                         Guid.Parse(form["ownerId"]!),
                         Guid.Parse(form["trailId"]!),
-                        form.Files.GetFiles("pictures").ToList()
+                        form.Files.GetFiles("pictures").ToList(),
+                        Guid.Parse(form["trailCompletionId"]!),
+                        bool.Parse(form["isTrailCompletion"]!)
                     );
 
                     return await (await validator.ValidateAsync(activityRequest, cancellationToken))

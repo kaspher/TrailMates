@@ -45,7 +45,9 @@ internal sealed class AddActivityCommandHandler(
                 request.Title,
                 request.Description,
                 request.OwnerId,
-                request.TrailId
+                request.TrailId,
+                request.TrailCompletionId,
+                request.IsTrailCompletion
             )
         );
 

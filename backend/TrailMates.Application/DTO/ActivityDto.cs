@@ -9,6 +9,8 @@ public record ActivityDto(
     Guid OwnerId,
     string OwnerFullName,
     Guid TrailId,
+    Guid TrailCompletionId,
+    bool IsTrailCompletion,
     List<Like> Likes,
     List<Comment> Comments,
     List<string> PicturesNames,

@@ -2,32 +2,10 @@ import mapboxgl from "mapbox-gl";
 import { fetchTrails } from "../services/trailsApi";
 
 export const fetchRoute = async (coordinates) => {
-  const simplifiedCoordinates = coordinates.filter(
-    (_, index) =>
-      index === 0 ||
-      index === coordinates.length - 1 ||
-      index % Math.ceil(coordinates.length / 20) === 0
-  );
-
-  const coordsString = simplifiedCoordinates
-    .map((coord) => `${coord.longitude},${coord.latitude}`)
-    .join(";");
-
-  const response = await fetch(
-    `https://api.mapbox.com/directions/v5/mapbox/walking/${coordsString}?geometries=geojson&access_token=${mapboxgl.accessToken}&overview=full`
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch route");
-  }
-
-  const data = await response.json();
-
-  if (!data.routes || !data.routes[0]) {
-    throw new Error("No route found");
-  }
-
-  return data.routes[0].geometry;
+  return {
+    type: "LineString",
+    coordinates: coordinates.map((coord) => [coord.longitude, coord.latitude]),
+  };
 };
 
 export const updateTrails = async (bounds, filters, setTrails) => {

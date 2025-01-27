@@ -40,6 +40,7 @@ public static class TrailCompletionMapper
             : "Unknown User";
 
         return new TrailCompletionDto(
+            trailCompletion.Id,
             trailCompletion.TrailId,
             trailCompletion.UserId,
             userFullName,
