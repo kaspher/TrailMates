@@ -1,4 +1,4 @@
-//export const API_URL = 'http://192.168.0.175:5253';
+// export const API_URL = 'http://192.168.0.175:5253';
  export const API_URL = 'http://10.0.2.2:5253';
 
 export const endpoints = {
@@ -11,8 +11,6 @@ export const endpoints = {
   auth: {
     login: `${API_URL}/api/account/login`,
     register: `${API_URL}/api/account/register`,
-    validate: `${API_URL}/api/account/validate`,
-    resetPassword: `${API_URL}/api/account/reset-password`
   },
   trailCompletion: (trailId) => `${API_URL}/api/trails/${trailId}`,
   userTrails: (userId) => `${API_URL}/api/trails?UserId=${userId}`,

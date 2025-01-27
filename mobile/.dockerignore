@@ -1,0 +1,10 @@
+node_modules
+.expo
+.expo-shared
+dist
+android/app/build
+ios/build
+.git
+.gitignore
+.env
+*.log 
