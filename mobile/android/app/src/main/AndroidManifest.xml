@@ -32,22 +32,6 @@
       </intent-filter>
     </service>
     <activity android:name=".MainActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|uiMode" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.App.SplashScreen" android:exported="true" android:screenOrientation="portrait">
-      
-      &#xD;
-      &#xD;
-      &#xD;
-      &#xD;
-      -&#xD;
-    &#xD;
-      &#xD;
-      &#xD;
-    &#xD;
-      &#xD;
-      &#xD;
-    
-      
-      
-    
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
