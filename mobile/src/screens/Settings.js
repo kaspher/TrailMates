@@ -3,15 +3,14 @@ import {
   View, 
   Text, 
   TouchableOpacity, 
-  StatusBar, 
   Linking, 
   Platform,
   PermissionsAndroid 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import GoBackArrow from '../utils/GoBackArrow';
-import LocationIcon from '../../assets/icons/location-arrow-solid.svg';
-import BellIcon from '../../assets/icons/route-solid.svg';
+import LocationIcon from '../../src/assets/icons/location-arrow-solid.svg';
+import BellIcon from '../../src/assets/icons/route-solid.svg';
 
 const Settings = () => {
   const [permissions, setPermissions] = useState({

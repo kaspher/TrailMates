@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
-import Alert from '../utils/Alert';
-import GoBackArrow from '../utils/GoBackArrow';
-import { calculateTotalDistance, formatDistance } from '../utils/trails/CalculateDistance';
+import Alert from '../../src/utils/Alert';
+import GoBackArrow from '../../src/utils/GoBackArrow';
+import { calculateTotalDistance, formatDistance } from '../../src/utils/trails/CalculateDistance';
 import { endpoints } from '../../config';
 
 const Activities = ({ navigation }) => {
@@ -18,42 +18,32 @@ const Activities = ({ navigation }) => {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
 
-      // Pobierz trasy utworzone przez użytkownika
       const createdTrailsResponse = await fetch(endpoints.userTrails(userId));
       if (!createdTrailsResponse.ok) {
         throw new Error('Nie udało się pobrać utworzonych tras');
       }
       const createdTrails = await createdTrailsResponse.json();
 
-      // Pobierz ukończone trasy
       const completionsResponse = await fetch(endpoints.userCompletions(userId));
       if (!completionsResponse.ok) {
         throw new Error('Nie udało się pobrać ukończonych tras');
       }
       const completions = await completionsResponse.json();
 
-      // Pobierz szczegóły ukończonych tras
       const completedTrailsPromises = completions.map(async (completion) => {
         const trailResponse = await fetch(endpoints.trailDetails(completion.trailId));
         if (!trailResponse.ok) {
           throw new Error(`Nie udało się pobrać szczegółów trasy ${completion.trailId}`);
         }
         const trailData = await trailResponse.json();
-        return {
-          ...trailData,
-          completionTime: completion.time,
-          completionId: completion.id,
-          type: 'completed'
-        };
+        return trailData;
       });
 
       const completedTrails = await Promise.all(completedTrailsPromises);
 
-      // Połącz obie listy tras i posortuj po dacie (najnowsze pierwsze)
       const allActivities = [
         ...createdTrails.map(trail => ({
-          ...trail,
-          type: 'created'
+          ...trail
         })),
         ...completedTrails
       ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -111,7 +101,7 @@ const Activities = ({ navigation }) => {
                       }`}>
                         {activity.type === 'Cycling' ? 'Rowerowa' :
                          activity.type === 'Trekking' ? 'Piesza' :
-                         'Biegowa'}
+                         activity.type === 'Running' ? 'Biegowa' : ''}
                       </Text>
                     </View>
                   </View>

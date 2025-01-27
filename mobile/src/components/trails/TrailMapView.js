@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
-import LocationPinIcon from '../../../assets/icons/location-pin-solid.svg';
-import FlagIcon from '../../../assets/icons/flag-checkered-solid.svg';
-import { calculateBounds } from './CalculateDistance';
+import LocationPinIcon from '../../../src/assets/icons/location-pin-solid.svg';
+import FlagIcon from '../../../src/assets/icons/flag-checkered-solid.svg';
+import { calculateBounds } from '../../utils/trails/CalculateDistance';
 
 const styles = StyleSheet.create({
   mapContainer: {

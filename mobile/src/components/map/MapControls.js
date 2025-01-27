@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import LocationIcon from '../../../assets/icons/location-crosshairs-solid.svg';
-import LayersIcon from '../../../assets/icons/layer-group-solid.svg';
+import LocationIcon from '../../../src/assets/icons/location-crosshairs-solid.svg';
+import LayersIcon from '../../../src/assets/icons/layer-group-solid.svg';
 
 const MapControls = ({ 
   onLocationPress, 

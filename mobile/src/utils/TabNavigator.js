@@ -1,15 +1,15 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from '../screens/Home';
-import Trails from '../screens/Trails';
-import Menu from '../screens/Menu';
-import UserProfile from '../screens/UserProfile';
-import Activities from '../screens/Activities';
-import RecordedTrails from '../screens/RecordedTrails';
-import HomeIcon from '../../assets/icons/house-solid.svg';
-import MapIcon from '../../assets/icons/map-solid.svg';
-import MenuIcon from '../../assets/icons/bars-solid.svg';
+import Home from '../../src/screens/Home';
+import Trails from '../../src/screens/Trails';
+import Menu from '../../src/screens/Menu';
+import UserProfile from '../../src/screens/UserProfile';
+import Activities from '../../src/screens/Activities';
+import RecordedTrails from '../../src/screens/RecordedTrails';
+import HomeIcon from '../../src/assets/icons/house-solid.svg';
+import MapIcon from '../../src/assets/icons/map-solid.svg';
+import MenuIcon from '../../src/assets/icons/bars-solid.svg';
 
 const Tab = createBottomTabNavigator();
 const MenuStack = createNativeStackNavigator();
@@ -30,7 +30,7 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ _, color, size }) => {
           if (route.name === 'Home') {
             return <HomeIcon width={size} height={size} fill={color} />;
           } else if (route.name === 'Trails') {

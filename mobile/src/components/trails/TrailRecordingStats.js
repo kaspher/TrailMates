@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { calculateTotalDistance } from './CalculateDistance';
+import { calculateTotalDistance } from '../../utils/trails/CalculateDistance';
 
 const TrailRecordingStats = ({ coordinates, startTime }) => {
   const [elapsedTime, setElapsedTime] = useState('00:00:00');

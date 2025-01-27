@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
-import { View, StatusBar, Platform } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
 import * as TaskManager from 'expo-task-manager';
-import { calculateTotalDistance, formatDistance } from './CalculateDistance';
 import TrailRecordingStats from './TrailRecordingStats';
 import TrailSave from './TrailSave';
 import { endpoints } from '../../../config';
@@ -113,15 +112,6 @@ const TrailRecording = forwardRef(({
     };
   }, [isTracking]);
 
-  const formatTime = (startTime) => {
-    const elapsed = Date.now() - startTime;
-    const seconds = Math.floor((elapsed / 1000) % 60);
-    const minutes = Math.floor((elapsed / (1000 * 60)) % 60);
-    const hours = Math.floor(elapsed / (1000 * 60 * 60));
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
   const startTracking = async () => {
     if (location) {
       const { status } = await Location.requestBackgroundPermissionsAsync();
@@ -198,18 +188,6 @@ const TrailRecording = forwardRef(({
     const seconds = Math.floor((totalMilliseconds % (1000 * 60)) / 1000);
     
     const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-    console.log('Zapisywana trasa:', {
-      name: trailName,
-      type: TRAIL_TYPES[trailType],
-      pointsCount: formattedCoordinates.length,
-      time: formattedTime,
-      points: formattedCoordinates.map(coord => ({
-        order: coord.order,
-        latitude: coord.latitude.toFixed(6),
-        longitude: coord.longitude.toFixed(6)
-      }))
-    });
 
     const trailData = JSON.stringify({
       ownerId: decoded.id,

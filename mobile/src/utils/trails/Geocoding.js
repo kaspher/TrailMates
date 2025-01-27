@@ -2,7 +2,7 @@ import { PUBLIC_MAPBOX_ACCESS_TOKEN } from '@env';
 
 export const getAddressFromCoordinates = async (longitude, latitude) => {
   try {
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${PUBLIC_MAPBOX_ACCESS_TOKEN}&language=pl`;
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${latitude},${longitude}.json?access_token=${PUBLIC_MAPBOX_ACCESS_TOKEN}&language=pl`;
     
     const response = await fetch(url);
     const data = await response.json();

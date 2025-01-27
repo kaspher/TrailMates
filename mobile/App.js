@@ -1,24 +1,22 @@
 import 'react-native-gesture-handler';
-import './assets/global.css';
+import './src/assets/global.css';
 import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Font from 'expo-font';
+import { jwtDecode } from 'jwt-decode';
 import { View, ActivityIndicator, StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Login from './components/screens/Login';
-import Register from './components/screens/Register';
-import TabNavigator from './components/utils/TabNavigator';
-import ForgotPassword from './components/screens/ForgotPassword';
-import Splash from './components/screens/Splash';
+import Menu from './src/screens/Menu';
+import Trails from './src/screens/Trails';
+import Activities from './src/screens/Activities';
+import RecordedTrails from './src/screens/RecordedTrails';
+import Login from './src/screens/Login';
+import Register from './src/screens/Register';
+import Settings from './src/screens/Settings';
+import TabNavigator from './src/utils/TabNavigator';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Settings from './components/screens/Settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from 'jwt-decode';
-import Menu from './components/screens/Menu';
-import Trails from './components/screens/Trails';
-import Activities from './components/screens/Activities';
-import RecordedTrails from './components/screens/RecordedTrails';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,11 +28,10 @@ export default function App() {
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({
-        'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
-        'Poppins-Light': require('./assets/fonts/Poppins-Light.ttf'),
-        'Poppins-Regular': require('./assets/fonts/Poppins-Regular.ttf'),
-        // do usunięcia, font do testowania czy poppins działa bo jest łudząco podobny do domyślnego
-        'Test-Font-Delete': require('./assets/fonts/Test-Font-Delete.ttf'),
+        'Poppins-Bold': require('./src/assets/fonts/Poppins-Bold.ttf'),
+        'Poppins-Light': require('./src/assets/fonts/Poppins-Light.ttf'),
+        'Poppins-Regular': require('./src/assets/fonts/Poppins-Regular.ttf'),
+        'Test-Font-Delete': require('./src/assets/fonts/Test-Font-Delete.ttf'),
       });
       setFontsLoaded(true);
     }
@@ -89,7 +86,6 @@ export default function App() {
           >
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Register" component={Register} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="MainTabs" component={TabNavigator} />
             <Stack.Screen name="Menu" component={Menu} />
             <Stack.Screen name="Trails" component={Trails} />

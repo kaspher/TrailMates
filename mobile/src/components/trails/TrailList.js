@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import { calculateDistance, calculateTotalDistance, formatDistance, formatDistanceWithUnit } from './CalculateDistance';
+import Animated from 'react-native-reanimated';
+import { calculateDistance, calculateTotalDistance, formatDistance, formatDistanceWithUnit } from '../../utils/trails/CalculateDistance';
 
 const TrailList = ({ 
   nearbyListStyle, 

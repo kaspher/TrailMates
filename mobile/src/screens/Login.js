@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import LongLogo from "../../assets/longlogo.svg";
+import LongLogo from "../../src/assets/longlogo.svg";
 import Alert from '../utils/Alert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { endpoints } from '../../config';
@@ -71,9 +71,6 @@ const LoginScreen = ({ navigation }) => {
             value={formData.password}
             onChangeText={(text) => setFormData({ ...formData, password: text })}
           />
-          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-            <Text className="text-blue-500 text-right mb-4 font-light">Zapomniałeś hasła?</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             onPress={handleLogin}
             className="bg-primary p-4 rounded-md"

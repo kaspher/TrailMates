@@ -7,8 +7,7 @@ services:
       context: ./backend
       dockerfile: TrailMates.Api/Dockerfile
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "8083:8083"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
 
@@ -23,3 +22,22 @@ services:
       - backend
     environment:
       - NODE_ENV=development
+
+  mobile:
+    container_name: mobile
+    build: 
+      context: ./mobile
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    volumes:
+      - ./mobile:/app
+      - /app/node_modules
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=localhost
+      - REACT_NATIVE_PACKAGER_HOSTNAME=192.168.0.175
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Alert from '../utils/Alert';
-import LongLogo from "../../assets/longlogo.svg";
+import LongLogo from "../../src/assets/longlogo.svg";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { endpoints } from '../../config';
 
@@ -38,6 +38,7 @@ const RegisterScreen = ({ navigation }) => {
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
+          gender: formData.gender,
           firstName: formData.firstName,
           lastName: formData.lastName,
         }),
@@ -47,7 +48,7 @@ const RegisterScreen = ({ navigation }) => {
 
       if (response.ok) {
         setAlertMessage('Rejestracja zakończona sukcesem. Możesz się teraz zalogować.');
-        // navigation.navigate('Login');
+        navigation.navigate('Login');
       }
       else{
         setAlertMessage('Wprowadź poprawne dane')

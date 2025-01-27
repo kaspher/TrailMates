@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StatusBar } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import Alert from '../utils/Alert';
 import GoBackArrow from '../utils/GoBackArrow';
 import { calculateTotalDistance, formatDistance } from '../utils/trails/CalculateDistance';
-import ShareIcon from '../../assets/icons/share-from-square-solid.svg';
-import TrailShare from '../utils/trails/TrailShare';
+import ShareIcon from '../../src/assets/icons/share-from-square-solid.svg';
+import TrailShare from '../components/trails/TrailShare';
 import { endpoints } from '../../config';
 
 const TRAIL_TYPES = {

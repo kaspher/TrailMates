@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ArrowIcon from '../../assets/icons/arrow-left-solid.svg';
+import ArrowIcon from '../../src/assets/icons/arrow-left-solid.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const GoBackArrow = ({ title }) => {

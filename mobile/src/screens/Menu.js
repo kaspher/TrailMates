@@ -1,30 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, Image, StatusBar } from 'react-native';
 import { jwtDecode } from 'jwt-decode';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAvatarUrl } from '../utils/GetAvatarUrl';
-import MenuIcon from '../../assets/icons/bars-solid.svg';
-import TrophyIcon from '../../assets/icons/trophy-solid.svg';
-import MapIcon from '../../assets/icons/map-location-dot-solid.svg';
-import RouteIcon from '../../assets/icons/route-solid.svg';
+import { getAvatarUrl } from '../../src/utils/user/GetAvatarUrl';
+import TrophyIcon from '../../src/assets/icons/trophy-solid.svg';
+import MapIcon from '../../src/assets/icons/map-location-dot-solid.svg';
+import RouteIcon from '../../src/assets/icons/route-solid.svg';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import SettingsIcon from '../../assets/icons/gear-solid.svg';
+import SettingsIcon from '../../src/assets/icons/gear-solid.svg';
 import { endpoints } from '../../config';
-import { calculateTotalDistance } from '../utils/trails/CalculateDistance';
+import { calculateTotalDistance } from '../../src/utils/trails/CalculateDistance';
 
 const Menu = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [avatarUrl, setAvatarUrl] = useState(null);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [activeScreen, setActiveScreen] = useState('Menu');
   const [userStats, setUserStats] = useState({
     totalTrails: 0,
     totalDistance: 0,
     favorites: 0
   });
-  const [imageError, setImageError] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchUserData = async () => {
@@ -33,9 +28,6 @@ const Menu = () => {
       const decoded = jwtDecode(token);
       const currentUserId = decoded.id;
       setUserId(currentUserId);
-      
-      setImageError(false);
-      setAvatarUrl(getAvatarUrl(currentUserId));
 
       const response = await fetch(endpoints.users(currentUserId));
       if (response.ok) {
@@ -48,7 +40,7 @@ const Menu = () => {
   };
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       fetchUserData();
       setRefreshKey(prev => prev + 1);
     }, [])
@@ -118,11 +110,6 @@ const Menu = () => {
     },
   ];
 
-  const handleNavigation = (screen) => {
-    setActiveScreen(screen);
-    navigation.navigate(screen);
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-light" style={{ paddingTop: StatusBar.currentHeight }}>
       <View className="flex-1 px-4 mt-6">
@@ -135,10 +122,9 @@ const Menu = () => {
               >
                 <Image
                   source={{
-                    uri: userId ? `${getAvatarUrl(userId)}?${refreshKey}` : null
+                    uri: `${getAvatarUrl(userId)}?${refreshKey}`
                   }}
                   className="w-24 h-24 rounded-full border-4 border-white mb-4"
-                  onError={() => setImageError(true)}
                 />
               </TouchableOpacity>
               <View className="flex-1 ml-4">

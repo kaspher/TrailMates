@@ -3,8 +3,7 @@ import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-nativ
 import Animated, { 
   useAnimatedStyle, 
   withSpring, 
-  useSharedValue,
-  runOnJS
+  useSharedValue
 } from 'react-native-reanimated';
 
 const TrailSave = ({ 

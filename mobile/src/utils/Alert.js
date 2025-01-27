@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity, View } from 'react-native';
-import CloseButton from '../../assets/icons/x-solid.svg';
+import CloseButton from '../../src/assets/icons/x-solid.svg';
 
 const Alert = ({ message, duration = 6000, onClose }) => {
   const slideAnim = useRef(new Animated.Value(-100)).current;

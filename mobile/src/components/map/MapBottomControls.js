@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import PlayIcon from '../../../assets/icons/circle-play-solid.svg';
-import StopIcon from '../../../assets/icons/circle-pause-solid.svg';
+import PlayIcon from '../../../src/assets/icons/circle-play-solid.svg';
+import StopIcon from '../../../src/assets/icons/circle-pause-solid.svg';
 
 const MapBottomControls = ({ 
   isTracking, 

@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import * as ImagePicker from 'react-native-image-picker';
 import Alert from '../utils/Alert';
 import GoBackArrow from '../utils/GoBackArrow';
-import { getAvatarUrl } from '../utils/GetAvatarUrl';
+import { getAvatarUrl } from '../utils/user/GetAvatarUrl';
 import { endpoints } from '../../config';
 import ProfileEditForm from '../utils/profile/ProfileEditForm';
 import ProfileDisplay from '../utils/profile/ProfileDisplay';
@@ -56,7 +56,6 @@ const UserProfile = ({ navigation }) => {
 
       if (result.didCancel || !result.assets?.[0]) return;
 
-      const token = await AsyncStorage.getItem('authToken');
       const formData = new FormData();
       formData.append('Picture', {
         uri: result.assets[0].uri,

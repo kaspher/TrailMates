@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import LocationPinIcon from '../../../assets/icons/location-pin-solid.svg';
-import FlagIcon from '../../../assets/icons/flag-checkered-solid.svg';
-import ShareIcon from '../../../assets/icons/share-from-square-solid.svg';
-import { calculateDistance } from './CalculateDistance';
+import LocationPinIcon from '../../../src/assets/icons/location-pin-solid.svg';
+import FlagIcon from '../../../src/assets/icons/flag-checkered-solid.svg';
+import ShareIcon from '../../../src/assets/icons/share-from-square-solid.svg';
+import { calculateDistance } from '../../utils/trails/CalculateDistance';
 import Animated, { 
   useAnimatedStyle, 
   withSpring, 
@@ -12,14 +12,12 @@ import Animated, {
 } from 'react-native-reanimated';
 import { endpoints } from '../../../config';
 import TrailShare from './TrailShare';
-import TrailParticipate from './TrailParticipate';
 
 const TrailDetails = ({ 
   selectedTrail, 
   startAddress,
   endAddress,
   onClose,
-  onPublish,
   canJoinTrail,
   formatDistance,
   calculateTotalDistance,

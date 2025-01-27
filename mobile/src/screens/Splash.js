@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Animated } from 'react-native';
+import { Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LongLogo from '../../assets/longlogo.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL, endpoints } from '../../config';
 
 const Splash = ({ navigation }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -14,7 +13,6 @@ const Splash = ({ navigation }) => {
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
           console.log('Token znaleziony:', token);
-          // moze dodac wiecej walidacji np. az sie zaladuja fonty
           navigation.replace('MainTabs');
         } else {
           console.log('Nie znaleziono tokenu, przekierowanie do Login.');

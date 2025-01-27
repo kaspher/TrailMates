@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StatusBar } from 'react-native';
-import { calculateDistance } from './CalculateDistance';
+import { calculateDistance } from '../../utils/trails/CalculateDistance';
 import TrailRecordingStats from './TrailRecordingStats';
 import TrailCompletion from './TrailCompletion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -57,7 +57,6 @@ const TrailParticipate = ({
     const targetPoint = sortedTrailCoords[currentPointIndex];
     const lastPoint = sortedTrailCoords[sortedTrailCoords.length - 1];
     
-    // Sprawdź dystans do aktualnego punktu
     const distanceToTarget = calculateDistance(
       userLocation.latitude,
       userLocation.longitude,
@@ -65,7 +64,6 @@ const TrailParticipate = ({
       targetPoint.longitude
     );
 
-    // Sprawdź dystans do końca trasy
     const distanceToEnd = calculateDistance(
       userLocation.latitude,
       userLocation.longitude,
@@ -73,26 +71,22 @@ const TrailParticipate = ({
       lastPoint.longitude
     );
 
-    // Konwersja na metry
     const distanceToTargetMeters = distanceToTarget * 1000;
     const distanceToEndMeters = distanceToEnd * 1000;
 
-    // Aktualizuj koordynaty
     setCurrentCoordinates(prev => [...prev, {
       latitude: userLocation.latitude,
       longitude: userLocation.longitude,
       order: prev.length + 1
     }]);
 
-    // Jeśli jesteśmy blisko końca trasy
-    if (distanceToEndMeters <= 10) {
+    if (distanceToEndMeters <= 20) {
       setIsParticipating(false);
       setShowCompletion(true);
       return;
     }
 
-    // Jeśli jesteśmy blisko aktualnego punktu kontrolnego
-    if (distanceToTargetMeters <= 10) {
+    if (distanceToTargetMeters <= 20) {
       if (currentPointIndex < sortedTrailCoords.length - 1) {
         setCurrentPointIndex(prev => prev + 1);
       }
@@ -128,7 +122,6 @@ const TrailParticipate = ({
 
       if (response.ok) {
         setShowCompletion(false);
-        setAlertMessage('SUPERANCKO');
         setActiveParticipationTrail(null);
         onClose();
       } else {

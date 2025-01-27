@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, RefreshControl, TextInput, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getAvatarUrl } from '../utils/GetAvatarUrl';
-import { formatDistance } from '../utils/trails/CalculateDistance';
+import { getAvatarUrl } from '../utils/user/GetAvatarUrl';
 import { endpoints } from '../../config';
 import Alert from '../utils/Alert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
-import HeartIcon from '../../assets/icons/heart-solid.svg';
-import HeartOutlineIcon from '../../assets/icons/heart-regular.svg';
-import CommentIcon from '../../assets/icons/comment-regular.svg';
+import HeartIcon from '../../src/assets/icons/heart-solid.svg';
+import HeartOutlineIcon from '../../src/assets/icons/heart-regular.svg';
+import CommentIcon from '../../src/assets/icons/comment-regular.svg';
 import { REACT_APP_CLOUDFRONT_DOMAIN_NAME_POSTS } from '@env';
 
 const { width } = Dimensions.get('window');
@@ -96,7 +95,6 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
     const generateStaticMap = async () => {
       if (trailData?.coordinates && trailData.coordinates.length > 0) {
         try {
-          // Przekształć współrzędne i uprość trasę
           const coordinates = trailData.coordinates
             .sort((a, b) => a.order - b.order)
             .map((coord) => [coord.longitude, coord.latitude]);
@@ -108,7 +106,6 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
               index % Math.ceil(coordinates.length / 20) === 0
           );
 
-          // Pobierz trasę z API Mapbox
           const coordsString = simplifiedCoordinates.map((coord) => coord.join(",")).join(";");
           const directionsResponse = await fetch(
             `https://api.mapbox.com/directions/v5/mapbox/walking/${coordsString}?geometries=geojson&access_token=${process.env.PUBLIC_MAPBOX_ACCESS_TOKEN}`
@@ -116,7 +113,6 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
           const directionsData = await directionsResponse.json();
           const routeCoordinates = directionsData.routes[0].geometry.coordinates;
 
-          // Oblicz granice i środek mapy
           const bounds = routeCoordinates.reduce(
             (acc, coord) => ({
               minLng: Math.min(acc.minLng, coord[0]),
@@ -137,7 +133,6 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
             lat: (bounds.minLat + bounds.maxLat) / 2,
           };
 
-          // Oblicz zoom
           const latDiff = bounds.maxLat - bounds.minLat;
           const lngDiff = bounds.maxLng - bounds.minLng;
           const maxDiff = Math.max(latDiff, lngDiff);
@@ -145,8 +140,7 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
             14,
             Math.max(9, Math.floor(11 - Math.log2(maxDiff * 111)))
           );
-
-          // Wygeneruj URL mapy statycznej
+          
           const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/static/geojson(%7B%22type%22%3A%22Feature%22%2C%22properties%22%3A%7B%22stroke%22%3A%22%23ff0000%22%2C%22stroke-width%22%3A2%7D%2C%22geometry%22%3A%7B%22type%22%3A%22LineString%22%2C%22coordinates%22%3A${JSON.stringify(
             routeCoordinates
           )}%7D%7D)/${center.lng},${center.lat},${zoom}/600x300@2x?access_token=${process.env.PUBLIC_MAPBOX_ACCESS_TOKEN}`;
@@ -161,7 +155,6 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
     generateStaticMap();
   }, [trailData]);
 
-  // Przygotuj tablicę wszystkich zdjęć (mapa + zdjęcia z activity)
   const allImages = useMemo(() => {
     const images = [];
     if (staticMapUrl) {
@@ -176,7 +169,7 @@ const ActivityPost = ({ activity, onLike, onComment, currentUserId }) => {
     return images;
   }, [staticMapUrl, activity.picturesNames]);
 
-  const imageWidth = width - 32; // szerokość zdjęcia (szerokość ekranu - padding)
+  const imageWidth = width - 32;
 
   const handleScroll = (event) => {
     const contentOffset = event.nativeEvent.contentOffset.x;
