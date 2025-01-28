@@ -111,7 +111,7 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                 id="publishWithPost"
                 checked={publishWithPost}
                 onChange={(e) => setPublishWithPost(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-primary focus:ring-primary"
               />
               <label
                 htmlFor="publishWithPost"
@@ -230,7 +230,7 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={isSubmitDisabled}
             >
               {isLoading ? "Publikowanie..." : "Opublikuj"}
