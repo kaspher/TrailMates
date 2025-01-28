@@ -45,6 +45,8 @@ namespace TrailMates.Infrastructure.Migrations.Core
                     Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
                     TrailId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TrailCompletionId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsTrailCompletion = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>

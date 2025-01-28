@@ -29,7 +29,7 @@ export const sections = [
     buttonText: "Eksploruj szlaki",
     image: "map.png",
     textColor: "text-white",
-    imageHeight: "h-[600px]",
+    imageHeight: "h-[300px] md:h-[400px]",
   },
   {
     key: "events",
@@ -64,6 +64,6 @@ export const sections = [
     buttonText: "Pobierz tutaj!",
     image: "appScreenshot.png",
     textColor: "text-white",
-    imageHeight: "h-[600px]",
+    imageHeight: "h-[400px] md:h-[600px]",
   },
 ];

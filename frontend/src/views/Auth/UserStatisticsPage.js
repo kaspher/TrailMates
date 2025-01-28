@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getUserById } from "../../services/usersApi";
 import { fetchUserTrails } from "../../services/trailsApi";
 import { fetchUserEvents } from "../../services/eventsApi";
+import { fetchTrailCompletions, getTrailById } from "../../services/trailsApi";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import loadingGif from "../../assets/img/loading.gif";
@@ -33,6 +34,7 @@ const UserStatisticsPage = () => {
   const [user, setUser] = useState(null);
   const [userTrails, setUserTrails] = useState([]);
   const [userEvents, setUserEvents] = useState([]);
+  const [trailCompletions, setTrailCompletions] = useState([]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -41,13 +43,38 @@ const UserStatisticsPage = () => {
         const userData = await getUserById(userId);
         setUser(userData);
 
-        const [trailsData, eventsData] = await Promise.all([
+        const [trailsData, eventsData, completionsData] = await Promise.all([
           fetchUserTrails(userId),
           fetchUserEvents(userId),
+          fetchTrailCompletions(userId),
         ]);
 
         setUserTrails(trailsData);
         setUserEvents(eventsData);
+
+        const completionDetails = await Promise.all(
+          completionsData.map(async (completion) => {
+            try {
+              const trailDetails = await getTrailById(completion.trailId);
+              return {
+                ...completion,
+                trailName: trailDetails.name,
+                trailType: trailDetails.type,
+                trailOwnerFullName: trailDetails.ownerFullName,
+              };
+            } catch (error) {
+              console.error(`Error fetching trail details: ${error}`);
+              return {
+                ...completion,
+                trailName: "Unknown",
+                trailType: "Unknown",
+                trailOwnerFullName: "Unknown",
+              };
+            }
+          })
+        );
+
+        setTrailCompletions(completionDetails);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
@@ -120,8 +147,15 @@ const UserStatisticsPage = () => {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600">{trail.description}</p>
-                  <div className="flex space-x-4 mt-2 text-sm text-gray-500">
-                    <span>Typ: {trailTypeTranslations[trail.type]}</span>
+                  <div className="flex items-center justify-between mt-2">
+                    {trail.time && (
+                      <span className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full text-xs">
+                        Czas: {trail.time}
+                      </span>
+                    )}
+                    <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
+                      {trailTypeTranslations[trail.type]}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -167,6 +201,41 @@ const UserStatisticsPage = () => {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+        <h2 className="text-xl font-semibold mb-4 text-dark">
+          Ukończenia tras
+        </h2>
+        {trailCompletions.length === 0 ? (
+          <p className="text-gray-500">Brak ukończonych tras.</p>
+        ) : (
+          <div className="space-y-4">
+            {trailCompletions.map((completion) => (
+              <div
+                key={completion.id}
+                className="border rounded-lg p-4 bg-gray-50"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-dark">
+                    {completion.trailName}
+                  </h3>
+                  <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
+                    {trailTypeTranslations[completion.trailType]}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-600 mt-2">
+                  <span className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full text-xs">
+                    Czas: {completion.time}
+                  </span>
+                  <span className="bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full text-xs">
+                    Autor trasy: {completion.trailOwnerFullName}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaImage } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
 import { createActivity } from "../../services/activitiesApi";
+import { updateTrailVisibility } from "../../services/trailsApi";
 import { useNavigate } from "react-router-dom";
 import loadingGif from "../../assets/img/loading.gif";
 
@@ -9,6 +10,7 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [publishWithPost, setPublishWithPost] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -39,31 +41,57 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const submitData = new FormData();
-    submitData.append("title", formData.title);
-    submitData.append("description", formData.description);
-    submitData.append("ownerId", user.id);
-    submitData.append("trailId", trail.id);
-
-    images.forEach((image) => {
-      submitData.append("pictures", image);
-    });
-
     try {
-      const activityId = await createActivity(submitData);
+      if (publishWithPost) {
+        const submitData = new FormData();
+        submitData.append("title", formData.title);
+        submitData.append("description", formData.description);
+        submitData.append("ownerId", user.id);
+        submitData.append("trailId", trail.id);
+        submitData.append("isTrailCompletion", trail.isTrailCompletion);
+
+        if (trail.isTrailCompletion) {
+          submitData.append("trailCompletionId", trail.trailCompletionId);
+        } else {
+          submitData.append(
+            "trailCompletionId",
+            "00000000-0000-0000-0000-000000000000"
+          );
+        }
+
+        images.forEach((image) => {
+          submitData.append("pictures", image);
+        });
+
+        const activityId = await createActivity(submitData);
+        navigate(`/blog/${activityId}`);
+      } else {
+        await updateTrailVisibility(trail.id);
+      }
+
       onClose();
       setFormData({ title: "", description: "" });
       setImages([]);
       setPreviewImages([]);
-      navigate(`/blog/${activityId}`);
     } catch (error) {
-      console.error("Error creating activity:", error);
+      console.error("Error publishing:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   if (!isOpen) return null;
+
+  const isPublic = trail.visibility === "Public";
+  const isDisabled = !publishWithPost && !isPublic;
+  const disabledClass = isDisabled
+    ? "opacity-50 pointer-events-none"
+    : "opacity-100 pointer-events-auto";
+
+  const isSubmitDisabled =
+    isLoading ||
+    (publishWithPost &&
+      (formData.title.length < 1 || formData.description.length < 10));
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
@@ -73,12 +101,28 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
             <img src={loadingGif} alt="Loading..." className="w-16 h-16" />
           </div>
         )}
-        <h2 className="text-2xl font-bold mb-4">
-          Zapisz i opublikuj aktywność
-        </h2>
+        <h2 className="text-2xl font-bold mb-4">Publikacja trasy</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          {!isPublic && (
+            <div className="flex items-center space-x-2 mb-4">
+              <input
+                type="checkbox"
+                id="publishWithPost"
+                checked={publishWithPost}
+                onChange={(e) => setPublishWithPost(e.target.checked)}
+                className="rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="publishWithPost"
+                className="text-sm font-medium text-gray-700"
+              >
+                Opublikuj z postem
+              </label>
+            </div>
+          )}
+
+          <div className={`transition-opacity duration-300 ${disabledClass}`}>
             <label className="block text-sm font-medium text-gray-700">
               Tytuł
             </label>
@@ -89,11 +133,19 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                 setFormData({ ...formData, title: e.target.value })
               }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              required
+              required={publishWithPost || isPublic}
+              disabled={isDisabled}
             />
+            <p
+              className={`text-sm mt-1 ${
+                formData.title.length < 1 ? "text-red-500" : "text-green-500"
+              }`}
+            >
+              Tytuł musi mieć co najmniej 1 znak
+            </p>
           </div>
 
-          <div>
+          <div className={`transition-opacity duration-300 ${disabledClass}`}>
             <label className="block text-sm font-medium text-gray-700">
               Opis
             </label>
@@ -105,11 +157,22 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
               rows="4"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               placeholder="Dodaj opis swojej aktywności..."
-              required
+              required={publishWithPost || isPublic}
+              disabled={isDisabled}
             />
+            <p
+              className={`text-sm mt-1 ${
+                formData.description.length < 10
+                  ? "text-red-500"
+                  : "text-green-500"
+              }`}
+            >
+              Opis musi mieć co najmniej 10 znaków (
+              {formData.description.length}/10)
+            </p>
           </div>
 
-          <div>
+          <div className={`transition-opacity duration-300 ${disabledClass}`}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Zdjęcia
             </label>
@@ -125,18 +188,26 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                     type="button"
                     onClick={() => removeImage(index)}
                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 hover:bg-red-600"
+                    disabled={isDisabled}
                   >
                     ×
                   </button>
                 </div>
               ))}
-              <label className="flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500">
+              <label
+                className={`flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg ${
+                  isDisabled
+                    ? "cursor-not-allowed"
+                    : "cursor-pointer hover:border-blue-500"
+                }`}
+              >
                 <input
                   type="file"
                   multiple
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
+                  disabled={isDisabled}
                 />
                 <div className="text-center">
                   <FaImage className="mx-auto text-gray-400 text-2xl" />
@@ -159,8 +230,8 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-green-400"
-              disabled={isLoading}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={isSubmitDisabled}
             >
               {isLoading ? "Publikowanie..." : "Opublikuj"}
             </button>

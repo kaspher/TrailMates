@@ -4,7 +4,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import { FaComment, FaHeart } from "react-icons/fa";
 import { TrashIcon } from "../../assets/icons/trash";
-import CommonStyles from "./CommonStyles";
 import loadingGif from "../../assets/img/loading.gif";
 import {
   getAllActivities,
@@ -16,6 +15,7 @@ import {
 import { getTrailById } from "../../services/trailsApi";
 import { getUserById } from "../../services/usersApi";
 import { useAuth } from "../../hooks/useAuth";
+import { calculateDistance } from "../../utils/trailsUtils";
 
 const BlogPage = () => {
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ const BlogPage = () => {
         }))
       );
     } catch (error) {
-      console.error('Error deleting comment:', error);
+      console.error("Error deleting comment:", error);
     }
   };
 
@@ -203,6 +203,26 @@ const BlogPage = () => {
                 trailData.coordinates[
                   Math.floor(trailData.coordinates.length / 2)
                 ];
+              const distance = calculateDistance(trailData.coordinates);
+              const isTrailCompletion = activity.isTrailCompletion;
+
+              let timeToUse;
+              if (isTrailCompletion) {
+                console.log(activity);
+                console.log(trailData.trailCompletions);
+                const userCompletion = trailData.trailCompletions?.find(
+                  (completion) => completion.id === activity.trailCompletionId
+                );
+                timeToUse = userCompletion?.time || trailData.time;
+              } else {
+                timeToUse = trailData.time;
+              }
+
+              const [hours, minutes, seconds] = timeToUse
+                .split(":")
+                .map(Number);
+              const timeInHours = hours + minutes / 60 + seconds / 3600;
+              const pace = distance / timeInHours;
 
               return {
                 id: activity.id,
@@ -232,9 +252,13 @@ const BlogPage = () => {
                   lng: coord.longitude,
                   lat: coord.latitude,
                 })),
+                distance: distance,
+                time: timeToUse,
+                pace: `${pace.toFixed(2)} km/h`,
                 trailId: activity.trailId,
                 type: trailData.type,
                 visibility: trailData.visibility,
+                isTrailCompletion,
               };
             } catch (error) {
               console.error(
@@ -264,24 +288,7 @@ const BlogPage = () => {
         try {
           const coordinates = post.route.map((coord) => [coord.lng, coord.lat]);
 
-          const simplifiedCoordinates = coordinates.filter(
-            (_, index) =>
-              index === 0 ||
-              index === coordinates.length - 1 ||
-              index % Math.ceil(coordinates.length / 20) === 0
-          );
-
-          const coordsString = simplifiedCoordinates
-            .map((coord) => coord.join(","))
-            .join(";");
-          const directionsResponse = await fetch(
-            `https://api.mapbox.com/directions/v5/mapbox/walking/${coordsString}?geometries=geojson&access_token=${mapboxgl.accessToken}`
-          );
-          const directionsData = await directionsResponse.json();
-          const routeCoordinates =
-            directionsData.routes[0].geometry.coordinates;
-
-          const bounds = routeCoordinates.reduce(
+          const bounds = coordinates.reduce(
             (acc, coord) => ({
               minLng: Math.min(acc.minLng, coord[0]),
               maxLng: Math.max(acc.maxLng, coord[0]),
@@ -289,28 +296,33 @@ const BlogPage = () => {
               maxLat: Math.max(acc.maxLat, coord[1]),
             }),
             {
-              minLng: routeCoordinates[0][0],
-              maxLng: routeCoordinates[0][0],
-              minLat: routeCoordinates[0][1],
-              maxLat: routeCoordinates[0][1],
+              minLng: coordinates[0][0],
+              maxLng: coordinates[0][0],
+              minLat: coordinates[0][1],
+              maxLat: coordinates[0][1],
             }
           );
+
+          const lngDiff = bounds.maxLng - bounds.minLng;
+          const latDiff = bounds.maxLat - bounds.minLat;
+          const padding = 0.15;
+
+          bounds.minLng -= lngDiff * padding;
+          bounds.maxLng += lngDiff * padding;
+          bounds.minLat -= latDiff * padding;
+          bounds.maxLat += latDiff * padding;
 
           const center = {
             lng: (bounds.minLng + bounds.maxLng) / 2,
             lat: (bounds.minLat + bounds.maxLat) / 2,
           };
 
-          const latDiff = bounds.maxLat - bounds.minLat;
-          const lngDiff = bounds.maxLng - bounds.minLng;
-          const maxDiff = Math.max(latDiff, lngDiff);
-          const zoom = Math.min(
-            14,
-            Math.max(9, Math.floor(11 - Math.log2(maxDiff * 111)))
-          );
+          const latZoom = Math.log2(360 / latDiff) - 2.5;
+          const lngZoom = Math.log2(360 / lngDiff) - 2.5;
+          const zoom = Math.min(latZoom, lngZoom);
 
           const staticMapUrl = `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/static/geojson(%7B%22type%22%3A%22Feature%22%2C%22properties%22%3A%7B%22stroke%22%3A%22%23ff0000%22%2C%22stroke-width%22%3A2%7D%2C%22geometry%22%3A%7B%22type%22%3A%22LineString%22%2C%22coordinates%22%3A${JSON.stringify(
-            routeCoordinates
+            coordinates
           )}%7D%7D)/${center.lng},${
             center.lat
           },${zoom}/600x300@2x?access_token=${mapboxgl.accessToken}`;
@@ -333,7 +345,7 @@ const BlogPage = () => {
           <img src={loadingGif} alt="Loading..." className="w-64 h-64" />
         </div>
       ) : (
-        <CommonStyles>
+        <div className="max-w-3xl mx-auto p-5">
           {posts.map((post) => (
             <div
               key={post.id}
@@ -352,6 +364,11 @@ const BlogPage = () => {
                       <span>{post.user.date}</span>
                       <span className="text-blue-500">#{post.type}</span>
                       <span>{post.visibility}</span>
+                      {post.isTrailCompletion && (
+                        <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
+                          Kolejne przejście
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center space-x-1">
                       <svg
@@ -391,15 +408,15 @@ const BlogPage = () => {
                 <p className="text-gray-600 mb-4">{post.description}</p>
                 <div className="flex justify-between mb-4">
                   <div className="text-center">
-                    <strong>4.42 km</strong>
+                    <strong>{post.distance} km</strong>
                     <span className="block text-sm text-gray-500">Dystans</span>
                   </div>
                   <div className="text-center">
-                    <strong>8:35 /km</strong>
+                    <strong>{post.pace}</strong>
                     <span className="block text-sm text-gray-500">Tempo</span>
                   </div>
                   <div className="text-center">
-                    <strong>37m 55s</strong>
+                    <strong>{post.time}</strong>
                     <span className="block text-sm text-gray-500">Czas</span>
                   </div>
                 </div>
@@ -419,17 +436,24 @@ const BlogPage = () => {
                 )}
               </div>
               <div className="flex items-center justify-between mb-4">
-                <button
-                  onClick={() => handleLike(post.id)}
-                  className={`flex items-center space-x-1 ${
-                    post.likes.some((like) => like.userId === user?.id)
-                      ? "text-red-500"
-                      : "text-gray-500"
-                  }`}
-                >
-                  <FaHeart />
-                  <span>{post.likes.length}</span>
-                </button>
+                <div className="relative group">
+                  <button
+                    onClick={() => handleLike(post.id)}
+                    className={`flex items-center space-x-1 ${
+                      post.likes.some((like) => like.userId === user?.id)
+                        ? "text-red-500"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    <FaHeart />
+                    <span>{post.likes.length}</span>
+                  </button>
+                  {!user && (
+                    <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-sm text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      Zaloguj się by zareagować
+                    </span>
+                  )}
+                </div>
                 <button
                   onClick={() => toggleComments(post.id)}
                   className="flex items-center space-x-2 text-gray-500"
@@ -442,90 +466,103 @@ const BlogPage = () => {
               {expandedPostId === post.id && (
                 <div className="mt-4">
                   <div className="max-h-60 overflow-y-auto mb-4">
-                    {post.comments
-                      .sort(
-                        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-                      )
-                      .map((comment, index) => (
-                        <div
-                          key={index}
-                          className="mb-2 p-2 bg-gray-50 rounded"
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center">
-                              <img
-                                src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${comment.userId}`}
-                                alt="User"
-                                className="w-6 h-6 rounded-full mr-2 cursor-pointer hover:opacity-80"
-                                onClick={() =>
-                                  handleAvatarClick(comment.userId)
-                                }
-                              />
-                              <span
-                                className="font-medium text-sm text-blue-600 hover:text-blue-800 cursor-pointer mr-2"
-                                onClick={() =>
-                                  handleAvatarClick(comment.userId)
-                                }
-                              >
-                                {commentAuthors[comment.userId] || "Użytkownik"}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                {formatDate(comment.createdAt, !!comment.id)}
-                              </span>
+                    {post.comments.length === 0 ? (
+                      <div className="text-center text-gray-500 py-1">
+                        Brak komentarzy
+                      </div>
+                    ) : (
+                      post.comments
+                        .sort(
+                          (a, b) =>
+                            new Date(b.createdAt) - new Date(a.createdAt)
+                        )
+                        .map((comment, index) => (
+                          <div
+                            key={index}
+                            className="mb-2 p-2 bg-gray-50 rounded"
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center">
+                                <img
+                                  src={`${process.env.REACT_APP_CLOUDFRONT_DOMAIN_NAME_AVATARS}${comment.userId}`}
+                                  alt="User"
+                                  className="w-6 h-6 rounded-full mr-2 cursor-pointer hover:opacity-80"
+                                  onClick={() =>
+                                    handleAvatarClick(comment.userId)
+                                  }
+                                />
+                                <span
+                                  className="font-medium text-sm text-blue-600 hover:text-blue-800 cursor-pointer mr-2"
+                                  onClick={() =>
+                                    handleAvatarClick(comment.userId)
+                                  }
+                                >
+                                  {commentAuthors[comment.userId] ||
+                                    "Użytkownik"}
+                                </span>
+                                <span className="text-sm text-gray-600">
+                                  {formatDate(comment.createdAt, !!comment.id)}
+                                </span>
+                              </div>
+                              {user?.id === comment.userId && (
+                                <button
+                                  onClick={() =>
+                                    handleDeleteComment(comment.id, post.id)
+                                  }
+                                  className="text-red-500 hover:text-red-700 p-1"
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                              )}
                             </div>
-                            {user?.id === comment.userId && (
-                              <button
-                                onClick={() => handleDeleteComment(comment.id, post.id)}
-                                className="text-red-500 hover:text-red-700 p-1"
-                              >
-                                <TrashIcon className="h-4 w-4" />
-                              </button>
-                            )}
+                            <p>{comment.content}</p>
                           </div>
-                          <p>{comment.content}</p>
-                        </div>
-                      ))}
+                        ))
+                    )}
                   </div>
-
-                  {!showCommentInput ? (
-                    <button
-                      onClick={() => setShowCommentInput(true)}
-                      className="flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors"
-                    >
-                      <FaComment />
-                      <span>Dodaj komentarz</span>
-                    </button>
-                  ) : (
-                    <div className="mt-4 flex space-x-2 bg-white p-2">
-                      <input
-                        type="text"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Dodaj komentarz..."
-                        className="flex-1 p-2 border rounded"
-                        autoFocus
-                      />
-                      <button
-                        onClick={() => {
-                          handleComment(post.id);
-                          setShowCommentInput(false);
-                        }}
-                        disabled={!newComment.trim()}
-                        className={`px-4 py-2 text-white rounded transition-colors ${
-                          newComment.trim()
-                            ? "bg-blue-500 hover:bg-blue-600"
-                            : "bg-gray-300 cursor-not-allowed"
-                        }`}
-                      >
-                        Dodaj
-                      </button>
+                  {user && (
+                    <div>
+                      {!showCommentInput ? (
+                        <button
+                          onClick={() => setShowCommentInput(true)}
+                          className="flex items-center space-x-2 text-blue-500 hover:text-blue-600 transition-colors"
+                        >
+                          <FaComment />
+                          <span>Dodaj komentarz</span>
+                        </button>
+                      ) : (
+                        <div className="mt-4 flex space-x-2 bg-white p-2">
+                          <input
+                            type="text"
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Dodaj komentarz..."
+                            className="flex-1 p-2 border rounded"
+                            autoFocus
+                          />
+                          <button
+                            onClick={() => {
+                              handleComment(post.id);
+                              setShowCommentInput(false);
+                            }}
+                            disabled={!newComment.trim()}
+                            className={`px-4 py-2 text-white rounded transition-colors ${
+                              newComment.trim()
+                                ? "bg-blue-500 hover:bg-blue-600"
+                                : "bg-gray-300 cursor-not-allowed"
+                            }`}
+                          >
+                            Dodaj
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
               )}
             </div>
           ))}
-        </CommonStyles>
+        </div>
       )}
     </div>
   );

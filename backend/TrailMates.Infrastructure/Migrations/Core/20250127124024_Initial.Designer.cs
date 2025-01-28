@@ -14,7 +14,7 @@ using TrailMates.Infrastructure.Common.Persistence;
 namespace TrailMates.Infrastructure.Migrations.Core
 {
     [DbContext(typeof(CoreDbContext))]
-    [Migration("20250118184006_Initial")]
+    [Migration("20250127124024_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -42,6 +42,9 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<bool>("IsTrailCompletion")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
@@ -49,6 +52,9 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("TrailCompletionId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TrailId")
                         .HasColumnType("uuid");

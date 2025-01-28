@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using TrailMates.Application.Features.Activities.Commands.AddActivity;
 using Microsoft.AspNetCore.Mvc;
+using TrailMates.Application.Features.Activities.Commands.AddActivity;
 
 namespace TrailMates.Application.Features.Activities.Commands.Contracts;
 
@@ -10,7 +10,9 @@ public record AddActivityRequest(
     string Description,
     Guid OwnerId,
     Guid TrailId,
-    [FromForm(Name = "pictures")] List<IFormFile> Pictures
+    [FromForm(Name = "pictures")] List<IFormFile> Pictures,
+    Guid TrailCompletionId = new(),
+    bool IsTrailCompletion = false
 )
 {
     public AddActivityCommand ToCommand() => new(this);
@@ -20,7 +22,7 @@ public record AddActivityRequest(
         public Validator()
         {
             RuleFor(x => x.Title).NotEmpty();
-            RuleFor(x => x.Description).NotEmpty().MinimumLength(20);
+            RuleFor(x => x.Description).NotEmpty().MinimumLength(10);
             RuleFor(x => x.OwnerId).NotEmpty();
             RuleFor(x => x.TrailId).NotEmpty();
             RuleFor(x => x.Pictures)

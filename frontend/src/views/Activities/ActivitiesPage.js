@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
-import { fetchUserTrails } from "../../services/trailsApi";
+import {
+  fetchUserTrails,
+  getTrailById,
+  fetchTrailCompletions,
+} from "../../services/trailsApi";
+import { getUserById } from "../../services/usersApi";
 import { calculateDistance } from "../../utils/trailsUtils";
 import {
   trailTypeTranslations,
@@ -13,6 +18,7 @@ import EditTrailModal from "../../components/Activities/EditTrailModal";
 const ActivitiesPage = () => {
   const { user } = useAuth();
   const [trails, setTrails] = useState([]);
+  const [completedTrails, setCompletedTrails] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({
@@ -24,31 +30,57 @@ const ActivitiesPage = () => {
   const [selectedTrail, setSelectedTrail] = useState(null);
 
   useEffect(() => {
-    const fetchTrails = async () => {
+    const fetchAllTrails = async () => {
       if (!user) return;
 
       try {
         setLoading(true);
+
         const trailsData = await fetchUserTrails(user.id);
         const trailsWithStats = trailsData.map((trail) => {
           const distance = calculateDistance(trail.coordinates);
-          const time = "1:30:00";
+          const time = trail.time;
           const [hours, minutes, seconds] = time.split(":").map(Number);
-          const timeInMinutes = hours * 60 + minutes + seconds / 60;
-          const pace = timeInMinutes / distance;
-          const paceMinutes = Math.floor(pace);
-          const paceSeconds = Math.round((pace - paceMinutes) * 60);
+          const timeInHours = hours + minutes / 60 + seconds / 3600;
+          const pace = distance / timeInHours;
 
           return {
             ...trail,
             distance: distance,
             time,
-            pace: `${paceMinutes}:${paceSeconds
-              .toString()
-              .padStart(2, "0")}/km`,
+            pace: `${pace.toFixed(2)} km/h`,
+            isOwned: true,
           };
         });
+
+        const completionsData = await fetchTrailCompletions(user.id);
+        const completedTrailsData = await Promise.all(
+          completionsData.map(async (completion) => {
+            const trailData = await getTrailById(completion.trailId);
+            const distance = calculateDistance(trailData.coordinates);
+            const [hours, minutes, seconds] = completion.time
+              .split(":")
+              .map(Number);
+            const timeInHours = hours + minutes / 60 + seconds / 3600;
+            const pace = distance / timeInHours;
+
+            const authorData = await getUserById(trailData.ownerId);
+            const authorFullName = `${authorData.firstName} ${authorData.lastName}`;
+
+            return {
+              ...trailData,
+              distance: distance,
+              time: completion.time,
+              pace: `${pace.toFixed(2)} km/h`,
+              isOwned: false,
+              authorFullName,
+              trailCompletionId: completion.id,
+            };
+          })
+        );
+
         setTrails(trailsWithStats);
+        setCompletedTrails(completedTrailsData);
       } catch (error) {
         console.error("Error fetching trails:", error);
       } finally {
@@ -56,7 +88,7 @@ const ActivitiesPage = () => {
       }
     };
 
-    fetchTrails();
+    fetchAllTrails();
   }, [user]);
 
   const handleSort = (key) => {
@@ -67,7 +99,8 @@ const ActivitiesPage = () => {
     setSortConfig({ key, direction });
   };
 
-  const filteredTrails = trails.filter(
+  const allTrails = [...trails, ...completedTrails];
+  const filteredTrails = allTrails.filter(
     (trail) =>
       trail.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       trail.type.toLowerCase().includes(searchQuery.toLowerCase())
@@ -91,7 +124,16 @@ const ActivitiesPage = () => {
   };
 
   const handlePublishClick = (trail) => {
-    setSelectedTrail(trail);
+    const completedTrail = !trail.isOwned
+      ? completedTrails.find((ct) => ct.id === trail.id)
+      : null;
+
+    setSelectedTrail({
+      ...trail,
+      isTrailCompletion: !trail.isOwned,
+      trailCompletionId: completedTrail?.trailCompletionId,
+      time: completedTrail?.time || trail.time,
+    });
     setIsPublishModalOpen(true);
   };
 
@@ -256,13 +298,22 @@ const ActivitiesPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedTrails.map((trail, index) => (
+                {sortedTrails.map((trail) => (
                   <tr
-                    key={trail.id}
-                    className="hover:bg-gray-50 transition-colors"
+                    key={`${trail.id}-${
+                      !trail.isOwned ? "completion" : "original"
+                    }`}
+                    className={`hover:bg-gray-50 transition-colors ${
+                      !trail.isOwned ? "bg-gray-50" : ""
+                    }`}
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {trail.name}
+                      {!trail.isOwned && (
+                        <div className="text-xs text-gray-500">
+                          Autorstwa: {trail.ownerFullName}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                       {trailTypeTranslations[trail.type] || trail.type}
@@ -282,33 +333,37 @@ const ActivitiesPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex justify-center items-center space-x-2">
-                        <button
-                          onClick={() => handleEditClick(trail)}
-                          className="bg-blue-100 text-blue-600 hover:bg-blue-200 px-4 py-2 rounded-lg transition-colors w-24"
-                        >
-                          Edytuj
-                        </button>
-                        <div className="relative group">
-                          <button
-                            className={`px-4 py-2 rounded-lg transition-colors w-24 ${
-                              trail.visibility === "Private"
-                                ? "bg-red-100 text-red-600 hover:bg-red-200"
-                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            }`}
-                            onClick={() => {
-                              if (trail.visibility === "Private") {
-                                // handle delete
-                              }
-                            }}
-                          >
-                            Usuń
-                          </button>
-                          {trail.visibility !== "Private" && (
-                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                              Nie możesz usunąć publicznej trasy
+                        {trail.isOwned ? (
+                          <>
+                            <button
+                              onClick={() => handleEditClick(trail)}
+                              className="bg-blue-100 text-blue-600 hover:bg-blue-200 px-4 py-2 rounded-lg transition-colors w-24"
+                            >
+                              Edytuj
+                            </button>
+                            <div className="relative group">
+                              <button
+                                className={`px-4 py-2 rounded-lg transition-colors w-24 ${
+                                  trail.visibility === "Private"
+                                    ? "bg-red-100 text-red-600 hover:bg-red-200"
+                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                }`}
+                                onClick={() => {
+                                  if (trail.visibility === "Private") {
+                                    // handle delete
+                                  }
+                                }}
+                              >
+                                Usuń
+                              </button>
+                              {trail.visibility !== "Private" && (
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                  Nie możesz usunąć publicznej trasy
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                          </>
+                        ) : null}
                         <button
                           onClick={() => handlePublishClick(trail)}
                           className="bg-green-200 text-green-700 hover:bg-green-300 px-4 py-2 rounded-lg transition-colors w-24"

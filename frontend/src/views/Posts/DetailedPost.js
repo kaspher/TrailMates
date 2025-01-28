@@ -65,6 +65,27 @@ const DetailedPost = () => {
           await fetchCommentAuthors(activity.comments);
         }
 
+        let timeToUse;
+        if (activity.isTrailCompletion) {
+          const userCompletion = trailData.trailCompletions?.find(
+            (completion) => completion.id === activity.trailCompletionId
+          );
+          timeToUse = userCompletion?.time || trailData.time;
+        } else {
+          timeToUse = trailData.time;
+        }
+
+        const formattedCoordinates = trailData.coordinates.map((coord) => ({
+          latitude: coord.latitude,
+          longitude: coord.longitude,
+        }));
+        const distance = calculateDistance(formattedCoordinates);
+        setDistance(distance);
+
+        const [hours, minutes, seconds] = timeToUse.split(":").map(Number);
+        const timeInHours = hours + minutes / 60 + seconds / 3600;
+        const pace = distance / timeInHours;
+
         const formattedPost = {
           id: activity.id,
           title: activity.title,
@@ -84,19 +105,14 @@ const DetailedPost = () => {
           location: `${trailData.coordinates[0].latitude.toFixed(
             3
           )}°N, ${trailData.coordinates[0].longitude.toFixed(3)}°E`,
-          pace: "3:45",
-          duration: "1:30:00",
+          time: timeToUse,
+          pace: `${pace.toFixed(2)} km/h`,
+          isTrailCompletion: activity.isTrailCompletion,
         };
 
         setPost(formattedPost);
 
         if (trailData.coordinates && trailData.coordinates.length > 0) {
-          const formattedCoordinates = trailData.coordinates.map((coord) => ({
-            latitude: coord.latitude,
-            longitude: coord.longitude,
-          }));
-          setDistance(calculateDistance(formattedCoordinates));
-
           const coordinates = trailData.coordinates.map((coord) => [
             coord.longitude,
             coord.latitude,
@@ -325,11 +341,11 @@ const DetailedPost = () => {
               <div className="text-sm text-gray-500">Dystans</div>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg shadow-sm">
-              <div className="text-xl font-bold">{post.pace} /km</div>
+              <div className="text-xl font-bold">{post.pace}</div>
               <div className="text-sm text-gray-500">Tempo</div>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-lg shadow-sm">
-              <div className="text-xl font-bold">{post.duration}</div>
+              <div className="text-xl font-bold">{post.time}</div>
               <div className="text-sm text-gray-500">Czas</div>
             </div>
           </div>

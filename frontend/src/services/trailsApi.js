@@ -58,6 +58,19 @@ export const fetchPrivateUserTrails = async (userId) => {
   return await response.json();
 };
 
+export const fetchTrailCompletions = async (userId) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/trails/completions?UserId=${userId}`
+    );
+    if (!response.ok) throw new Error("Failed to fetch trail completions");
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching trail completions:", error);
+    throw error;
+  }
+};
+
 export const updateTrail = async (trailId, data) => {
   const response = await fetch(`${BASE_URL}/trails/${trailId}`, {
     method: "PUT",
@@ -68,6 +81,16 @@ export const updateTrail = async (trailId, data) => {
       name: data.name,
       type: data.type,
     }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const updateTrailVisibility = async (trailId) => {
+  const response = await fetch(`${BASE_URL}/trails/${trailId}/visibility`, {
+    method: "PUT",
   });
 
   if (!response.ok) {

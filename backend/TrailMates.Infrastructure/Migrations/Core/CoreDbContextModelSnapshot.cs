@@ -39,6 +39,9 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<bool>("IsTrailCompletion")
+                        .HasColumnType("boolean");
+
                     b.Property<Guid>("OwnerId")
                         .HasColumnType("uuid");
 
@@ -46,6 +49,9 @@ namespace TrailMates.Infrastructure.Migrations.Core
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("TrailCompletionId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TrailId")
                         .HasColumnType("uuid");
