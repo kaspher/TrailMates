@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using TrailMates.Application.Abstractions.Repositories;
-using TrailMates.Application.Features.Trails.Commands.AddTrail;
 using TrailMates.Application.Features.Trails.Commands.Contracts;
 using TrailMates.Application.Mediator;
 using TrailMates.Domain.Entities.Trails;
