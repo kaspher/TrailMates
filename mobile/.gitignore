@@ -37,3 +37,6 @@ yarn-error.*
 
 # Secrets
 secrets.properties
+
+# Mapbox secrets
+android/secrets.properties
