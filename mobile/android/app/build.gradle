@@ -80,15 +80,6 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  */
 def jscFlavor = 'org.webkit:android-jsc:+'
 
-def keystoreFile = rootProject.file("secrets.properties")
-def properties = new Properties()
-
-if (keystoreFile.exists()) {
-    properties.load(new FileInputStream(keystoreFile))
-}
-
-def secretToken = properties.getProperty("MAPBOX_DOWNLOADS_TOKEN") ?: ""
-
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -102,7 +93,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
-        buildConfigField "String", "MAPBOX_DOWNLOADS_TOKEN", "\"${secretToken}\""
     }
     signingConfigs {
         debug {
@@ -159,10 +149,6 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
-    implementation "androidx.appcompat:appcompat:1.4.1"
-
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

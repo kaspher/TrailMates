@@ -154,8 +154,10 @@ export default function Trails({ route, navigation }) {
   const fetchTrailDetails = async (trailId) => {
     try {
       setIsFollowingUser(false);
+      hideNearbyList();
 
       const response = await fetch(endpoints.trailDetails(trailId));
+
       if (response.ok) {
         const data = await response.json();
         setSelectedTrail(data);
