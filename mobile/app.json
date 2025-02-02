@@ -11,7 +11,7 @@
       [
         "expo-background-fetch",
         {
-          "startOnBoot": true
+          "startOnBoot": false
         }
       ],
       [
@@ -48,7 +48,12 @@
       }
     },
     "web": {
-      "favicon": "./src/assets/favicon.png"
+      "favicon": "./assets/favicon.png"
+    },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
     }
   }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaImage } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
 import { createActivity } from "../../services/activitiesApi";
@@ -10,7 +10,14 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [publishWithPost, setPublishWithPost] = useState(false);
+  const [publishWithPost, setPublishWithPost] = useState(trail?.visibility === "Public" || false);
+
+  useEffect(() => {
+    if (trail?.visibility === "Public") {
+      setPublishWithPost(true);
+    }
+  }, [trail]);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -42,6 +49,7 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
     setIsLoading(true);
 
     try {
+      console.log(publishWithPost);
       if (publishWithPost) {
         const submitData = new FormData();
         submitData.append("title", formData.title);
@@ -110,7 +118,10 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                 type="checkbox"
                 id="publishWithPost"
                 checked={publishWithPost}
-                onChange={(e) => setPublishWithPost(e.target.checked)}
+                onChange={(e) => {
+                  console.log("Checkbox changed to:", e.target.checked);
+                  setPublishWithPost(e.target.checked);
+                }}
                 className="rounded border-gray-300 text-primary focus:ring-primary"
               />
               <label

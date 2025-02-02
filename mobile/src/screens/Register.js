@@ -93,9 +93,9 @@ const RegisterScreen = ({ navigation }) => {
               { label: 'Inne', value: 'Inne' },
             ]}
             setOpen={setOpen}
-            setValue={(value) => {
-              setGender(value);
-              setFormData({ ...formData, gender: value });
+            setValue={setGender}
+            onSelectItem={(item) => {
+              setFormData({ ...formData, gender: item.value });
             }}
             placeholder="Płeć"
             containerStyle={{ marginBottom: 16 }}

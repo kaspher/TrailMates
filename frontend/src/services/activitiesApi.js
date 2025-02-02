@@ -106,11 +106,12 @@ export const addComment = async (activityId, userId, content) => {
 
 export const createActivity = async (formData) => {
   try {
+    console.log(formData);
     const response = await fetch(`${BASE_URL}/activities`, {
       method: "POST",
       body: formData,
     });
-
+    console.log(response);
     if (!response.ok) {
       throw new Error("Failed to create activity");
     }
