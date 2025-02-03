@@ -1,15 +1,15 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from '../../src/screens/Home';
-import Trails from '../../src/screens/Trails';
-import Menu from '../../src/screens/Menu';
-import UserProfile from '../../src/screens/UserProfile';
-import Activities from '../../src/screens/Activities';
-import RecordedTrails from '../../src/screens/RecordedTrails';
-import HomeIcon from '../../src/assets/icons/house-solid.svg';
-import MapIcon from '../../src/assets/icons/map-solid.svg';
-import MenuIcon from '../../src/assets/icons/bars-solid.svg';
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Home from "../../src/screens/Home";
+import Trails from "../../src/screens/Trails";
+import Menu from "../../src/screens/Menu";
+import UserProfile from "../../src/screens/UserProfile";
+import Activities from "../../src/screens/Activities";
+import RecordedTrails from "../../src/screens/RecordedTrails";
+import HomeIcon from "../../src/assets/icons/house-solid.svg";
+import MapIcon from "../../src/assets/icons/map-solid.svg";
+import MenuIcon from "../../src/assets/icons/bars-solid.svg";
 
 const Tab = createBottomTabNavigator();
 const MenuStack = createNativeStackNavigator();
@@ -31,21 +31,21 @@ const TabNavigator = () => {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ _, color, size }) => {
-          if (route.name === 'Home') {
+          if (route.name === "Blog") {
             return <HomeIcon width={size} height={size} fill={color} />;
-          } else if (route.name === 'Trails') {
+          } else if (route.name === "Mapa") {
             return <MapIcon width={size} height={size} fill={color} />;
-          } else if (route.name === 'Menu') {
+          } else if (route.name === "Menu") {
             return <MenuIcon width={size} height={size} fill={color} />;
           }
         },
-        tabBarActiveTintColor: '#f2faf4',
-        tabBarActiveBackgroundColor: '#386641',
-        tabBarInactiveTintColor: '#386641',
+        tabBarActiveTintColor: "#f2faf4",
+        tabBarActiveBackgroundColor: "#386641",
+        tabBarInactiveTintColor: "#386641",
       })}
     >
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Trails" component={Trails} />
+      <Tab.Screen name="Blog" component={Home} />
+      <Tab.Screen name="Mapa" component={Trails} />
       <Tab.Screen name="Menu" component={MenuStackScreen} />
     </Tab.Navigator>
   );
