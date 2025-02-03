@@ -6,7 +6,7 @@ export const fetchTrails = async (bounds, filters) => {
 
   const { trailTypes } = filters;
   const activeTrailTypes = Object.entries(trailTypes)
-    .filter(([_, value]) => value)
+    .filter(([_, value]) => value) 
     .map(([key]) => key);
 
   const trailTypesQuery = activeTrailTypes
@@ -15,7 +15,8 @@ export const fetchTrails = async (bounds, filters) => {
 
   try {
     const response = await fetch(
-      `${BASE_URL}/trails?MinimumLatitude=${_sw.lat}&MaximumLatitude=${_ne.lat}&MinimumLongitude=${_sw.lng}&MaximumLongitude=${_ne.lng}&${trailTypesQuery}&Visibility=Public`
+      `${BASE_URL}/trails?MinimumLatitude=${_sw.lat}&MaximumLatitude=${_ne.lat}
+      &MinimumLongitude=${_sw.lng}&MaximumLongitude=${_ne.lng}&${trailTypesQuery}&Visibility=Public`
     );
     if (!response.ok) throw new Error("Failed to fetch trails");
     return await response.json();
@@ -49,6 +50,18 @@ export const fetchUserTrails = async (userId) => {
 export const fetchPrivateUserTrails = async (userId) => {
   const response = await fetch(
     `${BASE_URL}/trails?UserId=${userId}&Visibility=Private`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const fetchPublicUserTrails = async (userId) => {
+  const response = await fetch(
+    `${BASE_URL}/trails?UserId=${userId}&Visibility=Public`
   );
 
   if (!response.ok) {

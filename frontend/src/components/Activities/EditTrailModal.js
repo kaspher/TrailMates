@@ -26,18 +26,17 @@ const EditTrailModal = ({ isOpen, onClose, trail, user, setTrails }) => {
       const trailsData = await fetchPrivateUserTrails(user.id);
       const trailsWithStats = trailsData.map((trail) => {
         const distance = calculateDistance(trail.coordinates);
-        const time = "1:30:00";
+        const time = trail.time;
         const [hours, minutes, seconds] = time.split(":").map(Number);
-        const timeInMinutes = hours * 60 + minutes + seconds / 60;
-        const pace = timeInMinutes / distance;
-        const paceMinutes = Math.floor(pace);
-        const paceSeconds = Math.round((pace - paceMinutes) * 60);
+        const timeInHours = hours + minutes / 60 + seconds / 3600;
+        const pace = distance / timeInHours;
 
         return {
           ...trail,
           distance: distance,
           time,
-          pace: `${paceMinutes}:${paceSeconds.toString().padStart(2, "0")}/km`,
+          pace: `${pace.toFixed(2)} km/h`,
+          isOwned: true,
         };
       });
       setTrails(trailsWithStats);

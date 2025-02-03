@@ -4,10 +4,10 @@ import MapboxGL from '@rnmapbox/maps';
 import LocationPinIcon from '../../../src/assets/icons/location-pin-solid.svg';
 import FlagIcon from '../../../src/assets/icons/flag-checkered-solid.svg';
 import { calculateBounds } from '../../utils/trails/CalculateDistance';
-import { REACT_APP_MAPBOX_ACCESS_TOKEN } from '@env';
+import { PUBLIC_MAPBOX_ACCESS_TOKEN } from '@env';
 
 // Usuwamy import Mapbox i zostawiamy tylko MapboxGL
-MapboxGL.setAccessToken(REACT_APP_MAPBOX_ACCESS_TOKEN);
+MapboxGL.setAccessToken(PUBLIC_MAPBOX_ACCESS_TOKEN);
 
 const styles = StyleSheet.create({
   mapContainer: {

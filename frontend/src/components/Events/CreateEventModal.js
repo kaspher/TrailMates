@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { fetchUserTrails } from '../../services/trailsApi';
+import React, { useState, useEffect } from 'react';
+import { fetchPublicUserTrails } from '../../services/trailsApi';
 
 const CreateEventModal = ({ isOpen, onClose, onSubmit, user }) => {
   const defaultStartDate = new Date().toISOString();
@@ -15,11 +15,11 @@ const CreateEventModal = ({ isOpen, onClose, onSubmit, user }) => {
   });
   const [availableTrails, setAvailableTrails] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadTrails = async () => {
       if (isOpen && user?.id) {
         try {
-          const trails = await fetchUserTrails(user.id);
+          const trails = await fetchPublicUserTrails(user.id);
           setAvailableTrails(trails);
         } catch (error) {
           console.error('Wystąpił błąd podczas pobierania tras:', error);
@@ -137,7 +137,7 @@ const CreateEventModal = ({ isOpen, onClose, onSubmit, user }) => {
               <option value="">Wybierz trasę</option>
               {availableTrails.map(trail => (
                 <option key={trail.id} value={trail.id}>
-                  {trail.name} ({trail.distance}km)
+                  {trail.name}
                 </option>
               ))}
             </select>
