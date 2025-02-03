@@ -12,9 +12,10 @@ module.exports = function (api) {
       ['module:react-native-dotenv', {
         "moduleName": "@env",
         "path": ".env.local",
+        "blacklist": null,
+        "whitelist": null,
         "safe": false,
-        "allowUndefined": true,
-        "verbose": false
+        "allowUndefined": true
       }]
     ],
   };

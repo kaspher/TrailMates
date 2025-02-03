@@ -99,11 +99,6 @@ const Menu = () => {
       icon: () => <RouteIcon width={24} height={24} fill="#386641" />,
     },
     {
-      title: 'Osiągnięcia',
-      screen: 'Achievements',
-      icon: () => <TrophyIcon width={24} height={24} fill="#386641" />,
-    },
-    {
       title: 'Ustawienia',
       screen: 'Settings',
       icon: () => <SettingsIcon width={24} height={24} fill="#386641" />,
