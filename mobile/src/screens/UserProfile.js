@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
@@ -115,7 +115,8 @@ const UserProfile = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-light">
+    <View className="flex-1 bg-light">
+    <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1">
       <GoBackArrow title="Profil Użytkownika" />
       {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
       
@@ -174,6 +175,7 @@ const UserProfile = ({ navigation }) => {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </View>
   );
 };
 

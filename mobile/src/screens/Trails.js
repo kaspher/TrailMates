@@ -398,7 +398,7 @@ export default function Trails({ route, navigation }) {
           isTracking={isTracking}
           onStartTracking={handleStartTracking}
           onStopTracking={handleStopTracking}
-          onHelpPress={() => setAlertMessage('Funkcja pomocy będzie dostępna wkrótce')}
+          onHelpPress={() => setAlertMessage('Rozpocznij i zatrzymaj nagrywanie przyciskiem na środku dolnego panelu.')}
           onShowNearbyList={showNearbyList}
           isParticipating={isParticipating}
           onStopParticipating={handleEndParticipation}

@@ -41,12 +41,3 @@ export const validateRegisterInputs = (formData, setAlertMessage) => {
     setAlertMessage('Rejestracja udana!');
     return true;
   };
-
-  export const validateResetEmail = (email, setAlertMessage) => {
-    if (!email.includes('@')) {
-      setAlertMessage('Wprowadź poprawny adres e-mail.');
-      return false;
-    }
-    setAlertMessage('Instrukcja resetowania hasła została wysłana na podany adres e-mail.');
-    return true;
-  };

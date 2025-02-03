@@ -16,6 +16,66 @@ const TRAIL_TYPES = {
   'Biegowy': 'Running'
 };
 
+const TrailCard = ({ trail, onPress, onSharePress }) => (
+  <TouchableOpacity
+    className="bg-white mx-4 mb-4 rounded-2xl shadow-md overflow-hidden border border-gray-100"
+    onPress={onPress}
+  >
+    <View className="p-4">
+      <View className="flex-row justify-between items-start mb-3">
+        <Text className="text-lg font-bold text-gray-800 flex-1 mr-2">{trail.name}</Text>
+        <View className="flex-row items-center space-x-2">
+          {trail.visibility === 'Private' && (
+            <TouchableOpacity
+              onPress={() => onSharePress(trail)}
+              className="bg-emerald-50 p-2 rounded-full"
+            >
+              <ShareIcon width={18} height={18} fill="#059669" />
+            </TouchableOpacity>
+          )}
+          <View className={`px-3 py-1 rounded-full ${
+            trail.type === 'Cycling' ? 'bg-orange-50' :
+            trail.type === 'Trekking' ? 'bg-emerald-50' :
+            'bg-sky-50'
+          }`}>
+            <Text className={`text-xs font-medium ${
+              trail.type === 'Cycling' ? 'text-orange-600' :
+              trail.type === 'Trekking' ? 'text-emerald-600' :
+              'text-sky-600'
+            }`}>
+              {trail.type === 'Cycling' ? 'Rowerowa' :
+               trail.type === 'Trekking' ? 'Piesza' :
+               'Biegowa'}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Szczegóły trasy */}
+      <View className="space-y-2 mt-2">
+        <View className="flex-row justify-between items-center">
+          <Text className="text-gray-500 text-sm">Status</Text>
+          <View className={`px-3 py-1 rounded-full ${
+            trail.visibility === 'Private' ? 'bg-gray-50' : 'bg-emerald-50'
+          }`}>
+            <Text className={`text-xs font-medium ${
+              trail.visibility === 'Private' ? 'text-gray-600' : 'text-emerald-600'
+            }`}>
+              {trail.visibility === 'Private' ? 'Prywatna' : 'Publiczna'}
+            </Text>
+          </View>
+        </View>
+        <View className="flex-row justify-between items-center">
+          <Text className="text-gray-500 text-sm">Długość trasy</Text>
+          <Text className="text-gray-700 font-medium">
+            {formatDistance(calculateTotalDistance(trail.coordinates))}
+          </Text>
+        </View>
+      </View>
+    </View>
+  </TouchableOpacity>
+);
+
 const RecordedTrails = ({ navigation }) => {
   const [trails, setTrails] = useState([]);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -97,59 +157,27 @@ const RecordedTrails = ({ navigation }) => {
       <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1">
         <GoBackArrow title="Nagrane Trasy" />
         {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-        <View className="flex-1">
-          <ScrollView className="space-y-4">
-            {trails.map((trail) => (
-              <TouchableOpacity
-                key={trail.id}
-                className="bg-white p-4 rounded-xl shadow-md"
-                onPress={() => handleTrailPress(trail)}
-              >
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-lg font-bold text-primary">{trail.name}</Text>
-                  <View className="flex-row items-center">
-                    {trail.visibility === 'Private' && (
-                      <TouchableOpacity
-                        onPress={() => handleSharePress(trail)}
-                        className="bg-primary/10 p-2 rounded-full mr-2"
-                      >
-                        <ShareIcon width={20} height={20} fill="#386641" />
-                      </TouchableOpacity>
-                    )}
-                    <View className={`px-3 py-1 rounded-full ${
-                      trail.type === 'Cycling' ? 'bg-red-100' :
-                      trail.type === 'Trekking' ? 'bg-green-100' :
-                      'bg-blue-100'
-                    }`}>
-                      <Text className={`${
-                        trail.type === 'Cycling' ? 'text-red-700' :
-                        trail.type === 'Trekking' ? 'text-green-700' :
-                        'text-blue-700'
-                      }`}>
-                        {trail.type === 'Cycling' ? 'Rowerowa' :
-                         trail.type === 'Trekking' ? 'Piesza' :
-                         'Biegowa'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                <View className="space-y-2">
-                  <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Status:</Text>
-                    <Text className={trail.visibility === 'Private' ? 'text-gray-600' : 'text-primary'}>
-                      {trail.visibility === 'Private' ? 'Prywatna' : 'Publiczna'}
-                    </Text>
-                  </View>
-                  <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Długość trasy:</Text>
-                    <Text>{formatDistance(calculateTotalDistance(trail.coordinates))}</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        
+        <ScrollView 
+          className="flex-1 pt-4"
+          showsVerticalScrollIndicator={false}
+        >
+          {trails.map((trail) => (
+            <TrailCard
+              key={trail.id}
+              trail={trail}
+              onPress={() => handleTrailPress(trail)}
+              onSharePress={handleSharePress}
+            />
+          ))}
+          {trails.length === 0 && (
+            <View className="flex-1 justify-center items-center p-8">
+              <Text className="text-gray-500 text-center">
+                Nie masz jeszcze żadnych nagranych tras
+              </Text>
+            </View>
+          )}
+        </ScrollView>
       </SafeAreaView>
       <TrailShare 
         isVisible={isShareModalVisible}

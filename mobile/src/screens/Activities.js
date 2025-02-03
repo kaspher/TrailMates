@@ -8,6 +8,58 @@ import GoBackArrow from '../../src/utils/GoBackArrow';
 import { calculateTotalDistance, formatDistance } from '../../src/utils/trails/CalculateDistance';
 import { endpoints } from '../../config';
 
+const ActivityCard = ({ activity, onPress }) => (
+  <TouchableOpacity
+    className="bg-white mx-4 mb-4 rounded-2xl shadow-md overflow-hidden border border-gray-100"
+    onPress={onPress}
+  >
+    <View className="p-4">
+      <View className="flex-row justify-between items-start mb-3">
+        <Text className="text-lg font-bold text-gray-800 flex-1 mr-2">{activity.name}</Text>
+        <View className="flex-row items-center space-x-2">
+          {activity.visibility === 'Private' && (
+            <View className="bg-red-50 px-3 py-1 rounded-full">
+              <Text className="text-red-600 text-xs font-medium">
+                Prywatna
+              </Text>
+            </View>
+          )}
+          <View className={`px-3 py-1 rounded-full ${
+            activity.type === 'Cycling' ? 'bg-orange-50' :
+            activity.type === 'Trekking' ? 'bg-emerald-50' :
+            'bg-sky-50'
+          }`}>
+            <Text className={`text-xs font-medium ${
+              activity.type === 'Cycling' ? 'text-orange-600' :
+              activity.type === 'Trekking' ? 'text-emerald-600' :
+              'text-sky-600'
+            }`}>
+              {activity.type === 'Cycling' ? 'Rowerowa' :
+               activity.type === 'Trekking' ? 'Piesza' :
+               activity.type === 'Running' ? 'Biegowa' : ''}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View className="space-y-2 mt-2">
+        <View className="flex-row justify-between items-center">
+          <Text className="text-gray-500 text-sm">Długość trasy</Text>
+          <Text className="text-gray-700 font-medium">
+            {formatDistance(calculateTotalDistance(activity.coordinates))}
+          </Text>
+        </View>
+        {activity.type === 'completed' && (
+          <View className="flex-row justify-between items-center">
+            <Text className="text-gray-500 text-sm">Czas ukończenia</Text>
+            <Text className="text-gray-700 font-medium">{activity.completionTime}</Text>
+          </View>
+        )}
+      </View>
+    </View>
+  </TouchableOpacity>
+);
+
 const Activities = ({ navigation }) => {
   const [activities, setActivities] = useState([]);
   const [alertMessage, setAlertMessage] = useState(null);
@@ -47,7 +99,6 @@ const Activities = ({ navigation }) => {
         })),
         ...completedTrails
       ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      console.log('allActivities:', allActivities);
       setActivities(allActivities);
     } catch (error) {
       console.error('Błąd podczas pobierania aktywności:', error);
@@ -67,64 +118,30 @@ const Activities = ({ navigation }) => {
   };
 
   return (
-    <View className="flex-1 bg-light">
+    <View className="flex-1 bg-gray-50">
       <SafeAreaView edges={['right', 'left', 'bottom']} className="flex-1">
         <GoBackArrow title="Moje Aktywności" />
         {alertMessage && <Alert message={alertMessage} onClose={() => setAlertMessage(null)} />}
-        <View className="flex-1">
-          <ScrollView className="space-y-4">
-            {activities.map((activity, index) => (
-              <TouchableOpacity
-                key={index + 1}
-                className="bg-white p-4 rounded-xl shadow-md"
-                onPress={() => handleTrailPress(activity)}
-              >
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-lg font-bold text-primary">{activity.name}</Text>
-                  <View className="flex-row items-center space-x-2">
-                    {activity.visibility === 'Private' && (
-                      <View className="bg-red-100 px-3 py-1 rounded-full">
-                        <Text className="text-red-700 text-sm">
-                          Prywatna
-                        </Text>
-                      </View>
-                    )}
-                    <View className={`px-3 py-1 rounded-full ${
-                      activity.type === 'Cycling' ? 'bg-red-100' :
-                      activity.type === 'Trekking' ? 'bg-green-100' :
-                      'bg-blue-100'
-                    }`}>
-                      <Text className={`${
-                        activity.type === 'Cycling' ? 'text-red-700' :
-                        activity.type === 'Trekking' ? 'text-green-700' :
-                        'text-blue-700'
-                      }`}>
-                        {activity.type === 'Cycling' ? 'Rowerowa' :
-                         activity.type === 'Trekking' ? 'Piesza' :
-                         activity.type === 'Running' ? 'Biegowa' : ''}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                <View className="space-y-2">
-                  <View className="flex-row justify-between">
-                    <Text className="text-gray-600">Długość:</Text>
-                    <Text>
-                      {formatDistance(calculateTotalDistance(activity.coordinates))}
-                    </Text>
-                  </View>
-                  {activity.type === 'completed' && (
-                    <View className="flex-row justify-between">
-                      <Text className="text-gray-600">Czas ukończenia:</Text>
-                      <Text>{activity.completionTime}</Text>
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        
+        <ScrollView 
+          className="flex-1 pt-4"
+          showsVerticalScrollIndicator={false}
+        >
+          {activities.map((activity, index) => (
+            <ActivityCard
+              key={index}
+              activity={activity}
+              onPress={() => handleTrailPress(activity)}
+            />
+          ))}
+          {activities.length === 0 && (
+            <View className="flex-1 justify-center items-center p-8">
+              <Text className="text-gray-500 text-center">
+                Nie masz jeszcze żadnych aktywności
+              </Text>
+            </View>
+          )}
+        </ScrollView>
       </SafeAreaView>
     </View>
   );

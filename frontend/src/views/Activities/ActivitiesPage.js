@@ -137,8 +137,31 @@ const ActivitiesPage = () => {
     setIsPublishModalOpen(true);
   };
 
-  const handleEditModalClose = () => {
+  const handleEditModalClose = async () => {
     setIsEditModalOpen(false);
+    
+    try {
+      const trailsData = await fetchUserTrails(user.id);
+      const trailsWithStats = trailsData.map((trail) => {
+        const distance = calculateDistance(trail.coordinates);
+        const time = trail.time;
+        const [hours, minutes, seconds] = time.split(":").map(Number);
+        const timeInHours = hours + minutes / 60 + seconds / 3600;
+        const pace = distance / timeInHours;
+
+        return {
+          ...trail,
+          distance: distance,
+          time,
+          pace: `${pace.toFixed(2)} km/h`,
+          isOwned: true,
+        };
+      });
+
+      setTrails(trailsWithStats);
+    } catch (error) {
+      console.error("Error refreshing trails:", error);
+    }
     setSelectedTrail(null);
   };
 
