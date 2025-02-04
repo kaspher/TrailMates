@@ -78,6 +78,12 @@ Upewnij się, że masz zainstalowane następujące narzędzia i oprogramowanie:
 3. **Plik z sekretami dla Androida:**
    - W katalogu `/mobile/android` utwórz plik `secrets.properties` i dodaj odpowiednie dane konfiguracyjne (np. klucze API, hasła).
 
+     _Przykładowy plik konfiguracyjny secrets.properties (mobile/android):_
+     
+     ```javascript
+     MAPBOX_DOWNLOADS_TOKEN=sk.ey...
+     ```
+
 ---
 
 ## Uruchomienie projektu
