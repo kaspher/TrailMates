@@ -95,7 +95,7 @@ const Menu = () => {
       icon: () => <MapIcon width={24} height={24} fill="#386641" />,
     },
     {
-      title: 'Aktywności',
+      title: 'Moje aktywności',
       screen: 'Activities',
       icon: () => <RouteIcon width={24} height={24} fill="#386641" />,
     },

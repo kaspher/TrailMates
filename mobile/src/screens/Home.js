@@ -430,7 +430,7 @@ const Home = () => {
         }
       >
         <Text className="text-2xl font-bold text-dark my-4">
-          Aktywności
+          Blog
           </Text>
 
         {Array.isArray(activities) && activities.length > 0 ? (
