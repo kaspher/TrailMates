@@ -69,22 +69,23 @@ const EventCard = ({
       </p>
     </div>
     <div className="relative group">
-      <button
-        onClick={() =>
-          isUserJoined ? handleLeaveEvent(event.id) : handleJoinEvent(event.id)
-        }
-        disabled={event.status !== "Open"}
-        className={`absolute bottom-[-24px] right-0 py-2 px-4 rounded-lg flex items-center gap-2 ${
-          isUserJoined
-            ? "bg-red-600 text-white hover:bg-red-700"
-            : event.status !== "Open"
-            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-            : "bg-primary text-white hover:bg-hover-background"
-        }`}
-      >
-        {isUserJoined ? "Opuść" : "Dołącz"}
-        <FontAwesomeIcon icon={isUserJoined ? faSignOutAlt : faUserPlus} />
-      </button>
+      {event.status === "Open" && (
+        <button
+          onClick={() =>
+            isUserJoined
+              ? handleLeaveEvent(event.id)
+              : handleJoinEvent(event.id)
+          }
+          className={`absolute bottom-[-24px] right-0 py-2 px-4 rounded-lg flex items-center gap-2 ${
+            isUserJoined
+              ? "bg-red-600 text-white hover:bg-red-700"
+              : "bg-primary text-white hover:bg-hover-background"
+          }`}
+        >
+          {isUserJoined ? "Opuść" : "Dołącz"}
+          <FontAwesomeIcon icon={isUserJoined ? faSignOutAlt : faUserPlus} />
+        </button>
+      )}
       {event.status !== "Open" && (
         <span className="absolute right-0 bottom-[-60px] w-48 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity text-center">
           Nie można dołączyć (
