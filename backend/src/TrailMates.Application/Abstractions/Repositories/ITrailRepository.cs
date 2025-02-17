@@ -25,5 +25,6 @@ public interface ITrailRepository
     );
     Task Add(Trail trail);
     Task Update(Trail trail);
+    Task Delete(Trail trail);
     Task<UnitResult<Error>> UpdateVisibility(Guid trailId);
 }

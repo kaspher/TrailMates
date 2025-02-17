@@ -37,7 +37,7 @@ const EventCard = ({
       <p>
         <FontAwesomeIcon icon={faRoad} /> :{" "}
         <Link
-          to={`/trail/${event.trailId}`}
+          to={`/trails?trailId=${event.trailId}`}
           className="text-blue-500 underline hover:text-blue-700"
         >
           Szczegóły trasy

@@ -4,6 +4,7 @@ import {
   fetchUserTrails,
   getTrailById,
   fetchTrailCompletions,
+  deleteTrail,
 } from "../../services/trailsApi";
 import { getUserById } from "../../services/usersApi";
 import { calculateDistance } from "../../utils/trailsUtils";
@@ -14,6 +15,7 @@ import {
 import loadingGif from "../../assets/img/loading.gif";
 import PublishActivityModal from "../../components/Activities/PublishActivityModal";
 import EditTrailModal from "../../components/Activities/EditTrailModal";
+import DeleteTrailModal from "../../components/Activities/DeleteTrailModal";
 
 const ActivitiesPage = () => {
   const { user } = useAuth();
@@ -28,6 +30,9 @@ const ActivitiesPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [selectedTrail, setSelectedTrail] = useState(null);
+  const [deletingTrailId, setDeletingTrailId] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [trailToDelete, setTrailToDelete] = useState(null);
 
   useEffect(() => {
     const fetchAllTrails = async () => {
@@ -109,6 +114,14 @@ const ActivitiesPage = () => {
   const sortedTrails = [...filteredTrails].sort((a, b) => {
     if (!sortConfig.key) return 0;
 
+    if (sortConfig.key === "pace") {
+      const paceA = parseFloat(a.pace);
+      const paceB = parseFloat(b.pace);
+      return sortConfig.direction === "ascending"
+        ? paceA - paceB
+        : paceB - paceA;
+    }
+
     if (a[sortConfig.key] < b[sortConfig.key]) {
       return sortConfig.direction === "ascending" ? -1 : 1;
     }
@@ -139,7 +152,7 @@ const ActivitiesPage = () => {
 
   const handleEditModalClose = async () => {
     setIsEditModalOpen(false);
-    
+
     try {
       const trailsData = await fetchUserTrails(user.id);
       const trailsWithStats = trailsData.map((trail) => {
@@ -159,15 +172,49 @@ const ActivitiesPage = () => {
       });
 
       setTrails(trailsWithStats);
+
+      // Znajdź zaktualizowaną trasę i zaktualizuj selectedTrail
+      if (selectedTrail) {
+        const updatedTrail = trailsWithStats.find(
+          (t) => t.id === selectedTrail.id
+        );
+        if (updatedTrail) {
+          setSelectedTrail(updatedTrail);
+        }
+      }
     } catch (error) {
       console.error("Error refreshing trails:", error);
+      setSelectedTrail(null);
     }
-    setSelectedTrail(null);
   };
 
   const handlePublishModalClose = () => {
     setIsPublishModalOpen(false);
     setSelectedTrail(null);
+  };
+
+  const handleDelete = async (trail) => {
+    setTrailToDelete(trail);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setDeletingTrailId(trailToDelete.id);
+      await deleteTrail(trailToDelete.id);
+      setTrails(trails.filter((trail) => trail.id !== trailToDelete.id));
+    } catch (error) {
+      console.error("Error deleting trail:", error);
+    } finally {
+      setDeletingTrailId(null);
+      setIsDeleteModalOpen(false);
+      setTrailToDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setTrailToDelete(null);
   };
 
   return (
@@ -373,9 +420,10 @@ const ActivitiesPage = () => {
                                 }`}
                                 onClick={() => {
                                   if (trail.visibility === "Private") {
-                                    // handle delete
+                                    handleDelete(trail);
                                   }
                                 }}
+                                disabled={trail.visibility !== "Private"}
                               >
                                 Usuń
                               </button>
@@ -414,6 +462,13 @@ const ActivitiesPage = () => {
         isOpen={isPublishModalOpen}
         onClose={handlePublishModalClose}
         trail={selectedTrail}
+      />
+      <DeleteTrailModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        trailName={trailToDelete?.name}
+        isDeleting={deletingTrailId === trailToDelete?.id}
       />
     </div>
   );

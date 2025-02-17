@@ -363,7 +363,6 @@ const BlogPage = () => {
                     <div className="flex items-center space-x-2">
                       <span>{post.user.date}</span>
                       <span className="text-blue-500">#{post.type}</span>
-                      <span>{post.visibility}</span>
                       {post.isTrailCompletion && (
                         <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">
                           Kolejne przejście
