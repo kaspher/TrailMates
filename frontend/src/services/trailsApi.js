@@ -6,7 +6,7 @@ export const fetchTrails = async (bounds, filters) => {
 
   const { trailTypes } = filters;
   const activeTrailTypes = Object.entries(trailTypes)
-    .filter(([_, value]) => value) 
+    .filter(([_, value]) => value)
     .map(([key]) => key);
 
   const trailTypesQuery = activeTrailTypes
@@ -108,5 +108,22 @@ export const updateTrailVisibility = async (trailId) => {
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
+  }
+};
+
+export const deleteTrail = async (trailId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/trails/${trailId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error deleting trail:", error);
+    throw error;
   }
 };

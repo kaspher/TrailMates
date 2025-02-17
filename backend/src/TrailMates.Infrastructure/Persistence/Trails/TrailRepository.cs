@@ -92,6 +92,12 @@ public sealed class TrailRepository(CoreDbContext dbContext) : ITrailRepository
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task Delete(Trail trail)
+    {
+        _trails.Remove(trail);
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<UnitResult<Error>> UpdateVisibility(Guid trailId)
     {
         var trail = await _trails.FirstOrDefaultAsync(t => t.Id == trailId);

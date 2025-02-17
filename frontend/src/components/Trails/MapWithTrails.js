@@ -12,7 +12,7 @@ import TrailPanel from "./TrailPanel";
 import Filters from "../Trails/Filters";
 import TrailDetailsModal from "./TrailDetailsModal";
 
-const MapWithTrails = ({ trails, setTrails }) => {
+const MapWithTrails = ({ trails, setTrails, initialSelectedTrailId }) => {
   const mapContainerRef = useRef(null);
   const [map, setMap] = useState(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
@@ -301,6 +301,15 @@ const MapWithTrails = ({ trails, setTrails }) => {
   useEffect(() => {
     updateMapLayers();
   }, [map, trails, updateMapLayers]);
+
+  useEffect(() => {
+    if (initialSelectedTrailId && trails.length > 0 && !selectedTrail) {
+      const trail = trails.find((t) => t.id === initialSelectedTrailId);
+      if (trail) {
+        handleTrailClick(trail);
+      }
+    }
+  }, [initialSelectedTrailId, trails, selectedTrail, handleTrailClick]);
 
   const handleFilterChange = (newFilters) => {
     filtersRef.current = newFilters;

@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { FaImage } from "react-icons/fa";
+import { FaImage, FaShareAlt } from "react-icons/fa";
 import { useAuth } from "../../hooks/useAuth";
 import { createActivity } from "../../services/activitiesApi";
 import { updateTrailVisibility } from "../../services/trailsApi";
 import { useNavigate } from "react-router-dom";
 import loadingGif from "../../assets/img/loading.gif";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const PublishActivityModal = ({ isOpen, onClose, trail }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [publishWithPost, setPublishWithPost] = useState(trail?.visibility === "Public" || false);
+  const [publishWithPost, setPublishWithPost] = useState(
+    trail?.visibility === "Public" || false
+  );
 
   useEffect(() => {
     if (trail?.visibility === "Public") {
@@ -102,16 +106,34 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
       (formData.title.length < 1 || formData.description.length < 10));
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
+      <div className="bg-white rounded-lg p-8 w-full max-w-xl relative">
         {isLoading && (
-          <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50 rounded-lg">
             <img src={loadingGif} alt="Loading..." className="w-16 h-16" />
           </div>
         )}
-        <h2 className="text-2xl font-bold mb-4">Publikacja trasy</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          disabled={isLoading}
+        >
+          <FontAwesomeIcon icon={faTimes} className="text-xl" />
+        </button>
+
+        <div className="flex justify-center mb-6">
+          <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center">
+            <FaShareAlt className="text-green-600 text-2xl" />
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">
+          Publikacja trasy
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           {!isPublic && (
             <div className="flex items-center space-x-2 mb-4">
               <input
@@ -119,14 +141,16 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                 id="publishWithPost"
                 checked={publishWithPost}
                 onChange={(e) => {
-                  console.log("Checkbox changed to:", e.target.checked);
                   setPublishWithPost(e.target.checked);
                 }}
                 className="rounded border-gray-300 text-primary focus:ring-primary"
+                disabled={isLoading}
               />
               <label
                 htmlFor="publishWithPost"
-                className="text-sm font-medium text-gray-700"
+                className={`text-sm font-medium ${
+                  isLoading ? "text-gray-400" : "text-gray-700"
+                }`}
               >
                 Opublikuj z postem
               </label>
@@ -134,7 +158,11 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
           )}
 
           <div className={`transition-opacity duration-300 ${disabledClass}`}>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className={`block text-sm font-medium ${
+                isLoading ? "text-gray-400" : "text-gray-700"
+              }`}
+            >
               Tytuł
             </label>
             <input
@@ -143,9 +171,9 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
               required={publishWithPost || isPublic}
-              disabled={isDisabled}
+              disabled={isDisabled || isLoading}
             />
             <p
               className={`text-sm mt-1 ${
@@ -157,7 +185,11 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
           </div>
 
           <div className={`transition-opacity duration-300 ${disabledClass}`}>
-            <label className="block text-sm font-medium text-gray-700">
+            <label
+              className={`block text-sm font-medium ${
+                isLoading ? "text-gray-400" : "text-gray-700"
+              }`}
+            >
               Opis
             </label>
             <textarea
@@ -166,10 +198,10 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                 setFormData({ ...formData, description: e.target.value })
               }
               rows="4"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
               placeholder="Dodaj opis swojej aktywności..."
               required={publishWithPost || isPublic}
-              disabled={isDisabled}
+              disabled={isDisabled || isLoading}
             />
             <p
               className={`text-sm mt-1 ${
@@ -184,7 +216,11 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
           </div>
 
           <div className={`transition-opacity duration-300 ${disabledClass}`}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                isLoading ? "text-gray-400" : "text-gray-700"
+              }`}
+            >
               Zdjęcia
             </label>
             <div className="flex flex-wrap gap-4 mb-4">
@@ -198,18 +234,18 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 hover:bg-red-600"
-                    disabled={isDisabled}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 hover:bg-red-600 disabled:bg-gray-400"
+                    disabled={isDisabled || isLoading}
                   >
                     ×
                   </button>
                 </div>
               ))}
               <label
-                className={`flex items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg ${
-                  isDisabled
-                    ? "cursor-not-allowed"
-                    : "cursor-pointer hover:border-blue-500"
+                className={`flex items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg ${
+                  isDisabled || isLoading
+                    ? "border-gray-300 cursor-not-allowed"
+                    : "border-gray-300 cursor-pointer hover:border-blue-500"
                 }`}
               >
                 <input
@@ -218,11 +254,19 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
                   accept="image/*"
                   onChange={handleImageChange}
                   className="hidden"
-                  disabled={isDisabled}
+                  disabled={isDisabled || isLoading}
                 />
                 <div className="text-center">
-                  <FaImage className="mx-auto text-gray-400 text-2xl" />
-                  <span className="mt-2 block text-sm text-gray-600">
+                  <FaImage
+                    className={`mx-auto text-2xl ${
+                      isLoading ? "text-gray-300" : "text-gray-400"
+                    }`}
+                  />
+                  <span
+                    className={`mt-2 block text-sm ${
+                      isLoading ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     Dodaj zdjęcia
                   </span>
                 </div>
@@ -230,19 +274,23 @@ const PublishActivityModal = ({ isOpen, onClose, trail }) => {
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 mt-6">
+          <div className="flex justify-center space-x-4 mt-8">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium min-w-[120px] disabled:bg-gray-100 disabled:text-gray-400"
               disabled={isLoading}
             >
               Anuluj
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               disabled={isSubmitDisabled}
+              className={`px-6 py-3 rounded-lg transition-colors font-medium min-w-[120px] ${
+                isSubmitDisabled
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-green-600 text-white hover:bg-green-700"
+              }`}
             >
               {isLoading ? "Publikowanie..." : "Opublikuj"}
             </button>
